@@ -75,7 +75,7 @@ export function CountStat({ value, suffix = '', label, dots }: { value: number; 
       <div className="big" style={{ fontSize: '3.4rem', marginTop: '1.2rem' }}>{Math.round(n)}{suffix}</div>
       {dots ? (
         <div style={{ display: 'flex', gap: 6 }}>
-          {Array.from({ length: dots }, (_, i) => <i key={i} style={{ width: 14, height: 14, borderRadius: 4, background: seen ? '#fff' : '#262626', transition: `background .5s var(--ease) ${i * 110}ms` }} />)}
+          {Array.from({ length: dots }, (_, i) => <i key={i} style={{ width: 14, height: 14, borderRadius: 4, background: seen ? ['#ff5c5c','#ff8a4c','#ffb020','#d6c43a','#7bd88f','#34d399','#4dc3d8','#8fa8ff'][i % 8] : '#262626', transition: `background .5s var(--ease) ${i * 110}ms` }} />)}
         </div>
       ) : <div />}
       <div className="lbl">{label}</div>

@@ -27,7 +27,7 @@ function JobCard({ job, saved, onSave, onUnsave, idx = 0 }: { idx?: number; job:
           <span className="chip"><Icon name="pin" size={12} /> {job.location || job.country}</span>
           {job.workMode && <span className="chip">{MODES[job.workMode]}</span>}
           {job.level && <span className="chip">{LEVELS[job.level]}</span>}
-          <span className={`chip ${job.postedOn >= new Date().toISOString().slice(0, 10) ? 'accent' : ''}`}><Icon name="clock" size={12} /> {postedLabel(job.postedOn)}</span>
+          <span className={`chip ${job.postedOn >= new Date().toISOString().slice(0, 10) ? 'good' : ''}`}><Icon name="clock" size={12} /> {postedLabel(job.postedOn)}</span>
           {job.sample && <span className="chip warn">sample</span>}
         </div>
       </div>

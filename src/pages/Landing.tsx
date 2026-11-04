@@ -37,7 +37,7 @@ export default function Landing() {
           </div>
           <div style={{ borderTop: '1px solid var(--border)', padding: '1.6rem clamp(1rem, 4.5vw, 3.75rem)' }}>
             <div className={`rz-upload ${over ? 'over' : ''}`} role="button" tabIndex={0} onClick={start} onKeyDown={(e) => e.key === 'Enter' && start()} onDragOver={(e) => { e.preventDefault(); setOver(true) }} onDragLeave={() => setOver(false)} onDrop={(e) => { e.preventDefault(); setOver(false); start() }}>
-              <div className="ring" style={{ ['--p' as string]: 95, background: 'conic-gradient(#fff 95%, #262626 0)' }}><span>95</span></div>
+              <div className="ring" style={{ ['--p' as string]: 95, background: 'conic-gradient(#34d399 95%, #262626 0)' }}><span>95</span></div>
               <div className="txt"><u>Upload</u> or drop your resume to get started</div>
               <span className="btn">Score resume</span>
             </div>

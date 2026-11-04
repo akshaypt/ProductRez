@@ -37,7 +37,7 @@ export function useDemoReport(fixed: boolean[]): { bullets: string[]; report: Sc
   useEffect(() => setReport(scoreResume({ text: demoText(bullets), targetLevel: 'pm' }, new Date('2026-11-04'))), [fixed.join()]) // eslint-disable-line react-hooks/exhaustive-deps
   return { bullets, report }
 }
-export const impactColor = (n: number) => (n === 3 ? 'var(--green)' : n === 2 ? 'var(--text-2)' : n === 1 ? 'var(--text-3)' : 'var(--surface-3)')
+export const impactColor = (n: number) => (n === 3 ? 'var(--green)' : n === 2 ? 'var(--info)' : n === 1 ? 'var(--amber)' : 'var(--red)')
 export const bulletImpact = (t: string) => reviewBullet(t, 'experience', '', true).impact
 
 export function Tickets({ report, max = 3 }: { report: ScoreReport; max?: number }) {
@@ -69,7 +69,7 @@ export function JobsList({ country, saved, onSave, limit = 5 }: { country: 'all'
         <div className="aw-job" key={j[0] + j[1]} style={{ ['--i' as string]: i }}>
           <div className="aw-tile">{j[1][0]}</div>
           <div><div className="t">{j[0]}</div><small>{j[1]} · {j[2]}</small></div>
-          <span className={`chip ${j[4] === 'Today' ? 'accent' : ''}`}>{j[4]}</span>
+          <span className={`chip ${j[4] === 'Today' ? 'good' : ''}`}>{j[4]}</span>
           <button className={`tag ${saved.has(j[0] + j[1]) ? 'on' : ''}`} data-aw={i === 0 ? 'save0' : undefined} onClick={() => onSave(j[0] + j[1])} style={{ cursor: 'pointer' }}>{saved.has(j[0] + j[1]) ? 'Saved' : 'Save'}</button>
         </div>
       ))}

@@ -98,7 +98,7 @@ function LearnCard() {
         <div style={{ padding: '20px 20px 14px' }}>
           <div style={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-3)' }}>Guided path · 8 weeks</div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 4 }}><b style={{ fontSize: '1.5rem', fontWeight: 500, letterSpacing: '-0.035em', color: 'var(--text)' }}>Break into product management</b><span style={{ fontSize: '2.1rem', fontWeight: 500, letterSpacing: '-0.05em', color: 'var(--text)' }}>{pct}%</span></div>
-          <div style={{ height: 4, background: 'var(--surface-3)', borderRadius: 2, marginTop: 12, overflow: 'hidden' }}><i style={{ display: 'block', height: '100%', width: `${pct}%`, background: 'var(--ink)', transition: 'width .9s var(--ease)' }} /></div>
+          <div style={{ height: 4, background: 'var(--surface-3)', borderRadius: 2, marginTop: 12, overflow: 'hidden' }}><i style={{ display: 'block', height: '100%', width: `${pct}%`, background: 'var(--green)', transition: 'width .9s var(--ease)' }} /></div>
         </div>
         <PathList done={done} onToggle={(i) => setDone((d) => d.map((x, j) => (j === i ? !x : x)))} />
       </div>

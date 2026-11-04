@@ -132,7 +132,7 @@ function LearnPane({ cursor, stop, root }: PaneProps) {
       <div className="aw-card" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ padding: '16px 16px 12px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}><b style={{ fontSize: '1.2rem', fontWeight: 500, letterSpacing: '-0.03em', color: 'var(--text)' }}>Break into product management</b><span style={{ fontSize: '1.6rem', fontWeight: 500, letterSpacing: '-0.04em', color: 'var(--text)' }}>{pct}%</span></div>
-          <div style={{ height: 4, background: 'var(--surface-3)', borderRadius: 2, marginTop: 10, overflow: 'hidden' }}><i style={{ display: 'block', height: '100%', width: `${pct}%`, background: 'var(--ink)', transition: 'width .8s var(--ease)' }} /></div>
+          <div style={{ height: 4, background: 'var(--surface-3)', borderRadius: 2, marginTop: 10, overflow: 'hidden' }}><i style={{ display: 'block', height: '100%', width: `${pct}%`, background: 'var(--green)', transition: 'width .8s var(--ease)' }} /></div>
         </div>
         <PathList done={done} onToggle={(i) => tog(i)} />
       </div>

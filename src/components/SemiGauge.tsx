@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTween } from '../lib/useTween'
 
 const label = (n: number) => (n >= 85 ? 'Excellent' : n >= 70 ? 'Good' : n >= 50 ? 'Fair' : 'Needs work')
+const bandColor = (n: number) => (n >= 70 ? 'var(--green)' : n >= 50 ? 'var(--amber)' : 'var(--red)')
 
 /** Semicircle score gauge with a red → amber → green arc and a sliding marker. */
 export function SemiGauge({ value, size = 220, caption = true, decorative = false }: { value: number; size?: number; caption?: boolean; decorative?: boolean }) {
@@ -31,7 +32,7 @@ export function SemiGauge({ value, size = 220, caption = true, decorative = fals
       </svg>
       <div className="semi-num">
         <b>{shown}</b>
-        {caption && <span>{label(value)}</span>}
+        {caption && <span className="gband" style={{ color: bandColor(value) }}>{label(value)}</span>}
       </div>
       <div className="semi-ends"><span>0</span><span>100</span></div>
     </div>

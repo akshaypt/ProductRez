@@ -17,8 +17,8 @@ const FLAG_LABEL: Record<BulletFlag, string> = {
   buzzword: 'buzzword',
 }
 
-const barColor = (s: number) => (s >= 80 ? 'var(--green)' : s >= 62 ? 'var(--accent)' : s >= 42 ? 'var(--amber)' : 'var(--red)')
-const gradeColor = { ship: 'var(--green)', beta: 'var(--accent)', alpha: 'var(--amber)', prototype: 'var(--red)' }
+const barColor = (s: number) => (s >= 80 ? 'var(--green)' : s >= 62 ? 'var(--info)' : s >= 42 ? 'var(--amber)' : 'var(--red)')
+const gradeColor = { ship: 'var(--green)', beta: 'var(--info)', alpha: 'var(--amber)', prototype: 'var(--red)' }
 
 export function useCountUp(target: number, ms = 1100) {
   const [v, setV] = useState(0)
@@ -101,7 +101,7 @@ export function ReportView({ report, onFix, fixLabel = 'Fix this in the Writer' 
   return (
     <div className="report" data-testid="report">
       <aside className="summary">
-        <div className="card">
+        <div className="card" style={{ ['--gc' as string]: color }}>
           <div className="gauge" role="img" aria-label={`Overall score ${report.overall} out of 100`}><SemiGauge value={report.overall} size={250} decorative /></div>
           <div className="stamp" style={{ color }}>{report.gradeLabel}</div>
           <p style={{ marginTop: 6, fontSize: '0.93rem' }}>{report.headline}</p>

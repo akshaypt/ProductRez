@@ -71,9 +71,14 @@ export async function renderScoreCard(r: ScoreReport): Promise<Blob> {
   g.fillStyle = '#6e6e6e'
   g.font = `400 44px ${F}`
   g.fillText('/100', 68 + nw, 440)
+  const band = r.overall >= 85 ? '#34d399' : r.overall >= 68 ? '#8fa8ff' : r.overall >= 48 ? '#ffb020' : '#ff6b6b'
+  g.fillStyle = band
+  g.beginPath()
+  g.arc(78, 497, 8, 0, Math.PI * 2)
+  g.fill()
   g.fillStyle = '#fff'
   g.font = `500 40px ${F}`
-  g.fillText(r.gradeLabel.split('·')[0].trim(), 68, 508)
+  g.fillText(r.gradeLabel.split('·')[0].trim(), 100, 508)
 
   // dimension bars
   const x0 = 700
@@ -93,7 +98,7 @@ export async function renderScoreCard(r: ScoreReport): Promise<Blob> {
     rr(g, x0, y + 14, x1 - x0, 8, 4)
     g.fill()
     const v = Math.max(8, ((x1 - x0) * d.score) / 100)
-    g.fillStyle = `rgba(255,255,255,${0.45 + (d.score / 100) * 0.55})`
+    g.fillStyle = d.score >= 80 ? '#34d399' : d.score >= 62 ? '#8fa8ff' : d.score >= 42 ? '#ffb020' : '#ff6b6b'
     rr(g, x0, y + 14, v, 8, 4)
     g.fill()
   })
