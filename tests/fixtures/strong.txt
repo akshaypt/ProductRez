@@ -1,0 +1,25 @@
+Priya Nair
+Senior Product Manager · Payments & Fintech
+priya.nair@example.com | +1 (415) 555-0134 | San Francisco, CA | linkedin.com/in/priyanair
+
+Summary
+Senior PM who has scaled two B2B payments products from 0 to $40M ARR, with experience in experimentation, pricing and LLM-powered support automation.
+
+Experience
+Senior Product Manager, Stripe-like Co. (sample)    San Francisco, CA    Jan 2021 - Present
+• Owned the merchant onboarding roadmap across 3 squads; redesigned KYC flow after 40 customer interviews, lifting activation from 38% to 61% in two quarters
+• Launched usage-based pricing for 12,000 SMB accounts, adding $6.2M ARR and cutting churn from 5.1% to 3.8% through a 6-week A/B test
+• Defined the multi-year platform strategy with the CTO and CFO, prioritized API investments over a custom dashboard, and aligned 4 executive stakeholders
+• Hired and mentored 3 associate PMs; built the LLM-assisted support copilot that deflected 27% of tickets and saved $1.1M annually
+• Partnered with Sales to build the go-to-market plan for enterprise launch, closing 9 design partners before GA
+
+Product Manager, Hooli Labs    Mar 2018 - Dec 2020
+• Shipped a self-serve billing portal for 8,000 customers, reducing support tickets 35% in 90 days
+• Ran 14 experiments on checkout using Amplitude and SQL, improving conversion 12% (from 3.1% to 3.5%)
+• Negotiated scope with engineering to ship the MVP 5 weeks earlier
+
+Education
+B.S. Computer Science, UC Berkeley 2014 - 2018
+
+Skills
+Product: Roadmapping, A/B testing, Pricing, Discovery · Tools: SQL, Amplitude, Looker, Jira, Figma

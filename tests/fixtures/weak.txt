@@ -1,0 +1,22 @@
+Rahul Verma
+rahul.verma@example.com | +91 98765 43210 | Bengaluru, India
+
+Summary
+Results-driven team player and hard-working self-starter looking for a PM role in a fast-paced environment.
+
+Experience
+Product Associate, Acme Pay    Jan 2025 - Present
+• Responsible for managing the product backlog and working with developers
+• Helped the team with various tasks related to the payments product
+• Worked on new features for the mobile app and was involved in many meetings with stakeholders and other teams to make sure that everything was going well and that the product was moving forward in the right direction
+• Participated in sprint planning
+
+Business Analyst, Beta Corp    Jul 2024 - Dec 2024
+- Assisted in creating reports for the business team
+- Supported the product manager in documentation
+
+Education
+B.Tech Computer Science, NIT Trichy 2020 - 2024
+
+Skills
+Jira, Excel, SQL
