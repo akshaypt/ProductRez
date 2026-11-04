@@ -48,7 +48,7 @@ export function RzNav({ onHome = false }: { onHome?: boolean }) {
   return (
     <header className={`rz-nav ${hidden ? 'hidden' : ''} ${scrolled ? 'scrolled' : ''}`}>
       <div className="rz-frame">
-        <div className="rz-nav-in">
+        <nav className="rz-nav-in" aria-label="Primary">
           <div className="rz-links">
             <Link to="/" aria-label="ProductRez home" style={{ marginRight: '1.2rem' }}><Logo /></Link>
             <Dropdown label="Product" items={MENU} />
@@ -64,7 +64,7 @@ export function RzNav({ onHome = false }: { onHome?: boolean }) {
               </>
             )}
           </div>
-        </div>
+        </nav>
       </div>
     </header>
   )

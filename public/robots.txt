@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /account
+Disallow: /writer
+Disallow: /score
+Disallow: /jobs
+Disallow: /learn
+
+Sitemap: https://productrez.vercel.app/sitemap.xml

@@ -21,6 +21,7 @@ export default function Landing() {
     <div className={`rz ${reducedMotion() ? 'reduced' : ''}`}>
       <RzNav onHome />
 
+      <main id="main">
       {/* hero */}
       <section className="rz-sec dark" style={{ borderTop: 0 }}>
         <div className="rz-glow" />
@@ -93,6 +94,7 @@ export default function Landing() {
       <Pricing />
       <Faq />
       <CtaBand onStart={start} />
+      </main>
       <RzFooter />
       <AuthModal />
     </div>
