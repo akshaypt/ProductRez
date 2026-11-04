@@ -10,6 +10,7 @@ const P: Record<string, string> = {
   check: 'M4 12.5l5 5L20 6.5',
   plus: 'M12 5v14M5 12h14',
   x: 'M6 6l12 12M18 6L6 18',
+  menu: 'M4 7h16M4 12h16M4 17h16',
   upload: 'M12 16V4M7 9l5-5 5 5M4 20h16',
   download: 'M12 4v12M7 11l5 5 5-5M4 20h16',
   file: 'M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8zM14 3v5h5M9 13h6M9 17h6',

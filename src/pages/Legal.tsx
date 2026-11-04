@@ -19,7 +19,7 @@ export function Methodology() {
       <h2>The rubric</h2>
       <table>
         <thead><tr><th>Dimension</th><th>Weight</th><th>What we check</th></tr></thead>
-        <tbody>{rows.map(([a, b, c]) => <tr key={a}><td><b style={{ color: 'var(--text)' }}>{a}</b></td><td className="mono">{b}</td><td>{c}</td></tr>)}</tbody>
+        <tbody>{rows.map(([a, b, c]) => <tr key={a}><td data-l="Dimension"><b style={{ color: 'var(--text)' }}>{a}</b></td><td data-l="Weight" className="mono">{b}</td><td data-l="What we check">{c}</td></tr>)}</tbody>
       </table>
       <p>Every dimension is scored 0–100, weighted, and shown with the exact bullets that drove it. Scores above 82 are compressed slightly so that only exceptional resumes approach 100.</p>
       <h2>Fix backlog priorities</h2>

@@ -12,7 +12,7 @@ export function Logo({ size = 28 }: { size?: number }) {
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}>
       <LogoMark size={size} />
-      <span style={{ fontWeight: 650, fontSize: size * 0.6, letterSpacing: '-0.025em' }}>ProductRez</span>
+      <span className="logo-word" style={{ fontWeight: 650, fontSize: size * 0.6, letterSpacing: '-0.025em' }}>ProductRez</span>
     </span>
   )
 }

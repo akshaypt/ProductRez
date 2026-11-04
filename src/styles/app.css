@@ -538,3 +538,38 @@ button { font: inherit; color: inherit; }
 @media (max-width: 1000px) { .finish { grid-template-columns: minmax(0, 1fr); } }
 .finish > * { min-width: 0; }
 @media (max-width: 560px) { .ftool { gap: 0.5rem; padding: 0.5rem; } .ftool .seg { max-width: 100%; } }
+
+/* ---- responsive hardening ---- */
+.page > *, .stack > *, .grid2 > *, .field { min-width: 0; }
+.drop { padding: clamp(1.25rem, 5vw, 3.5rem); } .drop .big { font-size: clamp(1.15rem, 5.4vw, 1.5rem); overflow-wrap: anywhere; }
+.seg { max-width: 100%; }
+@media (max-width: 640px) {
+  .prose table, .prose tbody, .prose tr, .prose td { display: block; width: 100%; }
+  .prose thead { display: none; }
+  .prose table { border: 0 !important; margin: 0; }
+  .prose tr { border: 1px solid var(--border); border-radius: 12px; padding: 0.4rem 0.9rem; margin: 0 0 0.7rem; background: var(--surface); }
+  .prose td { border: 0 !important; padding: 0.35rem 0; }
+  .prose td[data-l]::before { content: attr(data-l); display: block; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 2px; }
+}
+/* touch: every control gets a comfortable hit area (>=40px) without changing the desktop look */
+@media (pointer: coarse) {
+  .seg button { min-height: 40px; height: auto; padding-top: 0.3rem; padding-bottom: 0.3rem; }
+  .chip.btnish, button.chip, a.chip, .tag[role], button.tag { min-height: 40px; }
+  .btn.sm, .btn:not(.lg) { min-height: 42px; }
+  .topic, .cat, .filters button, .fchips button { min-height: 40px; }
+  .page-head .chip, .mhead .chip { min-height: 32px; }
+  .icon-btn, .x, button[aria-label] { min-width: 40px; min-height: 40px; }
+  .mini-job button, .job button, .res button, .res .btn { min-height: 40px; }
+}
+@media (max-width: 860px) {
+  .topbar a[href="/account"].chip { min-height: 40px; min-width: 52px; justify-content: center; }
+  .topbar a[aria-label] { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin: -6px 0 -6px -6px; }
+}
+.grid2 .btn { white-space: normal; height: auto; min-height: 44px; text-align: left; justify-content: flex-start; }
+@media (pointer: coarse) { .res h3 a { display: inline-block; padding: 10px 0; margin: -10px 0; } }
+.semi { max-width: 100%; }
+.summary { grid-template-columns: minmax(0, 1fr); }
+.report, .report > * { min-width: 0; }
+@media (max-width: 400px) { .semi-num b { font-size: 2.6rem; } }
+/* iOS zooms the page when a focused field is under 16px: keep fields at 16px on touch screens */
+@media (pointer: coarse) { input, select, textarea, .input, .textarea, .select { font-size: 16px !important; } }

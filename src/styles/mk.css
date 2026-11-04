@@ -245,3 +245,21 @@ html, body { overflow-x: clip; }
   .aw-job .chip, .aw-job .tag { display: none; }
   .aw-job .t { font-size: 0.88rem; }
 }
+
+/* ---- mobile navigation sheet ---- */
+.rz-burger { display: none; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 999px; border: 1px solid #2a2a2a; background: transparent; color: #fff; cursor: pointer; }
+.rz-sheet { position: fixed; inset: 66px 0 0 0; z-index: 60; background: #000; overflow-y: auto; border-top: 1px solid #1f1f1f; animation: sheetIn .28s var(--ease) both; }
+@keyframes sheetIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+.rz-sheet-in { padding: 0.5rem 1.25rem 2rem; display: grid; gap: 4px; max-width: 560px; margin: 0 auto; }
+.rz-sheet-h { margin: 1.1rem 0 0.2rem; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: #a8a8a8; }
+.rz-sheet a { display: grid; grid-template-columns: 40px 1fr; gap: 0.9rem; align-items: center; padding: 0.7rem 0.6rem; border-radius: 14px; text-decoration: none; color: #fff; min-height: 56px; }
+.rz-sheet a:active, .rz-sheet a:hover { background: #151515; }
+.rz-sheet a .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: #1c1c1c; border: 1px solid #2a2a2a; }
+.rz-sheet a b { display: block; font-weight: 500; font-size: 1.02rem; } .rz-sheet a small { color: #b0b0b0; font-size: 0.85rem; }
+.rz-sheet-cta { display: grid; gap: 10px; margin-top: 1.4rem; }
+@media (max-width: 860px) { .rz-burger { display: inline-flex; } }
+@media (max-width: 480px) { .rz-login { display: none !important; } .rz-nav-in { padding: 0 1rem; } }
+@media (max-width: 380px) { .rz-nav .logo-word { display: none; } .rz-links a[aria-label] { margin-right: 0 !important; } }
+.ats-body > *, .ats-doc, .ats-out, .ats-paper { min-width: 0; }
+@media (max-width: 860px) { .ats-body { grid-template-columns: minmax(0, 1fr); } .ats-doc { padding-left: 14px; padding-right: 14px; } .ats-paper { max-width: 100%; } }
+@media (max-width: 480px) { .ats-out { padding: 1.1rem 1rem; } .ats-top { flex-wrap: wrap; } .fld { grid-template-columns: 22px 84px minmax(0, 1fr); gap: 8px; font-size: 0.85rem; } .fld span { min-width: 0; overflow-wrap: anywhere; } }

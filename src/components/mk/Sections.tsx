@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { createPortal } from 'react-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { TEMPLATES } from '@latex'
 import { Icon, type IconName } from '../Icon'
 import { Logo } from '../Logo'
@@ -45,6 +46,17 @@ export function RzNav({ onHome = false }: { onHome?: boolean }) {
   const { user, ready, openAuth } = useApp()
   const { hidden, scrolled } = useScrollDirection()
   const h = (id: string) => (onHome ? `#${id}` : `/#${id}`)
+  const [sheet, setSheet] = useState(false)
+  const loc = useLocation()
+  useEffect(() => setSheet(false), [loc.pathname, loc.hash])
+  useEffect(() => {
+    if (!sheet) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setSheet(false)
+    window.addEventListener('keydown', onKey)
+    return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey) }
+  }, [sheet])
   return (
     <header className={`rz-nav ${hidden ? 'hidden' : ''} ${scrolled ? 'scrolled' : ''}`}>
       <div className="rz-frame">
@@ -56,15 +68,35 @@ export function RzNav({ onHome = false }: { onHome?: boolean }) {
             <Dropdown label="Resources" items={RES} />
             <a className="rz-link" href={h('pricing')}>Pricing</a>
           </div>
-          <div className="row" style={{ gap: '0.4rem' }}>
+          <div className="row" style={{ gap: '0.4rem', flexWrap: 'nowrap' }}>
             {ready && user ? <Link className="btn" to="/score">Open app</Link> : (
               <>
-                <button className="rz-link" onClick={() => openAuth()}>Login</button>
+                <button className="rz-link rz-login" onClick={() => openAuth()}>Login</button>
                 <button className="btn" onClick={() => openAuth('Create a free account. Your first resume score is on us.')}>Try for free</button>
               </>
             )}
+            <button className="rz-burger" aria-label={sheet ? 'Close menu' : 'Open menu'} aria-expanded={sheet} aria-controls="rz-sheet" onClick={() => setSheet((v) => !v)}><Icon name={sheet ? 'x' : 'menu'} size={22} /></button>
           </div>
         </nav>
+        {sheet && createPortal(
+          <div className="rz-sheet" id="rz-sheet">
+            <div className="rz-sheet-in">
+              <p className="rz-sheet-h">Product</p>
+              {MENU.map((m) => <Link key={m.to} to={m.to} onClick={() => setSheet(false)}><span className="ic"><Icon name={m.icon} size={20} /></span><span><b>{m.t}</b><small>{m.d}</small></span></Link>)}
+              <p className="rz-sheet-h">Explore</p>
+              <a href={h('templates')} onClick={() => setSheet(false)}><span className="ic"><Icon name="layout" size={20} /></span><span><b>Templates</b><small>Six ATS-safe LaTeX designs</small></span></a>
+              <a href={h('pricing')} onClick={() => setSheet(false)}><span className="ic"><Icon name="zap" size={20} /></span><span><b>Pricing</b><small>From ₹299, or ₹999 for life</small></span></a>
+              {RES.map((m) => <Link key={m.to} to={m.to} onClick={() => setSheet(false)}><span className="ic"><Icon name={m.icon} size={20} /></span><span><b>{m.t}</b><small>{m.d}</small></span></Link>)}
+              {!(ready && user) && (
+                <div className="rz-sheet-cta">
+                  <button className="btn lg block" onClick={() => { setSheet(false); openAuth('Create a free account. Your first resume score is on us.') }}>Try for free</button>
+                  <button className="btn ghost lg block" onClick={() => { setSheet(false); openAuth() }}>Login</button>
+                </div>
+              )}
+            </div>
+          </div>,
+          document.body,
+        )}
       </div>
     </header>
   )

@@ -12,7 +12,8 @@
     "jobs:scrape": "node scripts/scrape-jobs.ts",
     "resources:check": "node scripts/check-resources.ts",
     "seed:gen": "node scripts/gen-seed.ts",
-    "e2e": "node tests/e2e/journey.cjs"
+    "e2e": "node tests/e2e/journey.cjs",
+    "e2e:responsive": "node tests/e2e/responsive.cjs"
   },
   "dependencies": {
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",
