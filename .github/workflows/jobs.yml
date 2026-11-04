@@ -1,0 +1,19 @@
+name: Daily PM jobs drop
+on:
+  schedule:
+    - cron: '30 1 * * *' # 01:30 UTC = 07:00 AM IST, ready for the Indian morning
+  workflow_dispatch: {}
+concurrency: jobs-drop
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22.x' }
+      - name: Collect, upsert and purge
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/scrape-jobs.ts

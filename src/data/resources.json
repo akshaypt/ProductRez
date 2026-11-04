@@ -1,0 +1,1163 @@
+{
+ "resources": [
+  {
+   "id": "v-pm101",
+   "title": "Product Management 101: Everything You Need to Know (Full Course)",
+   "url": "https://www.youtube.com/watch?v=5nAeyqNuZYU",
+   "source": "Explained Hub",
+   "kind": "video",
+   "topics": [
+    "start"
+   ],
+   "level": "beginner",
+   "minutes": null,
+   "why": "A single-sitting overview of what PMs do day to day. Watch it first so the rest of your learning has a map."
+  },
+  {
+   "id": "v-leland-consulting",
+   "title": "How to Transition Into Product Management from Consulting",
+   "url": "https://www.youtube.com/watch?v=i6f0NnvuRKw",
+   "source": "Leland",
+   "kind": "video",
+   "topics": [
+    "start",
+    "career"
+   ],
+   "level": "beginner",
+   "minutes": null,
+   "why": "Concrete framing for turning consulting experience into PM evidence. Useful for any analyst-type background too."
+  },
+  {
+   "id": "v-mc-cara",
+   "title": "Consulting to Product Management: How Cara Made the Transition",
+   "url": "https://www.youtube.com/watch?v=h9Zy_f21Zns",
+   "source": "Management Consulted",
+   "kind": "video",
+   "topics": [
+    "start",
+    "career"
+   ],
+   "level": "beginner",
+   "minutes": null,
+   "why": "A real transition story, which helps you see the sequence of steps beyond generic advice."
+  },
+  {
+   "id": "v-neel-aipm",
+   "title": "I Quit Software Engineering to Become an AI PM. Here’s How",
+   "url": "https://www.youtube.com/watch?v=V-UkqGW6Pg0",
+   "source": "Neel Sikdar",
+   "kind": "video",
+   "topics": [
+    "start",
+    "ai"
+   ],
+   "level": "beginner",
+   "minutes": null,
+   "why": "An engineer-to-AI-PM account with a roadmap. Treat it as one person’s path, not a universal recipe."
+  },
+  {
+   "id": "a-ycl",
+   "title": "Y Combinator Startup Library",
+   "url": "https://www.ycombinator.com/library",
+   "source": "Y Combinator",
+   "kind": "article",
+   "topics": [
+    "start",
+    "strategy"
+   ],
+   "level": "beginner",
+   "minutes": null,
+   "why": "Short, practical essays and videos on building products people want. Great for the founder-minded product habits."
+  },
+  {
+   "id": "c-uva",
+   "title": "Digital Product Management: Modern Fundamentals",
+   "url": "https://www.coursera.org/learn/uva-darden-digital-product-management",
+   "source": "Coursera · UVA Darden",
+   "kind": "course",
+   "topics": [
+    "start"
+   ],
+   "level": "beginner",
+   "minutes": 900,
+   "why": "A structured, university-backed intro with graded exercises. Audit it for free, pay only if you want the certificate."
+  },
+  {
+   "id": "c-reforge",
+   "title": "Reforge Courses",
+   "url": "https://www.reforge.com/courses",
+   "source": "Reforge",
+   "kind": "course",
+   "topics": [
+    "strategy",
+    "career",
+    "data"
+   ],
+   "level": "advanced",
+   "minutes": null,
+   "why": "Operator-taught programs on growth, strategy and product leadership. Best once you have a year or two of PM experience."
+  },
+  {
+   "id": "t-productschool",
+   "title": "Product School Resources",
+   "url": "https://productschool.com/resources",
+   "source": "Product School",
+   "kind": "article",
+   "topics": [
+    "start",
+    "career"
+   ],
+   "level": "beginner",
+   "minutes": null,
+   "why": "A large library of guides, templates and talks. Use search; it’s a library, not a path."
+  },
+  {
+   "id": "b-chd",
+   "title": "Continuous Discovery Habits",
+   "url": "https://www.producttalk.org/continuous-discovery-habits/",
+   "source": "Teresa Torres · Product Talk",
+   "kind": "book",
+   "topics": [
+    "discovery",
+    "sense"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "The most practical book on weekly customer touchpoints and opportunity solution trees. Directly usable at work and in interviews."
+  },
+  {
+   "id": "v-lenny-teresa",
+   "title": "Build Better Products with Continuous Product Discovery",
+   "url": "https://www.youtube.com/watch?v=9RFaz9ZBXpk",
+   "source": "Lenny's Podcast",
+   "kind": "video",
+   "topics": [
+    "discovery"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "Teresa Torres explains continuous discovery in conversation. A gentler on-ramp to the book."
+  },
+  {
+   "id": "b-momtest",
+   "title": "The Mom Test",
+   "url": "https://www.momtestbook.com/",
+   "source": "Rob Fitzpatrick",
+   "kind": "book",
+   "topics": [
+    "discovery",
+    "start"
+   ],
+   "level": "beginner",
+   "minutes": null,
+   "why": "Short and sharp: how to ask customer questions that don’t produce polite lies. Fixes most beginner interview mistakes."
+  },
+  {
+   "id": "a-jtbd",
+   "title": "Know Your Customers’ “Jobs to Be Done”",
+   "url": "https://hbr.org/2016/09/know-your-customers-jobs-to-be-done",
+   "source": "Harvard Business Review",
+   "kind": "article",
+   "topics": [
+    "discovery",
+    "strategy"
+   ],
+   "level": "intermediate",
+   "minutes": 15,
+   "why": "The canonical article on the jobs-to-be-done lens. Pairs well with customer-interview practice."
+  },
+  {
+   "id": "a-nng-ux",
+   "title": "UX Research Cheat Sheet",
+   "url": "https://www.nngroup.com/articles/ux-research-cheat-sheet/",
+   "source": "Nielsen Norman Group",
+   "kind": "article",
+   "topics": [
+    "discovery",
+    "sense"
+   ],
+   "level": "beginner",
+   "minutes": 10,
+   "why": "Which research method to use at which stage. Handy when an interviewer asks how you would validate an idea."
+  },
+  {
+   "id": "b-inspired",
+   "title": "Inspired: How to Create Tech Products Customers Love",
+   "url": "https://www.svpg.com/books/inspired-how-to-create-tech-products-customers-love-2nd-edition/",
+   "source": "Marty Cagan · SVPG",
+   "kind": "book",
+   "topics": [
+    "start",
+    "strategy",
+    "discovery"
+   ],
+   "level": "beginner",
+   "minutes": null,
+   "why": "The foundational book on modern product teams. Read it to learn the vocabulary every PM interviewer assumes."
+  },
+  {
+   "id": "b-empowered",
+   "title": "Empowered: Ordinary People, Extraordinary Products",
+   "url": "https://www.svpg.com/books/empowered-ordinary-people-extraordinary-products/",
+   "source": "Marty Cagan · SVPG",
+   "kind": "book",
+   "topics": [
+    "strategy",
+    "career"
+   ],
+   "level": "advanced",
+   "minutes": null,
+   "why": "About leading product teams and what good product leadership looks like. A strong Senior+ read."
+  },
+  {
+   "id": "n-svpg",
+   "title": "SVPG Articles",
+   "url": "https://www.svpg.com/articles/",
+   "source": "Silicon Valley Product Group",
+   "kind": "newsletter",
+   "topics": [
+    "strategy",
+    "career"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "Short opinionated essays on product teams, roadmaps and leadership. Read a handful to absorb the point of view."
+  },
+  {
+   "id": "v-lenny-cagan",
+   "title": "Marty Cagan: Strong Opinions, Loosely Held",
+   "url": "https://www.youtube.com/watch?v=fF3lkTCM5-c",
+   "source": "Lenny's Podcast",
+   "kind": "video",
+   "topics": [
+    "strategy",
+    "career"
+   ],
+   "level": "advanced",
+   "minutes": null,
+   "why": "Marty Cagan on product practice, with strong views worth knowing even where you disagree."
+  },
+  {
+   "id": "v-harry-cagan",
+   "title": "Is Shreyas Doshi Right About Avoiding “Process People”?",
+   "url": "https://www.youtube.com/watch?v=2t7Z4Hea7U8",
+   "source": "20VC with Harry Stebbings",
+   "kind": "video",
+   "topics": [
+    "strategy",
+    "career"
+   ],
+   "level": "advanced",
+   "minutes": null,
+   "why": "A debate on product process vs. judgement. Good fuel for strategy and culture questions."
+  },
+  {
+   "id": "a-int-rice",
+   "title": "RICE: Simple Prioritization for Product Managers",
+   "url": "https://www.intercom.com/blog/rice-simple-prioritization-for-product-managers/",
+   "source": "Intercom",
+   "kind": "article",
+   "topics": [
+    "exec",
+    "strategy"
+   ],
+   "level": "beginner",
+   "minutes": 8,
+   "why": "The standard explanation of RICE scoring. Know it cold, and also know when not to use it."
+  },
+  {
+   "id": "t-productplan",
+   "title": "Product Roadmap: Learn Guide",
+   "url": "https://www.productplan.com/learn/product-roadmap/",
+   "source": "ProductPlan",
+   "kind": "article",
+   "topics": [
+    "exec",
+    "strategy"
+   ],
+   "level": "beginner",
+   "minutes": 15,
+   "why": "A plain-English walkthrough of what a roadmap is and the formats you’ll see in real companies."
+  },
+  {
+   "id": "a-aha-roadmap",
+   "title": "Roadmapping Guide",
+   "url": "https://www.aha.io/roadmapping/guide",
+   "source": "Aha!",
+   "kind": "article",
+   "topics": [
+    "exec",
+    "strategy"
+   ],
+   "level": "intermediate",
+   "minutes": 20,
+   "why": "A more detailed roadmapping guide with formats and stakeholder views."
+  },
+  {
+   "id": "t-atlassian-prd",
+   "title": "Product Requirements Documents (PRDs)",
+   "url": "https://www.atlassian.com/agile/product-management/requirements",
+   "source": "Atlassian",
+   "kind": "template",
+   "topics": [
+    "exec"
+   ],
+   "level": "beginner",
+   "minutes": 12,
+   "why": "A clear PRD structure with a template to start from. Adapt it, don’t copy it."
+  },
+  {
+   "id": "b-intercom-pm",
+   "title": "Intercom on Product Management",
+   "url": "https://www.intercom.com/resources/books/intercom-product-management",
+   "source": "Intercom",
+   "kind": "book",
+   "topics": [
+    "exec",
+    "strategy",
+    "start"
+   ],
+   "level": "beginner",
+   "minutes": null,
+   "why": "A free ebook of practical lessons from a well-known product company. Good for execution habits."
+  },
+  {
+   "id": "a-aggregation",
+   "title": "Aggregation Theory",
+   "url": "https://stratechery.com/2015/aggregation-theory/",
+   "source": "Ben Thompson · Stratechery",
+   "kind": "article",
+   "topics": [
+    "strategy"
+   ],
+   "level": "intermediate",
+   "minutes": 20,
+   "why": "A widely used lens for why some consumer platforms win. Useful vocabulary for strategy questions."
+  },
+  {
+   "id": "n-gibson",
+   "title": "Gibson Biddle: Product Strategy",
+   "url": "https://gibsonbiddle.substack.com/",
+   "source": "Gibson Biddle",
+   "kind": "newsletter",
+   "topics": [
+    "strategy",
+    "career"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "Lessons from a former Netflix and Chegg product leader on strategy and goals."
+  },
+  {
+   "id": "n-looking-glass",
+   "title": "The Looking Glass",
+   "url": "https://lg.substack.com/",
+   "source": "Julie Zhuo",
+   "kind": "newsletter",
+   "topics": [
+    "career",
+    "strategy"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "Writing on product design and management from a former Facebook design leader. Great on leading people."
+  },
+  {
+   "id": "n-firstround",
+   "title": "First Round Review",
+   "url": "https://review.firstround.com/",
+   "source": "First Round Capital",
+   "kind": "newsletter",
+   "topics": [
+    "career",
+    "strategy",
+    "start"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "Long-form interviews with operators. Search “product” for deep, quotable material."
+  },
+  {
+   "id": "n-casey",
+   "title": "Casey Winters",
+   "url": "https://caseyaccidental.com/",
+   "source": "Casey Winters",
+   "kind": "newsletter",
+   "topics": [
+    "strategy",
+    "career"
+   ],
+   "level": "advanced",
+   "minutes": null,
+   "why": "Growth and product leadership essays from an experienced operator."
+  },
+  {
+   "id": "a-reforge-pmf",
+   "title": "Product-Market Fit Guide",
+   "url": "https://www.reforge.com/blog/product-market-fit-guide",
+   "source": "Reforge",
+   "kind": "article",
+   "topics": [
+    "strategy"
+   ],
+   "level": "intermediate",
+   "minutes": 20,
+   "why": "A structured way to think about finding and measuring product-market fit."
+  },
+  {
+   "id": "t-sqlbolt",
+   "title": "SQLBolt",
+   "url": "https://sqlbolt.com/",
+   "source": "SQLBolt",
+   "kind": "tool",
+   "topics": [
+    "data"
+   ],
+   "level": "beginner",
+   "minutes": 180,
+   "why": "Interactive SQL lessons you can finish in a weekend. Enough SQL for most PM data questions."
+  },
+  {
+   "id": "t-mode-sql",
+   "title": "SQL Tutorial for Data Analysis",
+   "url": "https://mode.com/sql-tutorial/",
+   "source": "Mode",
+   "kind": "course",
+   "topics": [
+    "data"
+   ],
+   "level": "intermediate",
+   "minutes": 240,
+   "why": "A more analysis-oriented SQL tutorial. Follow SQLBolt with this for joins, windows and real analyses."
+  },
+  {
+   "id": "b-ttoce",
+   "title": "Trustworthy Online Controlled Experiments",
+   "url": "https://experimentguide.com/",
+   "source": "Kohavi, Tang & Xu",
+   "kind": "book",
+   "topics": [
+    "data"
+   ],
+   "level": "advanced",
+   "minutes": null,
+   "why": "The reference book on A/B testing at scale. Dense, but it separates serious experimenters from the rest."
+  },
+  {
+   "id": "t-evan-miller",
+   "title": "Sample Size Calculator for A/B Tests",
+   "url": "https://www.evanmiller.org/ab-testing/sample-size.html",
+   "source": "Evan Miller",
+   "kind": "tool",
+   "topics": [
+    "data"
+   ],
+   "level": "intermediate",
+   "minutes": 5,
+   "why": "A calculator you can use in the interview itself to reason about how long a test must run."
+  },
+  {
+   "id": "b-northstar",
+   "title": "The North Star Playbook",
+   "url": "https://amplitude.com/books/north-star",
+   "source": "Amplitude",
+   "kind": "book",
+   "topics": [
+    "data",
+    "strategy"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "How to choose a north-star metric and the input metrics beneath it. Directly useful for metrics interview questions."
+  },
+  {
+   "id": "n-amp-blog",
+   "title": "Amplitude Blog",
+   "url": "https://amplitude.com/blog",
+   "source": "Amplitude",
+   "kind": "article",
+   "topics": [
+    "data"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "Product analytics articles on retention, funnels and experimentation. Browse by topic."
+  },
+  {
+   "id": "c-aiforall",
+   "title": "AI for Everyone",
+   "url": "https://www.coursera.org/learn/ai-for-everyone",
+   "source": "Coursera · DeepLearning.AI",
+   "kind": "course",
+   "topics": [
+    "ai",
+    "start"
+   ],
+   "level": "beginner",
+   "minutes": 360,
+   "why": "A non-technical introduction to what AI can and can’t do. A good first step before specialist AI PM material."
+  },
+  {
+   "id": "a-rules-of-ml",
+   "title": "Rules of Machine Learning",
+   "url": "https://developers.google.com/machine-learning/guides/rules-of-ml",
+   "source": "Google",
+   "kind": "article",
+   "topics": [
+    "ai",
+    "tech"
+   ],
+   "level": "intermediate",
+   "minutes": 60,
+   "why": "Google’s best-practice guide for ML products. Teaches the product-side judgement behind ML projects."
+  },
+  {
+   "id": "a-pair",
+   "title": "People + AI Guidebook",
+   "url": "https://pair.withgoogle.com/guidebook/",
+   "source": "Google PAIR",
+   "kind": "article",
+   "topics": [
+    "ai",
+    "sense"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "Design and product patterns for AI features: trust, feedback, error handling. Great for AI product sense."
+  },
+  {
+   "id": "a-hamel-evals",
+   "title": "Your AI Product Needs Evals",
+   "url": "https://hamel.dev/blog/posts/evals/",
+   "source": "Hamel Husain",
+   "kind": "article",
+   "topics": [
+    "ai"
+   ],
+   "level": "intermediate",
+   "minutes": 25,
+   "why": "The clearest practical write-up on testing LLM features. Evals are becoming a core PM skill."
+  },
+  {
+   "id": "v-lenny-evals",
+   "title": "Why AI Evals Are the Hottest New Skill for Product Builders",
+   "url": "https://www.youtube.com/watch?v=BsWxPI9UM4c",
+   "source": "Lenny's Podcast",
+   "kind": "video",
+   "topics": [
+    "ai"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "Hamel Husain and Shreya Shankar on how to evaluate AI products. Pairs with the written guide above."
+  },
+  {
+   "id": "v-aakash-evals",
+   "title": "The Most Important New Skill for PMs in 2026: AI Evals Masterclass",
+   "url": "https://www.youtube.com/watch?v=Raa3qjEBvKE",
+   "source": "Aakash Gupta",
+   "kind": "video",
+   "topics": [
+    "ai"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "A PM-oriented walkthrough of AI evals. Good for seeing what this looks like in a product role."
+  },
+  {
+   "id": "v-evals-teresa",
+   "title": "From Noob to Automated Evals in a Week (as a PM)",
+   "url": "https://www.youtube.com/watch?v=N-qAOv_PNPc",
+   "source": "Hamel Husain",
+   "kind": "video",
+   "topics": [
+    "ai"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "Teresa Torres learns evals as a PM, so the learning curve is visible. Reassuring for non-engineers."
+  },
+  {
+   "id": "v-hellopm-ai",
+   "title": "AI Product Management: Complete Course (3.5 hours)",
+   "url": "https://www.youtube.com/watch?v=KjYCEiBTHFo",
+   "source": "HelloPM",
+   "kind": "video",
+   "topics": [
+    "ai"
+   ],
+   "level": "beginner",
+   "minutes": 210,
+   "why": "A long-form AI PM overview covering agents, RAG and evals. Good as a one-weekend primer."
+  },
+  {
+   "id": "a-anthropic-prompt",
+   "title": "Prompt Engineering Overview",
+   "url": "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview",
+   "source": "Anthropic",
+   "kind": "article",
+   "topics": [
+    "ai",
+    "tech"
+   ],
+   "level": "beginner",
+   "minutes": 30,
+   "why": "Official guidance on prompting. Hands-on practice here makes you credible in AI product discussions."
+  },
+  {
+   "id": "a-agents",
+   "title": "Building Effective Agents",
+   "url": "https://www.anthropic.com/research/building-effective-agents",
+   "source": "Anthropic",
+   "kind": "article",
+   "topics": [
+    "ai",
+    "tech"
+   ],
+   "level": "intermediate",
+   "minutes": 25,
+   "why": "A clear taxonomy of agentic patterns and when not to use them. Useful for AI product strategy conversations."
+  },
+  {
+   "id": "v-deeplearning",
+   "title": "DeepLearning.AI (YouTube)",
+   "url": "https://www.youtube.com/@DeepLearningAI",
+   "source": "DeepLearning.AI",
+   "kind": "video",
+   "topics": [
+    "ai"
+   ],
+   "level": "beginner",
+   "minutes": null,
+   "why": "Talks and short lessons on applied AI. Browse for topics you keep hearing at work."
+  },
+  {
+   "id": "v-karpathy",
+   "title": "Andrej Karpathy (YouTube)",
+   "url": "https://www.youtube.com/@AndrejKarpathy",
+   "source": "Andrej Karpathy",
+   "kind": "video",
+   "topics": [
+    "ai",
+    "tech"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "Technical but clear explanations of how LLMs work. You don’t need to code along to build intuition."
+  },
+  {
+   "id": "v-exp-ig",
+   "title": "Meta PM Interview: Instagram Viewership Drop (Mock)",
+   "url": "https://www.youtube.com/watch?v=YgIIFAmzNbA",
+   "source": "Aced (formerly Exponent)",
+   "kind": "video",
+   "topics": [
+    "interview",
+    "exec",
+    "data"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "A mock with a Meta PM on a classic metric-drop question. Study how they structure the diagnosis."
+  },
+  {
+   "id": "v-igao-google",
+   "title": "Google Product Manager Mock Interview",
+   "url": "https://www.youtube.com/watch?v=XAJeXlY6w-c",
+   "source": "IGotAnOffer: Product management",
+   "kind": "video",
+   "topics": [
+    "interview",
+    "sense"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "A full Google-style product design answer. Compare their structure with your own."
+  },
+  {
+   "id": "v-igao-meta",
+   "title": "Meta Product Sense Interview (with Meta PM)",
+   "url": "https://www.youtube.com/watch?v=CcvurbWJfEo",
+   "source": "IGotAnOffer: Product management",
+   "kind": "video",
+   "topics": [
+    "interview",
+    "sense"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "A Meta-style product sense walkthrough from a practising PM. Good for framework depth."
+  },
+  {
+   "id": "v-jay-fr",
+   "title": "Meta Product Sense Mock: Friend Requests Down",
+   "url": "https://www.youtube.com/watch?v=JjWxUeakfFI",
+   "source": "Jay Feng",
+   "kind": "video",
+   "topics": [
+    "interview",
+    "exec"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "An execution-style question on a falling metric. Practise pausing the video and answering first."
+  },
+  {
+   "id": "v-rb-fitness",
+   "title": "Product Sense Mock: Fitness App for Meta",
+   "url": "https://www.youtube.com/watch?v=bTtImkT8POA",
+   "source": "rocketblocks",
+   "kind": "video",
+   "topics": [
+    "interview",
+    "sense"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "A design-style mock with ex-Instagram and ex-Uber PMs. Shows how interviewers push back."
+  },
+  {
+   "id": "v-dianna-creative",
+   "title": "Creative Product Sense Mock Interview",
+   "url": "https://www.youtube.com/watch?v=PU635pDoxy4",
+   "source": "Dianna Yau",
+   "kind": "video",
+   "topics": [
+    "interview",
+    "sense"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "Focuses on generating creative solutions. Useful when your answers feel formulaic."
+  },
+  {
+   "id": "t-exponent",
+   "title": "Aced (formerly Exponent)",
+   "url": "https://www.tryexponent.com/",
+   "source": "Aced / Exponent",
+   "kind": "course",
+   "topics": [
+    "interview"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "Courses, question bank and mock interviews for PM roles. Strong content, but pricing and plans change, so check the site."
+  },
+  {
+   "id": "t-lewislin",
+   "title": "Lewis C. Lin",
+   "url": "https://www.lewis-lin.com/",
+   "source": "Lewis C. Lin",
+   "kind": "article",
+   "topics": [
+    "interview"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "Author of well-known PM interview books and frameworks. Browse his articles for question types."
+  },
+  {
+   "id": "v-exponent-ch",
+   "title": "Aced / Exponent (YouTube channel)",
+   "url": "https://www.youtube.com/@tryexponent",
+   "source": "Aced (formerly Exponent)",
+   "kind": "video",
+   "topics": [
+    "interview"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "The largest free collection of PM mock interviews. Pick by company and question type."
+  },
+  {
+   "id": "p-lenny",
+   "title": "Lenny’s Podcast",
+   "url": "https://www.lennysnewsletter.com/podcast",
+   "source": "Lenny Rachitsky",
+   "kind": "podcast",
+   "topics": [
+    "career",
+    "strategy",
+    "start"
+   ],
+   "level": "beginner",
+   "minutes": null,
+   "why": "Long conversations with product leaders. The best way to learn how senior PMs actually think."
+  },
+  {
+   "id": "n-lenny",
+   "title": "Lenny’s Newsletter",
+   "url": "https://www.lennysnewsletter.com/",
+   "source": "Lenny Rachitsky",
+   "kind": "newsletter",
+   "topics": [
+    "career",
+    "strategy",
+    "start"
+   ],
+   "level": "beginner",
+   "minutes": null,
+   "why": "The most-read PM newsletter. Search the archive for career, growth and AI topics."
+  },
+  {
+   "id": "n-aakash",
+   "title": "Product Growth",
+   "url": "https://www.news.aakashg.com/",
+   "source": "Aakash Gupta",
+   "kind": "newsletter",
+   "topics": [
+    "career",
+    "ai",
+    "start"
+   ],
+   "level": "beginner",
+   "minutes": null,
+   "why": "Practical PM career and AI PM guides, resume and interview content included."
+  },
+  {
+   "id": "n-compass",
+   "title": "The Product Compass",
+   "url": "https://www.productcompass.pm/",
+   "source": "Pawel Huryn",
+   "kind": "newsletter",
+   "topics": [
+    "ai",
+    "strategy"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "Hands-on posts on AI product work, discovery and strategy."
+  },
+  {
+   "id": "n-mtp",
+   "title": "Mind the Product",
+   "url": "https://www.mindtheproduct.com/",
+   "source": "Mind the Product",
+   "kind": "article",
+   "topics": [
+    "start",
+    "career",
+    "strategy"
+   ],
+   "level": "beginner",
+   "minutes": null,
+   "why": "Articles, conference talks and a community around product management."
+  },
+  {
+   "id": "n-reforge",
+   "title": "Reforge Blog",
+   "url": "https://www.reforge.com/blog",
+   "source": "Reforge",
+   "kind": "article",
+   "topics": [
+    "strategy",
+    "data",
+    "career"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "Frameworks on growth, product strategy and careers from operators."
+  },
+  {
+   "id": "a-nng-articles",
+   "title": "Nielsen Norman Group Articles",
+   "url": "https://www.nngroup.com/articles/",
+   "source": "Nielsen Norman Group",
+   "kind": "article",
+   "topics": [
+    "sense",
+    "discovery"
+   ],
+   "level": "intermediate",
+   "minutes": null,
+   "why": "Evidence-based UX writing. Use it to back product-sense answers with research."
+  },
+  {
+   "id": "t-levels",
+   "title": "Levels.fyi",
+   "url": "https://www.levels.fyi/",
+   "source": "Levels.fyi",
+   "kind": "tool",
+   "topics": [
+    "career"
+   ],
+   "level": "beginner",
+   "minutes": null,
+   "why": "Compensation data by company and level, US and India. Use it to benchmark offers before you negotiate."
+  },
+  {
+   "id": "t-wellfound",
+   "title": "Wellfound (startup jobs)",
+   "url": "https://wellfound.com/",
+   "source": "Wellfound",
+   "kind": "tool",
+   "topics": [
+    "career"
+   ],
+   "level": "beginner",
+   "minutes": null,
+   "why": "Startup job listings with salary and equity ranges. A strong channel for first PM roles."
+  }
+ ],
+ "paths": [
+  {
+   "id": "break-in",
+   "title": "Break into PM in 8 weeks",
+   "blurb": "For aspiring PMs and career switchers. Learn the job, build proof, then apply.",
+   "weeks": 8,
+   "steps": [
+    {
+     "week": 1,
+     "title": "Understand the job",
+     "ids": [
+      "v-pm101",
+      "p-lenny",
+      "b-inspired"
+     ]
+    },
+    {
+     "week": 2,
+     "title": "Learn to talk to customers",
+     "ids": [
+      "b-momtest",
+      "a-jtbd",
+      "v-lenny-teresa"
+     ]
+    },
+    {
+     "week": 3,
+     "title": "Make your transition story",
+     "ids": [
+      "v-leland-consulting",
+      "v-mc-cara",
+      "n-firstround"
+     ]
+    },
+    {
+     "week": 4,
+     "title": "Get data-literate",
+     "ids": [
+      "t-sqlbolt",
+      "b-northstar"
+     ]
+    },
+    {
+     "week": 5,
+     "title": "Run a mini product project",
+     "ids": [
+      "a-nng-ux",
+      "t-atlassian-prd",
+      "a-int-rice"
+     ]
+    },
+    {
+     "week": 6,
+     "title": "Structure your thinking",
+     "ids": [
+      "a-pair",
+      "c-uva"
+     ]
+    },
+    {
+     "week": 7,
+     "title": "Practise interviews",
+     "ids": [
+      "v-exponent-ch",
+      "v-igao-meta"
+     ]
+    },
+    {
+     "week": 8,
+     "title": "Apply with proof",
+     "ids": [
+      "t-wellfound",
+      "t-levels",
+      "n-aakash"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "interview-sprint",
+   "title": "PM interview crash course",
+   "blurb": "Two weeks to a structured, confident interview performance.",
+   "weeks": 2,
+   "steps": [
+    {
+     "week": 1,
+     "title": "Product sense & design",
+     "ids": [
+      "v-igao-google",
+      "v-igao-meta",
+      "v-rb-fitness",
+      "v-dianna-creative"
+     ]
+    },
+    {
+     "week": 2,
+     "title": "Execution, metrics & strategy",
+     "ids": [
+      "v-exp-ig",
+      "v-jay-fr",
+      "b-northstar",
+      "t-evan-miller",
+      "t-exponent"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ai-pm",
+   "title": "Become an AI PM in 6 weeks",
+   "blurb": "Build the fluency to speak credibly about AI products and evals.",
+   "weeks": 6,
+   "steps": [
+    {
+     "week": 1,
+     "title": "AI foundations",
+     "ids": [
+      "c-aiforall",
+      "v-deeplearning"
+     ]
+    },
+    {
+     "week": 2,
+     "title": "How LLMs work (intuition)",
+     "ids": [
+      "v-karpathy",
+      "a-anthropic-prompt"
+     ]
+    },
+    {
+     "week": 3,
+     "title": "Product patterns for AI",
+     "ids": [
+      "a-pair",
+      "a-rules-of-ml"
+     ]
+    },
+    {
+     "week": 4,
+     "title": "Evals, the core PM skill",
+     "ids": [
+      "a-hamel-evals",
+      "v-lenny-evals",
+      "v-aakash-evals"
+     ]
+    },
+    {
+     "week": 5,
+     "title": "Agents and systems",
+     "ids": [
+      "a-agents",
+      "v-hellopm-ai"
+     ]
+    },
+    {
+     "week": 6,
+     "title": "Build and show",
+     "ids": [
+      "v-evals-teresa",
+      "n-compass",
+      "v-neel-aipm"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "data-pm",
+   "title": "Data & experimentation for PMs",
+   "blurb": "Four weeks to read, query and reason about data like a product owner.",
+   "weeks": 4,
+   "steps": [
+    {
+     "week": 1,
+     "title": "SQL basics",
+     "ids": [
+      "t-sqlbolt"
+     ]
+    },
+    {
+     "week": 2,
+     "title": "SQL for analysis",
+     "ids": [
+      "t-mode-sql"
+     ]
+    },
+    {
+     "week": 3,
+     "title": "Metrics that matter",
+     "ids": [
+      "b-northstar",
+      "n-amp-blog"
+     ]
+    },
+    {
+     "week": 4,
+     "title": "A/B testing",
+     "ids": [
+      "t-evan-miller",
+      "b-ttoce"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "senior-pm",
+   "title": "From PM to Senior PM",
+   "blurb": "For PMs with 2+ years who want scope, strategy and influence.",
+   "weeks": 6,
+   "steps": [
+    {
+     "week": 1,
+     "title": "Product leadership mindset",
+     "ids": [
+      "b-empowered",
+      "n-svpg"
+     ]
+    },
+    {
+     "week": 2,
+     "title": "Strategy lenses",
+     "ids": [
+      "a-aggregation",
+      "n-gibson",
+      "a-reforge-pmf"
+     ]
+    },
+    {
+     "week": 3,
+     "title": "Judgement and influence",
+     "ids": [
+      "v-lenny-cagan",
+      "v-harry-cagan"
+     ]
+    },
+    {
+     "week": 4,
+     "title": "Leading people",
+     "ids": [
+      "n-looking-glass",
+      "n-casey"
+     ]
+    },
+    {
+     "week": 5,
+     "title": "Operator playbooks",
+     "ids": [
+      "c-reforge",
+      "n-reforge"
+     ]
+    },
+    {
+     "week": 6,
+     "title": "Negotiate and position",
+     "ids": [
+      "t-levels",
+      "p-lenny"
+     ]
+    }
+   ]
+  }
+ ]
+}

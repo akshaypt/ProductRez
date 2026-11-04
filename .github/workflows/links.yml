@@ -1,0 +1,13 @@
+name: Library link check
+on:
+  schedule:
+    - cron: '0 3 1 * *' # monthly
+  workflow_dispatch: {}
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22.x' }
+      - run: node scripts/check-resources.ts
