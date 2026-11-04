@@ -530,3 +530,11 @@ button { font: inherit; color: inherit; }
 .callout svg { flex: none; margin-top: 2px; }
 .callout.err { border-color: color-mix(in srgb, var(--red) 55%, transparent); background: var(--red-soft); }
 .callout.err svg { color: var(--red); }
+.incl { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem 2rem; font-size: 0.95rem; color: var(--text-2); }
+.incl li { display: grid; grid-template-columns: 16px 1fr; gap: 0.6rem; } .incl li svg { margin-top: 4px; color: var(--green); }
+@media (max-width: 700px) { .incl { grid-template-columns: 1fr; } }
+.price.best { box-shadow: inset 0 0 0 1px var(--ink), inset 0 3px 0 var(--ink); }
+.price > p.muted { min-height: 0; }
+@media (max-width: 1000px) { .finish { grid-template-columns: minmax(0, 1fr); } }
+.finish > * { min-width: 0; }
+@media (max-width: 560px) { .ftool { gap: 0.5rem; padding: 0.5rem; } .ftool .seg { max-width: 100%; } }

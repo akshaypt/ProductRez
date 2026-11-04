@@ -15,9 +15,8 @@ export function PriceCards({ onChoose, busy }: { onChoose: (id: PlanId) => void;
           <div><span className="amt">{rupees(p.price)}</span></div>
           <p className="faint" style={{ fontSize: '0.85rem', marginTop: -6 }}>{p.per}{p.perMonth ? ` · ${p.perMonth}` : ''}</p>
           <p className="muted">{p.blurb}</p>
-          <ul>{PAID_FEATURES.map((f) => <li key={f}><Icon name="check" size={16} strokeWidth={3} />{f}</li>)}</ul>
           <div style={{ flex: 1 }} />
-          <button className={`btn lg block ${p.id === 'lifetime' ? '' : 'dark'}`} onClick={() => onChoose(p.id)} disabled={busy !== null} data-testid={`buy-${p.id}`}>
+          <button className={`btn lg block ${p.id === 'lifetime' ? '' : 'ghost'}`} onClick={() => onChoose(p.id)} disabled={busy !== null} data-testid={`buy-${p.id}`}>
             {busy === p.id ? 'Opening checkout…' : `Get ${p.name}`}
           </button>
         </div>
@@ -58,6 +57,11 @@ export default function Pricing() {
         </div>
       </div>
       <PriceCards onChoose={choose} busy={busy} />
+      <div className="card" style={{ marginTop: 24 }}>
+        <b>Every plan includes everything</b>
+        <p className="muted" style={{ marginTop: 4 }}>Plans differ only in how long they last.</p>
+        <ul className="incl">{PAID_FEATURES.map((f) => <li key={f}><Icon name="check" size={16} strokeWidth={3} />{f}</li>)}</ul>
+      </div>
       <div className="card soft" style={{ marginTop: 24 }}>
         <b>Payments</b>
         <p className="muted" style={{ marginTop: 4 }}>Secure checkout by Razorpay: UPI, cards, netbanking and wallets. Prices are in Indian rupees. Plans are one-time purchases and never auto-renew; buying again while active adds time.</p>

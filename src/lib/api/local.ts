@@ -68,6 +68,10 @@ export function createLocalApi(): Api {
       localStorage.removeItem(K.user)
       emit()
     },
+    async deleteAccount() {
+      Object.keys(localStorage).filter((k) => k.startsWith('pr.')).forEach((k) => localStorage.removeItem(k))
+      emit()
+    },
     async getEntitlement() {
       return entitlement()
     },

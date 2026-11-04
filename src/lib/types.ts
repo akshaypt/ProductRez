@@ -82,6 +82,7 @@ export interface Api {
   verifyCode(email: string, code: string): Promise<void>
   signInWithGoogle(): Promise<void>
   signOut(): Promise<void>
+  deleteAccount(): Promise<void>
   getEntitlement(): Promise<Entitlement>
   getSavedScore(): Promise<ScoreReport | null>
   scoreResume(input: ScoreInput): Promise<ScoreReport>

@@ -516,9 +516,11 @@ export default function Writer() {
         </div>
       )}
 
-      <button className="btn lg" style={{ position: 'fixed', right: 16, bottom: 'calc(5.2rem + var(--safe-b))', zIndex: 25 }} id="mobile-toggle" onClick={() => setMobileView((v) => !v)}>
-        <Icon name={mobileView ? 'edit' : 'eye'} size={18} /> {mobileView ? 'Edit' : 'Preview'}
-      </button>
+      {tab !== 'finish' && (
+        <button className="btn lg" style={{ position: 'fixed', right: 16, bottom: 'calc(5.2rem + var(--safe-b))', zIndex: 25 }} id="mobile-toggle" onClick={() => setMobileView((v) => !v)}>
+          <Icon name={mobileView ? 'edit' : 'eye'} size={18} /> {mobileView ? 'Edit' : 'Preview'}
+        </button>
+      )}
       <style>{`#mobile-toggle{display:none}@media(max-width:1100px){#mobile-toggle{display:inline-flex}}`}</style>
       <TemplateModal open={tplOpen} onClose={() => setTplOpen(false)} data={cur.data} current={cur.template} stage={level} onPick={(id) => patch((r) => ({ ...r, template: id, options: { ...r.options, accent: templateById(id).accentDefault, fontSize: templateById(id).fontSize } }))} />
       {printing && createPortal(

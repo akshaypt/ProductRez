@@ -84,6 +84,10 @@ export function createSupabaseApi(): Api {
     async signOut() {
       await sb.auth.signOut()
     },
+    async deleteAccount() {
+      await invoke('delete-account', {})
+      await sb.auth.signOut()
+    },
     async getEntitlement(): Promise<Entitlement> {
       const { data } = await sb.from('entitlements').select('plan,lifetime,expires_at').maybeSingle()
       if (!data) return { active: false, plan: 'none', expiresAt: null }
