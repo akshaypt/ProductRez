@@ -524,3 +524,9 @@ button { font: inherit; color: inherit; }
 .live-score b { color: var(--text); }
 .dot-live { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
 .chip.btnish.on { background: var(--ink); color: var(--ink-fg); }
+
+/* inline notices (persist until the next attempt, unlike toasts) */
+.callout { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text); font-size: 0.95rem; line-height: 1.45; }
+.callout svg { flex: none; margin-top: 2px; }
+.callout.err { border-color: color-mix(in srgb, var(--red) 55%, transparent); background: var(--red-soft); }
+.callout.err svg { color: var(--red); }

@@ -1,4 +1,4 @@
-import { scoreResume, type ScoreInput, type ScoreReport } from '@scoring'
+import { scoreResume, checkResume, type ScoreInput, type ScoreReport } from '@scoring'
 import { buildLatex } from '@latex'
 import { ApiError, type Api, type AppUser, type Entitlement, type Job, type JobStatus, type PlanId, type Progress, type SavedJob, type StoredResume } from '../types'
 import { demoJobs } from './demoJobs'
@@ -77,6 +77,8 @@ export function createLocalApi(): Api {
     async scoreResume(input: ScoreInput) {
       if (!read<AppUser | null>(K.user, null)) throw new ApiError('unauthenticated')
       if (!entitlement().active && read<ScoreReport | null>(K.score, null)) throw new ApiError('free_score_used')
+      const check = checkResume(input.text)
+      if (!check.ok) throw new ApiError('unknown', check.message)
       const report = scoreResume(input)
       write(K.score, report)
       return report

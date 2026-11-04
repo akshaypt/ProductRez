@@ -4,7 +4,7 @@ import { Icon } from './Icon'
 import { LogoMark } from './Logo'
 
 export function AuthModal() {
-  const { authOpen, closeAuth, api, authReason, toast } = useApp()
+  const { authOpen, closeAuth, api, authReason, toast, user } = useApp()
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [step, setStep] = useState<'email' | 'code'>('email')
@@ -19,6 +19,15 @@ export function AuthModal() {
       setTimeout(() => first.current?.focus(), 50)
     }
   }, [authOpen])
+  // The email may carry a magic link instead of a code: when it is clicked (in this or another tab) the session
+  // arrives through the auth listener, so close the dialog on our own.
+  useEffect(() => {
+    if (authOpen && user && !demo) {
+      closeAuth()
+      toast('Signed in')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, authOpen])
   useEffect(() => {
     if (!authOpen) return
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeAuth()
@@ -71,7 +80,7 @@ export function AuthModal() {
           <div>
             <h2 style={{ fontSize: '1.8rem' }}>{step === 'email' ? 'Sign in to ship your career' : 'Check your inbox'}</h2>
             <p className="muted" style={{ marginTop: 6 }}>
-              {authReason || (step === 'email' ? 'No password. We’ll email you a one-time code.' : `We sent a code to ${email}.`)}
+              {authReason || (step === 'email' ? 'No password. We’ll email you a secure sign-in link.' : `We sent a sign-in email to ${email}.`)}
             </p>
           </div>
           {step === 'email' ? (
@@ -81,7 +90,7 @@ export function AuthModal() {
                 <input id="em" ref={first} className="input" type="email" autoComplete="email" inputMode="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
               <button className="btn lg block" disabled={busy}>
-                {busy ? 'One sec…' : demo ? 'Continue' : 'Email me a code'} <Icon name="arrow" size={18} />
+                {busy ? 'One sec…' : demo ? 'Continue' : 'Email me a sign-in link'} <Icon name="arrow" size={18} />
               </button>
               {!demo && (
                 <button type="button" className="btn ghost block" onClick={() => api.signInWithGoogle().catch((e) => toast(e.message, 'err'))}>
@@ -92,9 +101,12 @@ export function AuthModal() {
             </form>
           ) : (
             <form className="stack" onSubmit={submitCode}>
+              <p className="muted" style={{ fontSize: '0.95rem' }}>
+                Open the email and <b>click the sign-in link</b>. This window closes by itself once you’re in. If the email shows a code instead, type it here.
+              </p>
               <input ref={first} className="input otp" inputMode="numeric" autoComplete="one-time-code" maxLength={8} placeholder="••••••" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} aria-label="One-time code" />
               <button className="btn lg block" disabled={busy || code.length < 6}>
-                {busy ? 'Verifying…' : 'Verify and continue'}
+                {busy ? 'Verifying…' : 'Verify code'}
               </button>
               <button type="button" className="link-btn" onClick={() => setStep('email')}>
                 Use a different email

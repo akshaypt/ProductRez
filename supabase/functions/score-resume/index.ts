@@ -1,5 +1,5 @@
 // @ts-nocheck - Deno runtime
-import { scoreResume } from '../_shared/scoring/index.ts'
+import { scoreResume, checkResume } from '../_shared/scoring/index.ts'
 import { adminClient, cors, json, requireUser } from '../_shared/http.ts'
 
 const MAX_CHARS = 60_000
@@ -19,6 +19,9 @@ Deno.serve(async (req) => {
   }
   const text = String(body?.text ?? '').slice(0, MAX_CHARS)
   if (text.trim().length < 20) return json(req, { error: 'empty_resume' }, 400)
+
+  const check = checkResume(text)
+  if (!check.ok) return json(req, { error: 'not_a_resume', reason: check.reason, message: check.message }, 422)
 
   // Atomic quota check: free accounts get one score, paid accounts are unlimited.
   const { data: allowed, error } = await adminClient().rpc('consume_score', { p_user: user.id })

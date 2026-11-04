@@ -231,3 +231,17 @@
 .prose table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 1rem 0; border: 1px solid var(--border); } .prose th, .prose td { text-align: left; padding: 0.75rem 0.9rem; border-bottom: 1px solid var(--border); vertical-align: top; } .prose th { color: var(--text-3); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; background: var(--surface-2); }
 @media (prefers-reduced-motion: reduce) { .rz-win { transform: none; } .band { transform: none; filter: none; } .hw > span { transform: none; } .rz-labelrow .seg2 { transform: none; } .scrub .sw, .scrub .sw.hi { color: var(--scrub-on); } }
 .phone .aw-job { grid-template-columns: 34px 1fr; padding: 9px 4px; gap: 10px; } .phone .aw-job .chip, .phone .aw-job .tag { display: none; } .phone .aw-job .t { font-size: 0.82rem; } .phone .aw-tile { width: 34px; height: 34px; }
+
+/* ---- QA pass: small-screen hardening ---- */
+html, body { overflow-x: clip; }
+.aw-b { grid-template-columns: minmax(0, 1fr) auto; }
+.aw-b button { min-width: 86px; justify-content: center; }
+@media (max-width: 560px) {
+  .aw-doc { padding: 14px 14px; }
+  .aw-b { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .aw-b button { justify-self: start; }
+  .aw-main { padding: 12px 12px 16px; }
+  .aw-job { grid-template-columns: 34px minmax(0, 1fr); }
+  .aw-job .chip, .aw-job .tag { display: none; }
+  .aw-job .t { font-size: 0.88rem; }
+}

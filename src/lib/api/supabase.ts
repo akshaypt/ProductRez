@@ -33,13 +33,14 @@ export function createSupabaseApi(): Api {
   async function invoke<T>(name: string, body: unknown): Promise<T> {
     const { data, error } = await sb.functions.invoke(name, { body: body as Record<string, unknown> })
     if (error) {
-      let payload: { error?: string } = {}
+      let payload: { error?: string; message?: string } = {}
       try {
         payload = await (error as { context?: Response }).context?.json()
       } catch {
         /* ignore */
       }
       const code = payload.error
+      if (code === 'not_a_resume') throw new ApiError('unknown', payload.message ?? 'That does not look like a resume.')
       if (code === 'free_score_used' || code === 'paywall' || code === 'ai_not_configured' || code === 'payments_not_configured' || code === 'unauthenticated') throw new ApiError(code)
       throw new ApiError('unknown', code ?? error.message)
     }
@@ -69,7 +70,7 @@ export function createSupabaseApi(): Api {
       return () => data.subscription.unsubscribe()
     },
     async sendCode(email) {
-      const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true } })
+      const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true, emailRedirectTo: window.location.origin } })
       if (error) throw new ApiError('unknown', error.message)
     },
     async verifyCode(email, code) {

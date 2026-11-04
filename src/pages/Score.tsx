@@ -24,6 +24,7 @@ export default function Score() {
   const [phase, setPhase] = useState<'idle' | 'running'>('idle')
   const [step, setStep] = useState(0)
   const [over, setOver] = useState(false)
+  const [err, setErr] = useState('')
   const [blocked, setBlocked] = useState(false)
   const input = useRef<HTMLInputElement>(null)
 
@@ -42,12 +43,14 @@ export default function Score() {
     if (!f) return
     if (!/\.pdf$/i.test(f.name) && f.type !== 'application/pdf') return toast('Please upload a PDF, or switch to “Paste text”.', 'err')
     if (f.size > 8 * 1024 * 1024) return toast('That file is over 8 MB.', 'err')
+    setErr('')
     setFile(f)
   }
 
   const run = useCallback(async () => {
     if (!api) return
     if (!user) return openAuth('Create a free account to get your resume score. Your first score is on us.')
+    setErr('')
     setPhase('running')
     setStep(0)
     const t = setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), 520)
@@ -73,7 +76,7 @@ export default function Score() {
       store.set('pr.writer.import', r.parsed)
     } catch (e) {
       if (e instanceof ApiError && e.code === 'free_score_used') setBlocked(true)
-      else toast(e instanceof Error ? e.message : 'Something went wrong', 'err')
+      else setErr(e instanceof Error ? e.message : 'Something went wrong. Please try again.')
     } finally {
       clearInterval(t)
       setPhase('idle')
@@ -87,6 +90,7 @@ export default function Score() {
 
   if (!ready || !loaded) return <div className="page"><div className="skeleton" style={{ height: 320 }} /></div>
 
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0
   const freeUsed = !!report && !ent.active
   return (
     <div className="page">
@@ -162,7 +166,12 @@ export default function Score() {
               <span className="muted">{file ? `${Math.round(file.size / 1024)} KB · click to change` : 'or click to browse · text-based PDF, up to 8 MB'}</span>
             </div>
           ) : (
-            <textarea className="textarea" style={{ minHeight: 280 }} placeholder="Paste your full resume text here…" value={text} onChange={(e) => setText(e.target.value)} aria-label="Resume text" />
+            <div className="field" style={{ gap: 6 }}>
+              <textarea className="textarea" style={{ minHeight: 280 }} placeholder="Paste your full resume text here…" value={text} onChange={(e) => { setText(e.target.value); setErr('') }} aria-label="Resume text" aria-describedby="wc" />
+              <span id="wc" className={words >= 60 ? 'faint' : 'muted'} style={{ fontSize: '0.85rem' }}>
+                {words === 0 ? 'Paste your whole resume: experience, education and skills.' : words >= 60 ? `${words} words` : `${words} words · paste at least 60 so we can score it properly`}
+              </span>
+            </div>
           )}
           <div className="grid2">
             <div className="field">
@@ -181,7 +190,12 @@ export default function Score() {
             </div>
           </div>
           {showJd && <textarea className="textarea" placeholder="Paste the job description here…" value={jd} onChange={(e) => setJd(e.target.value)} aria-label="Job description" />}
-          <button className="btn lg" onClick={run} disabled={mode === 'upload' ? !file : text.trim().length < 20}>
+          {err && (
+            <div className="callout err" role="alert">
+              <Icon name="x" size={18} /> <span>{err}</span>
+            </div>
+          )}
+          <button className="btn lg" onClick={run} disabled={mode === 'upload' ? !file : words < 60}>
             <Icon name="zap" size={20} /> Review my resume
           </button>
           <p className="faint" style={{ fontSize: '0.85rem' }}>
