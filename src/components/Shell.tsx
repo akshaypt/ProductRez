@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, Outlet, Link, useLocation } from 'react-router-dom'
 import { useApp } from '../state/app'
 import { Icon, type IconName } from './Icon'
-import { Logo, LogoMark } from './Logo'
+import { LogoMark } from './Logo'
 import { AuthModal } from './AuthModal'
 import { InstallPrompt } from './InstallPrompt'
 import { Onboarding } from './Onboarding'
@@ -14,7 +14,6 @@ const NAV: { to: string; label: string; icon: IconName; paid: boolean }[] = [
   { to: '/writer', label: 'Resume Writer', icon: 'pen', paid: true },
   { to: '/jobs', label: 'Fresh Jobs', icon: 'briefcase', paid: true },
   { to: '/learn', label: 'Learn', icon: 'book', paid: true },
-  { to: '/account', label: 'Account', icon: 'user', paid: false },
 ]
 
 function useOnline() {
@@ -50,74 +49,47 @@ export function Shell() {
     window.addEventListener('keydown', k)
     return () => window.removeEventListener('keydown', k)
   }, [])
-  const planLabel = ent.active ? (ent.plan === 'lifetime' ? 'Lifetime member' : `Pro · until ${formatDate(ent.expiresAt)}`) : 'Free plan'
+  const idx = NAV.findIndex((n) => loc.pathname.startsWith(n.to))
+  const planLabel = ent.active ? (ent.plan === 'lifetime' ? 'Lifetime' : `Pro until ${formatDate(ent.expiresAt)}`) : 'Free plan'
   return (
     <>
       {!online && <div className="offline">You’re offline. Your resume edits are saved on this device.</div>}
       <div className="shell">
         <aside className="rail" aria-label="Primary">
-          <Link to="/" className="logo" aria-label="ProductRez home">
-            <Logo />
-          </Link>
-          <button className="cmdk-btn" onClick={() => setCmd(true)} aria-label="Open command palette">
-            <Icon name="filter" size={15} /> Search <kbd>⌘K</kbd>
-          </button>
-          <div className="nav-label">Workspace</div>
-          {NAV.map((n) => (
-            <NavLink key={n.to} to={n.to} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
-              <Icon name={n.icon} />
-              {n.label}
-              {n.paid && !ent.active && <Icon name="lock" size={14} className="lock" />}
-            </NavLink>
-          ))}
+          <Link to="/" className="logo" aria-label="ProductRez home"><LogoMark size={36} /></Link>
+          <nav className="rail-nav">
+            <span className="rail-ind" style={{ ['--y' as string]: `${Math.max(idx, 0) * 48}px`, opacity: idx < 0 ? 0 : 1 }} />
+            {NAV.map((n) => (
+              <NavLink key={n.to} to={n.to} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} aria-label={n.label}>
+                <Icon name={n.icon} size={20} />
+                {n.paid && !ent.active && <Icon name="lock" size={10} className="lock" />}
+                <span className="lbl">{n.label}</span>
+              </NavLink>
+            ))}
+          </nav>
           <div className="spacer" />
-          <div className="plan-chip">
-            <b>{planLabel}</b>
-            {!ent.active && (
-              <p className="muted" style={{ fontSize: '0.8rem', margin: '4px 0 8px' }}>
-                Unlock the Writer, Jobs and Learn.
-              </p>
-            )}
-            {!ent.active && (
-              <Link to="/pricing" className="btn sm block">
-                See plans
-              </Link>
-            )}
-            {!user && (
-              <button className="btn sm ghost block" style={{ marginTop: 8 }} onClick={() => openAuth()}>
-                Sign in
-              </button>
-            )}
-          </div>
-          {api?.mode === 'demo' && (
-            <span className="chip warn" title="No backend configured: data is stored in this browser only">
-              demo mode
-            </span>
+          <button className="nav-link" onClick={() => setCmd(true)} aria-label="Open command palette"><Icon name="filter" size={19} /><span className="lbl">Search <kbd>⌘K</kbd></span></button>
+          {!ent.active && <Link to="/pricing" className="nav-link up" aria-label="Upgrade"><Icon name="zap" size={19} /><span className="lbl">Upgrade</span></Link>}
+          {user ? (
+            <Link to="/account" className="rail-avatar" aria-label="Account">{(user.email[0] ?? 'U').toUpperCase()}<span className="lbl">{user.email}<small>{planLabel}</small></span></Link>
+          ) : (
+            <button className="nav-link" onClick={() => openAuth()} aria-label="Sign in"><Icon name="user" size={19} /><span className="lbl">Sign in</span></button>
           )}
+          {api?.mode === 'demo' && <span className="demo-dot" title="Demo mode: data stays in this browser" />}
         </aside>
-        <div>
+        <div className="shell-main">
           <header className="topbar">
-            <Link to="/" aria-label="ProductRez home">
-              <LogoMark size={32} />
-            </Link>
-            <b style={{ fontFamily: 'var(--font-display)' }}>{NAV.find((n) => loc.pathname.startsWith(n.to))?.label ?? 'ProductRez'}</b>
-            {user ? (
-              <Link to="/account" className="chip">
-                {ent.active ? 'Pro' : 'Free'}
-              </Link>
-            ) : (
-              <button className="btn sm" onClick={() => openAuth()}>
-                Sign in
-              </button>
-            )}
+            <Link to="/" aria-label="ProductRez home"><LogoMark size={30} /></Link>
+            <b style={{ fontWeight: 500 }}>{NAV.find((n) => loc.pathname.startsWith(n.to))?.label ?? 'ProductRez'}</b>
+            {user ? <Link to="/account" className="chip">{ent.active ? 'Pro' : 'Free'}</Link> : <button className="btn sm" onClick={() => openAuth()}>Sign in</button>}
           </header>
-          <main className="main" id="main">
+          <main className="main" id="main" key={loc.pathname}>
             <Outlet />
           </main>
         </div>
       </div>
       <nav className="tabbar" aria-label="Primary mobile">
-        {NAV.map((n) => (
+        {[...NAV, { to: '/account', label: 'Account', icon: 'user' as IconName, paid: false }].map((n) => (
           <NavLink key={n.to} to={n.to} className={({ isActive }) => (isActive ? 'active' : '')}>
             <Icon name={n.icon} size={22} />
             {n.label.replace('Resume ', '').replace('Fresh ', '')}
@@ -129,11 +101,7 @@ export function Shell() {
       <Onboarding />
       <InstallPrompt />
       <div className="toasts" role="status" aria-live="polite">
-        {toasts.map((t) => (
-          <div key={t.id} className={`toast ${t.kind === 'err' ? 'err' : ''}`}>
-            {t.msg}
-          </div>
-        ))}
+        {toasts.map((t) => <div key={t.id} className={`toast ${t.kind === 'err' ? 'err' : ''}`}>{t.msg}</div>)}
       </div>
     </>
   )

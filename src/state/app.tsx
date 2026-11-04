@@ -38,7 +38,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [authOpen, setAuthOpen] = useState(false)
   const [authReason, setAuthReason] = useState('')
   const [toasts, setToasts] = useState<Ctx['toasts']>([])
-  const [prefs, setPrefsState] = useState<Prefs>(() => store.get<Prefs>('pr.prefs', { region: guessRegion(), stage: 'pm', onboarded: false, theme: 'system' }))
+  const [prefs, setPrefsState] = useState<Prefs>(() => store.get<Prefs>('pr.prefs', { region: guessRegion(), stage: 'pm', onboarded: false, theme: 'dark' }))
 
   const setPrefs = useCallback((p: Partial<Prefs>) => {
     setPrefsState((cur) => {

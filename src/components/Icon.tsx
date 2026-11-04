@@ -40,6 +40,7 @@ const P: Record<string, string> = {
   eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z',
   edit: 'M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4',
   chev: 'M9 6l6 6-6 6',
+  chevd: 'M6 9l6 6 6-6',
   info: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 11v5M12 8h.01',
   home: 'M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10',
   grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',

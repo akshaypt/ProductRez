@@ -21,3 +21,9 @@ paths.forEach((p: Record<string, any>, i: number) => {
 lines.push('commit;', '')
 writeFileSync('supabase/seed.sql', lines.join('\n'))
 console.log(`Wrote supabase/seed.sql (${resources.length} resources, ${paths.length} paths)`)
+
+// Public marketing counts (numbers only, no titles/links, so nothing paid ships in the client bundle).
+const topics: Record<string, number> = {}
+for (const r of resources) for (const t of r.topics) topics[t] = (topics[t] ?? 0) + 1
+writeFileSync('src/data/topicCounts.json', JSON.stringify({ total: resources.length, topics, paths: paths.length }, null, 1) + '\n')
+console.log('Wrote src/data/topicCounts.json')

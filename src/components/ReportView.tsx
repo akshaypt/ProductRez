@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { BulletFlag, ScoreReport } from '@scoring'
 import { Icon } from './Icon'
+import { SemiGauge } from './SemiGauge'
 import { cx } from '../lib/util'
 
 const FLAG_LABEL: Record<BulletFlag, string> = {
@@ -79,7 +80,7 @@ export function ReportView({ report, onFix, fixLabel = 'Fix this in the Writer' 
     <div className="report" data-testid="report">
       <aside className="summary">
         <div className="card">
-          <Gauge value={report.overall} color={color} />
+          <div className="gauge" role="img" aria-label={`Overall score ${report.overall} out of 100`}><SemiGauge value={report.overall} size={250} decorative /></div>
           <div className="stamp" style={{ color }}>{report.gradeLabel}</div>
           <p style={{ marginTop: 6, fontSize: '0.93rem' }}>{report.headline}</p>
           <p className="faint" style={{ fontSize: '0.82rem', marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--border)' }}>{report.level.note}</p>
@@ -148,7 +149,7 @@ export function ReportView({ report, onFix, fixLabel = 'Fix this in the Writer' 
             ) : (
               <div className="tickets">
                 {report.findings.map((f) => (
-                  <div key={f.id} className={cx('ticket', f.priority.toLowerCase())}>
+                  <div key={f.id} className={cx('ticket', f.priority.toLowerCase())} style={{ ['--i' as string]: Math.min(report.findings.indexOf(f), 10) }}>
                     <button aria-expanded={open === f.id} onClick={() => setOpen(open === f.id ? null : f.id)}>
                       <span className={`chip ${f.priority.toLowerCase()}`}>{f.id.toUpperCase()}</span>
                       <span className="t">{f.title}</span>

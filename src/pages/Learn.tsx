@@ -59,10 +59,10 @@ export default function Learn() {
   const path = data.paths.find((p) => p.id === pathId)
   const list = data.resources.filter((r) => (topic === 'all' || r.topics.includes(topic)) && (kind === 'all' || r.kind === kind) && (level === 'all' || r.level === level) && (!saved || prog[r.id]?.bookmarked) && (!q || `${r.title} ${r.source} ${r.why}`.toLowerCase().includes(q.toLowerCase())))
 
-  const Card = ({ r }: { r: Resource }) => {
+  const Card = ({ r, i = 0 }: { r: Resource; i?: number }) => {
     const p = prog[r.id] ?? {}
     return (
-      <article className={`res ${p.done ? 'done' : ''}`}>
+      <article className={`res ${p.done ? 'done' : ''}`} style={{ ['--i' as string]: Math.min(i, 12) }}>
         <div className="kind"><Icon name={KIND[r.kind].icon} /></div>
         <div>
           <h3><a href={r.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>{r.title}</a></h3>
@@ -124,7 +124,7 @@ export default function Learn() {
       <div className="row" style={{ gap: 6, marginBottom: 16 }}>
         {['all', ...Object.keys(TOPICS)].map((t) => <button key={t} className={`chip btnish ${topic === t ? 'on' : ''}`} onClick={() => setTopic(t)} aria-pressed={topic === t}>{t === 'all' ? 'All topics' : TOPICS[t]}</button>)}
       </div>
-      {list.length === 0 ? <div className="card soft">Nothing matches. Try clearing a filter.</div> : list.map((r) => <Card key={r.id} r={r} />)}
+      {list.length === 0 ? <div className="card soft">Nothing matches. Try clearing a filter.</div> : list.map((r, i) => <Card key={r.id} r={r} i={i} />)}
     </div>
   )
 }

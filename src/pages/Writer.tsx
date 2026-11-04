@@ -7,6 +7,7 @@ import { useApp } from '../state/app'
 import { ApiError, type BuildOpts, type StoredResume } from '../lib/types'
 import { Icon } from '../components/Icon'
 import { ResumePreview } from '../components/ResumePreview'
+import { SemiGauge } from '../components/SemiGauge'
 import { AuthPrompt, LockCard } from '../components/Paywall'
 import { download, guessPaper, slug, store, uid } from '../lib/util'
 import { emptyResume, placeholderCount, sampleResume, withIds } from '../lib/resume'
@@ -119,6 +120,49 @@ const F = ({ label, value, onChange, placeholder, type = 'text' }: { label: stri
   <div className="field"><label>{label}</label><input className="input" type={type} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} /></div>
 )
 
+type Tab = 'contact' | 'summary' | 'experience' | 'projects' | 'education' | 'skills' | 'finish'
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'contact', label: 'Contact' }, { id: 'summary', label: 'Summary' }, { id: 'experience', label: 'Experience' },
+  { id: 'projects', label: 'Projects' }, { id: 'education', label: 'Education' }, { id: 'skills', label: 'Skills' },
+]
+const STYLE_OF: Record<string, string> = { ledger: 'Classic', ink: 'Classic', northstar: 'Classic', roadmap: 'Modern', launchpad: 'Modern', sprint: 'Compact' }
+
+function TemplateModal({ open, onClose, data, current, onPick, stage }: { open: boolean; onClose: () => void; data: ResumeData; current: string; onPick: (id: string) => void; stage: string }) {
+  const [filter, setFilter] = useState('All templates')
+  useEffect(() => {
+    if (!open) return
+    const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    window.addEventListener('keydown', k)
+    return () => window.removeEventListener('keydown', k)
+  }, [open, onClose])
+  if (!open) return null
+  const recommended = stage === 'apm' ? ['launchpad', 'ledger'] : stage === 'senior' ? ['northstar', 'sprint', 'ledger'] : ['roadmap', 'ledger']
+  const shown = TEMPLATES.filter((t) => filter === 'All templates' || (filter === 'Recommended' ? recommended.includes(t.id) : STYLE_OF[t.id] === filter))
+  const groups = ['All templates', 'Recommended', 'Classic', 'Modern', 'Compact']
+  return (
+    <div className="overlay" role="dialog" aria-modal="true" aria-label="Resume templates" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="card modal tmodal">
+        <div className="tmodal-head"><b>Resume templates</b><button className="x" style={{ position: 'static' }} onClick={onClose} aria-label="Close"><Icon name="x" size={16} /></button></div>
+        <div className="tmodal-body">
+          <div className="tmodal-nav">
+            {groups.map((g, i) => (
+              <button key={g} className={filter === g ? 'on' : ''} onClick={() => setFilter(g)}>{i === 2 && <i className="tm-sep">By style</i>}{g}</button>
+            ))}
+          </div>
+          <div className="tmodal-grid" key={filter}>
+            {shown.map((t, i) => (
+              <div key={t.id} className={`tm-card ${current === t.id ? 'on' : ''}`} style={{ ['--i' as string]: i }}>
+                <div className="tm-doc"><ResumePreview data={data} template={t.id} accent={t.accentDefault} paper="letter" fontSize={t.fontSize} showBreaks={false} /></div>
+                <div className="tm-meta"><div><b>{t.name}</b><span>{t.bestFor}</span></div><button className={`btn sm ${current === t.id ? 'ghost' : ''}`} onClick={() => { onPick(t.id); onClose() }}>{current === t.id ? 'Selected' : 'Use'}</button></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Writer() {
   const { user, ent, api, openAuth, toast, prefs, ready } = useApp()
   const [params] = useSearchParams()
@@ -129,6 +173,9 @@ export default function Writer() {
   const [mobileView, setMobileView] = useState(false)
   const [menu, setMenu] = useState(false)
   const [printing, setPrinting] = useState(false)
+  const [tab, setTab] = useState<Tab>('experience')
+  const [tplOpen, setTplOpen] = useState(false)
+  const [jd, setJd] = useState('')
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   const level = prefs.stage === 'senior' ? 'senior' : prefs.stage === 'aspiring' ? 'apm' : 'pm'
 
@@ -181,6 +228,15 @@ export default function Writer() {
       return null
     }
   }, [cur, level])
+
+  const matchReport = useMemo(() => {
+    if (!cur || jd.trim().length < 80) return null
+    try {
+      return scoreResume({ text: buildPlainText(cur.data), jobDescription: jd, targetLevel: level === 'apm' ? 'apm' : level === 'senior' ? 'senior' : 'auto' })
+    } catch {
+      return null
+    }
+  }, [cur, jd, level])
 
   if (!ready || !loaded) return <div className="page"><div className="skeleton" style={{ height: 420 }} /></div>
   if (!user) return <div className="page"><AuthPrompt title="Sign in to build your resume" body="The Writer turns your experience into a recruiter-ready, ATS-safe LaTeX resume." onSignIn={() => openAuth('Sign in to open the Resume Writer.')} /></div>
@@ -266,12 +322,125 @@ export default function Writer() {
     setTimeout(() => window.print(), 350)
   }
 
+  const activeIdx = TABS.findIndex((t) => t.id === tab)
+  const exportMenu = (
+    <div style={{ position: 'relative' }}>
+      <button className="btn" onClick={() => setMenu((m) => !m)} aria-expanded={menu} data-testid="export-btn"><Icon name="download" size={17} /> Download <Icon name="chevd" size={14} /></button>
+      {menu && (
+        <div className="card pop" role="menu">
+          <button onClick={() => exportTex('download')} role="menuitem" data-testid="dl-tex"><b>Download .tex (best for ATS)</b><span>Compile with pdfLaTeX for a clean text layer</span></button>
+          <button onClick={() => exportTex('overleaf')} role="menuitem"><b>Open in Overleaf</b><span>Compile to PDF in one click</span></button>
+          <button onClick={printPdf} role="menuitem"><b>Print / Save as PDF</b><span>Quick PDF from the preview</span></button>
+          <button onClick={() => exportTex('copy')} role="menuitem"><b>Copy LaTeX</b></button>
+          <button onClick={() => { navigator.clipboard.writeText(buildPlainText(cur.data)); setMenu(false); toast('Plain text copied. Paste it into ATS portals.') }} role="menuitem"><b>Copy plain text</b><span>For “paste your resume” forms</span></button>
+          <button onClick={() => { download(`${fname}-resume.txt`, buildPlainText(cur.data)); setMenu(false) }} role="menuitem"><b>Download .txt</b></button>
+        </div>
+      )}
+    </div>
+  )
+
+  const sectionBody = () => {
+    switch (tab) {
+      case 'contact':
+        return (
+          <div className="wcard"><h3 className="wh">Contact</h3><p className="muted wsub">Plain text only: ATS systems read this block first.</p>
+            <div className="grid2">
+              <F label="Full name" value={cur.data.basics.name} onChange={(v) => data((d) => (d.basics.name = v))} />
+              <F label="Headline" value={cur.data.basics.headline} placeholder="Senior Product Manager · Payments" onChange={(v) => data((d) => (d.basics.headline = v))} />
+              <F label="Email" type="email" value={cur.data.basics.email} onChange={(v) => data((d) => (d.basics.email = v))} />
+              <F label="Phone" value={cur.data.basics.phone} onChange={(v) => data((d) => (d.basics.phone = v))} />
+              <F label="Location" value={cur.data.basics.location} placeholder="Bengaluru, India" onChange={(v) => data((d) => (d.basics.location = v))} />
+              <F label="LinkedIn" value={cur.data.basics.linkedin} placeholder="linkedin.com/in/you" onChange={(v) => data((d) => (d.basics.linkedin = v))} />
+              <F label="Portfolio / website" value={cur.data.basics.website} onChange={(v) => data((d) => (d.basics.website = v))} />
+            </div>
+          </div>
+        )
+      case 'summary':
+        return (
+          <div className="wcard"><h3 className="wh">Summary</h3><p className="muted wsub">Optional. Two lines: who you are, your best proof point, what you want next.</p>
+            <textarea className="textarea" rows={5} value={cur.data.summary} placeholder="PM with N years in [domain]. Best proof point. What you want next." onChange={(e) => data((d) => (d.summary = e.target.value))} />
+          </div>
+        )
+      case 'experience':
+        return (
+          <div className="stack">
+            {cur.data.experience.map((x, xi) => (
+              <div className="wcard" key={x.id}>
+                <div className="row" style={{ justifyContent: 'space-between' }}><h3 className="wh">{x.company || x.title || `Role ${xi + 1}`}</h3><div className="row" style={{ gap: 6 }}><button className="btn sm ghost" disabled={xi === 0} onClick={() => data((d) => { const e = d.experience; [e[xi - 1], e[xi]] = [e[xi], e[xi - 1]] })} aria-label="Move role up"><Icon name="up" size={14} /></button><button className="btn sm ghost" onClick={() => data((d) => d.experience.splice(xi, 1))} aria-label="Remove role"><Icon name="trash" size={14} /></button></div></div>
+                <div className="grid2" style={{ marginTop: 10 }}>
+                  <F label="Company" value={x.company} onChange={(v) => data((d) => (d.experience[xi].company = v))} />
+                  <F label="Title" value={x.title} onChange={(v) => data((d) => (d.experience[xi].title = v))} />
+                  <F label="Start" value={x.start} placeholder="Jan 2021" onChange={(v) => data((d) => (d.experience[xi].start = v))} />
+                  <F label="End" value={x.end} placeholder="Present" onChange={(v) => data((d) => (d.experience[xi].end = v))} />
+                  <F label="Location" value={x.location} onChange={(v) => data((d) => (d.experience[xi].location = v))} />
+                </div>
+                <div style={{ marginTop: 14 }}><Bullets items={x.bullets} role={x.title} level={level} onChange={(b) => data((d) => (d.experience[xi].bullets = b))} /></div>
+              </div>
+            ))}
+            <button className="btn ghost" style={{ justifySelf: 'start' }} onClick={() => data((d) => d.experience.push({ id: uid(), company: '', title: '', location: '', start: '', end: '', bullets: ['', '', ''] }))}><Icon name="plus" size={16} /> Add role</button>
+          </div>
+        )
+      case 'projects':
+        return (
+          <div className="stack">
+            {cur.data.projects.length === 0 && <div className="wcard soft"><b>Great for APMs and career switchers.</b><p className="muted" style={{ marginTop: 4 }}>Shipped side projects and case studies are your proof of product sense.</p></div>}
+            {cur.data.projects.map((p, pi) => (
+              <div className="wcard" key={p.id}>
+                <div className="row" style={{ justifyContent: 'space-between' }}><h3 className="wh">{p.name || `Project ${pi + 1}`}</h3><button className="btn sm ghost" onClick={() => data((d) => d.projects.splice(pi, 1))} aria-label="Remove project"><Icon name="trash" size={14} /></button></div>
+                <div className="grid2" style={{ marginTop: 10 }}>
+                  <F label="Project" value={p.name} onChange={(v) => data((d) => (d.projects[pi].name = v))} />
+                  <F label="Tag" value={p.tag} placeholder="Side project, 2025" onChange={(v) => data((d) => (d.projects[pi].tag = v))} />
+                  <F label="Link" value={p.link} onChange={(v) => data((d) => (d.projects[pi].link = v))} />
+                </div>
+                <div style={{ marginTop: 14 }}><Bullets items={p.bullets} role={p.name} level={level} onChange={(b) => data((d) => (d.projects[pi].bullets = b))} /></div>
+              </div>
+            ))}
+            <button className="btn ghost" style={{ justifySelf: 'start' }} onClick={() => data((d) => d.projects.push({ id: uid(), name: '', tag: '', link: '', bullets: ['', ''] }))}><Icon name="plus" size={16} /> Add project</button>
+          </div>
+        )
+      case 'education':
+        return (
+          <div className="stack">
+            {cur.data.education.map((e, ei) => (
+              <div className="wcard" key={e.id}>
+                <div className="row" style={{ justifyContent: 'space-between' }}><h3 className="wh">{e.school || `Education ${ei + 1}`}</h3><button className="btn sm ghost" onClick={() => data((d) => d.education.splice(ei, 1))} aria-label="Remove education"><Icon name="trash" size={14} /></button></div>
+                <div className="grid2" style={{ marginTop: 10 }}>
+                  <F label="School" value={e.school} onChange={(v) => data((d) => (d.education[ei].school = v))} />
+                  <F label="Degree" value={e.degree} onChange={(v) => data((d) => (d.education[ei].degree = v))} />
+                  <F label="Start" value={e.start} onChange={(v) => data((d) => (d.education[ei].start = v))} />
+                  <F label="End" value={e.end} onChange={(v) => data((d) => (d.education[ei].end = v))} />
+                </div>
+              </div>
+            ))}
+            <button className="btn ghost" style={{ justifySelf: 'start' }} onClick={() => data((d) => d.education.push({ id: uid(), school: '', degree: '', location: '', start: '', end: '', details: '' }))}><Icon name="plus" size={16} /> Add education</button>
+          </div>
+        )
+      case 'skills':
+        return (
+          <div className="wcard"><h3 className="wh">Skills</h3><p className="muted wsub">Group by theme. Comma-separate the items.</p>
+            <div className="stack" style={{ gap: 12 }}>
+              {cur.data.skills.map((sk, si) => (
+                <div className="grid2" key={sk.id}>
+                  <F label="Group" value={sk.label} onChange={(v) => data((d) => (d.skills[si].label = v))} />
+                  <F label="Items" value={sk.items} onChange={(v) => data((d) => (d.skills[si].items = v))} />
+                </div>
+              ))}
+              <button className="btn ghost" style={{ justifySelf: 'start' }} onClick={() => data((d) => d.skills.push({ id: uid(), label: '', items: '' }))}><Icon name="plus" size={16} /> Add group</button>
+            </div>
+          </div>
+        )
+      default:
+        return null
+    }
+  }
+
+  const score = matchReport ?? live
   return (
-    <div className="page" style={{ maxWidth: 1400 }}>
+    <div className="page" style={{ maxWidth: 1440 }}>
       <div className="writer-bar">
-        <input className="input" style={{ maxWidth: 260 }} value={cur.title} onChange={(e) => patch((r) => ({ ...r, title: e.target.value }))} aria-label="Resume name" />
+        <input className="input" style={{ maxWidth: 250, borderRadius: 999 }} value={cur.title} onChange={(e) => patch((r) => ({ ...r, title: e.target.value }))} aria-label="Resume name" />
         {list.length > 1 && (
-          <select className="select" style={{ maxWidth: 200 }} value={cur.id} onChange={(e) => setCur(list.find((x) => x.id === e.target.value) ?? cur)} aria-label="Switch resume">
+          <select className="select" style={{ maxWidth: 200, borderRadius: 999 }} value={cur.id} onChange={(e) => setCur(list.find((x) => x.id === e.target.value) ?? cur)} aria-label="Switch resume">
             {list.map((r) => <option key={r.id} value={r.id}>{r.title}</option>)}
           </select>
         )}
@@ -280,156 +449,72 @@ export default function Writer() {
         <button className="btn sm ghost" onClick={() => { if (!window.confirm('Delete this resume?')) return; api?.deleteResume(cur.id); const rest = list.filter((x) => x.id !== cur.id); setList(rest); setCur(rest[0] ?? null) }} aria-label="Delete resume"><Icon name="trash" size={14} /></button>
         <span style={{ flex: 1 }} />
         {live && <div className="live-score" title="Live PM-resume score of your current draft"><b>{live.overall}</b><span className="mono faint">live score</span></div>}
-        <div style={{ position: 'relative' }}>
-          <button className="btn" onClick={() => setMenu((m) => !m)} aria-expanded={menu} data-testid="export-btn"><Icon name="download" size={18} /> Export</button>
-          {menu && (
-            <div className="card pop" role="menu">
-              <button onClick={() => exportTex('download')} role="menuitem" data-testid="dl-tex"><b>Download .tex (best for ATS)</b><span>Compile with pdfLaTeX for a clean text layer</span></button>
-              <button onClick={() => exportTex('overleaf')} role="menuitem"><b>Open in Overleaf</b><span>Compile to PDF in one click</span></button>
-              <button onClick={printPdf} role="menuitem"><b>Print / Save as PDF</b><span>Quick PDF from the preview</span></button>
-              <button onClick={() => exportTex('copy')} role="menuitem"><b>Copy LaTeX</b></button>
-              <button onClick={() => { navigator.clipboard.writeText(buildPlainText(cur.data)); setMenu(false); toast('Plain text copied. Paste it into ATS portals.') }} role="menuitem"><b>Copy plain text</b><span>For “paste your resume” forms</span></button>
-              <button onClick={() => { download(`${fname}-resume.txt`, buildPlainText(cur.data)); setMenu(false) }} role="menuitem"><b>Download .txt</b></button>
-            </div>
-          )}
-        </div>
+        {exportMenu}
       </div>
-      <div className={`writer ${mobileView ? 'show-preview' : ''}`}>
-        <div className="edit-col">
-          <details className="acc" open>
-            <summary>Template & style <span className="chip">{meta.name}</span></summary>
-            <div className="in">
-              <div className="tpl-pick">
-                {TEMPLATES.map((t) => (
-                  <button key={t.id} className="tpl-opt" aria-pressed={cur.template === t.id} onClick={() => patch((r) => ({ ...r, template: t.id, options: { ...r.options, accent: t.accentDefault, fontSize: t.fontSize } }))}>
-                    <div className="tpl-thumb"><ResumePreview data={cur.data} template={t.id} accent={t.accentDefault} paper="letter" fontSize={t.fontSize} showBreaks={false} /></div>
-                    <b style={{ fontSize: '0.85rem' }}>{t.name}</b>
-                  </button>
-                ))}
-              </div>
-              <p className="muted" style={{ fontSize: '0.9rem' }}><b>{meta.name}:</b> {meta.tagline}. Best for: {meta.bestFor}.</p>
-              <div className="row">
-                <div className="seg" role="group" aria-label="Paper"><button aria-pressed={cur.options.paper === 'letter'} onClick={() => setOpt({ paper: 'letter' })}>US Letter</button><button aria-pressed={cur.options.paper === 'a4'} onClick={() => setOpt({ paper: 'a4' })}>A4</button></div>
-                <div className="seg" role="group" aria-label="Font size"><button aria-pressed={cur.options.fontSize === 10} onClick={() => setOpt({ fontSize: 10 })}>10pt</button><button aria-pressed={cur.options.fontSize === 11} onClick={() => setOpt({ fontSize: 11 })}>11pt</button></div>
-                {meta.accentChoices.length > 1 && <div className="row" style={{ gap: 8 }} role="group" aria-label="Accent colour">{meta.accentChoices.map((c) => <button key={c} className="swatch" style={{ background: `#${c}` }} aria-label={`Accent #${c}`} aria-pressed={cur.options.accent === c} onClick={() => setOpt({ accent: c })} />)}</div>}
-              </div>
-              <label className="row" style={{ gap: 8, flexWrap: 'nowrap', alignItems: 'flex-start' }}><input type="checkbox" style={{ marginTop: 5, flex: 'none' }} checked={cur.options.boldMetrics} onChange={(e) => setOpt({ boldMetrics: e.target.checked })} /> Auto-bold numbers and metrics so skimmers spot them</label>
-            </div>
-          </details>
 
-          <details className="acc" open>
-            <summary>Header</summary>
-            <div className="in">
-              <div className="grid2">
-                <F label="Full name" value={cur.data.basics.name} onChange={(v) => data((d) => (d.basics.name = v))} />
-                <F label="Headline" value={cur.data.basics.headline} placeholder="Senior Product Manager · Payments" onChange={(v) => data((d) => (d.basics.headline = v))} />
-                <F label="Email" type="email" value={cur.data.basics.email} onChange={(v) => data((d) => (d.basics.email = v))} />
-                <F label="Phone" value={cur.data.basics.phone} onChange={(v) => data((d) => (d.basics.phone = v))} />
-                <F label="Location" value={cur.data.basics.location} placeholder="Bengaluru, India" onChange={(v) => data((d) => (d.basics.location = v))} />
-                <F label="LinkedIn" value={cur.data.basics.linkedin} placeholder="linkedin.com/in/you" onChange={(v) => data((d) => (d.basics.linkedin = v))} />
-                <F label="Portfolio / website" value={cur.data.basics.website} onChange={(v) => data((d) => (d.basics.website = v))} />
-              </div>
-            </div>
-          </details>
-
-          <details className="acc">
-            <summary>Summary <span className="faint" style={{ fontWeight: 500, fontSize: '0.8rem' }}>optional, 2 lines</span></summary>
-            <div className="in"><textarea className="textarea" rows={3} value={cur.data.summary} placeholder="PM with N years in [domain]. Best proof point. What you want next." onChange={(e) => data((d) => (d.summary = e.target.value))} /></div>
-          </details>
-
-          <details className="acc" open>
-            <summary>Experience</summary>
-            <div className="in">
-              {cur.data.experience.map((x, xi) => (
-                <div className="entry" key={x.id}>
-                  <div className="grid2">
-                    <F label="Company" value={x.company} onChange={(v) => data((d) => (d.experience[xi].company = v))} />
-                    <F label="Title" value={x.title} onChange={(v) => data((d) => (d.experience[xi].title = v))} />
-                    <F label="Start" value={x.start} placeholder="Jan 2021" onChange={(v) => data((d) => (d.experience[xi].start = v))} />
-                    <F label="End" value={x.end} placeholder="Present" onChange={(v) => data((d) => (d.experience[xi].end = v))} />
-                    <F label="Location" value={x.location} onChange={(v) => data((d) => (d.experience[xi].location = v))} />
-                  </div>
-                  <Bullets items={x.bullets} role={x.title} level={level} onChange={(b) => data((d) => (d.experience[xi].bullets = b))} />
-                  <div className="row"><button className="btn sm ghost" disabled={xi === 0} onClick={() => data((d) => { const e = d.experience; [e[xi - 1], e[xi]] = [e[xi], e[xi - 1]] })}><Icon name="up" size={14} /> Move up</button><button className="btn sm ghost" onClick={() => data((d) => d.experience.splice(xi, 1))}><Icon name="trash" size={14} /> Remove role</button></div>
-                </div>
-              ))}
-              <button className="btn ghost" onClick={() => data((d) => d.experience.push({ id: uid(), company: '', title: '', location: '', start: '', end: '', bullets: ['', '', ''] }))}><Icon name="plus" size={16} /> Add role</button>
-            </div>
-          </details>
-
-          <details className="acc">
-            <summary>Projects <span className="faint" style={{ fontWeight: 500, fontSize: '0.8rem' }}>great for APMs & switchers</span></summary>
-            <div className="in">
-              {cur.data.projects.map((p, pi) => (
-                <div className="entry" key={p.id}>
-                  <div className="grid2">
-                    <F label="Project" value={p.name} onChange={(v) => data((d) => (d.projects[pi].name = v))} />
-                    <F label="Tag" value={p.tag} placeholder="Side project, 2025" onChange={(v) => data((d) => (d.projects[pi].tag = v))} />
-                    <F label="Link" value={p.link} onChange={(v) => data((d) => (d.projects[pi].link = v))} />
-                  </div>
-                  <Bullets items={p.bullets} role={p.name} level={level} onChange={(b) => data((d) => (d.projects[pi].bullets = b))} />
-                  <button className="btn sm ghost" onClick={() => data((d) => d.projects.splice(pi, 1))}><Icon name="trash" size={14} /> Remove</button>
-                </div>
-              ))}
-              <button className="btn ghost" onClick={() => data((d) => d.projects.push({ id: uid(), name: '', tag: '', link: '', bullets: ['', ''] }))}><Icon name="plus" size={16} /> Add project</button>
-            </div>
-          </details>
-
-          <details className="acc">
-            <summary>Education</summary>
-            <div className="in">
-              {cur.data.education.map((e, ei) => (
-                <div className="entry" key={e.id}>
-                  <div className="grid2">
-                    <F label="School" value={e.school} onChange={(v) => data((d) => (d.education[ei].school = v))} />
-                    <F label="Degree" value={e.degree} onChange={(v) => data((d) => (d.education[ei].degree = v))} />
-                    <F label="Start" value={e.start} onChange={(v) => data((d) => (d.education[ei].start = v))} />
-                    <F label="End" value={e.end} onChange={(v) => data((d) => (d.education[ei].end = v))} />
-                  </div>
-                  <button className="btn sm ghost" onClick={() => data((d) => d.education.splice(ei, 1))}><Icon name="trash" size={14} /> Remove</button>
-                </div>
-              ))}
-              <button className="btn ghost" onClick={() => data((d) => d.education.push({ id: uid(), school: '', degree: '', location: '', start: '', end: '', details: '' }))}><Icon name="plus" size={16} /> Add education</button>
-            </div>
-          </details>
-
-          <details className="acc">
-            <summary>Skills</summary>
-            <div className="in">
-              {cur.data.skills.map((s, si) => (
-                <div className="grid2" key={s.id}>
-                  <F label="Group" value={s.label} onChange={(v) => data((d) => (d.skills[si].label = v))} />
-                  <F label="Items (comma separated)" value={s.items} onChange={(v) => data((d) => (d.skills[si].items = v))} />
-                </div>
-              ))}
-              <button className="btn ghost" onClick={() => data((d) => d.skills.push({ id: uid(), label: '', items: '' }))}><Icon name="plus" size={16} /> Add group</button>
-            </div>
-          </details>
-
-          {live && (
-            <details className="acc">
-              <summary>Live review <span className="chip">{live.overall}/100</span></summary>
-              <div className="in">
-                {live.findings.slice(0, 5).map((f) => (<div key={f.id} className="row" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}><span className={`chip ${f.priority.toLowerCase()}`}>{f.priority}</span><span>{f.title}</span></div>))}
-                {live.findings.length === 0 && <span>Looking sharp. Nothing to fix.</span>}
-                <Link to="/score" className="link-btn">Run the full review in Resume Score</Link>
-              </div>
-            </details>
-          )}
+      <div className="wtabs" role="tablist" aria-label="Resume sections">
+        <div className="wtabs-in" style={{ ['--ix' as string]: Math.max(activeIdx, 0) }}>
+          <i className="wtab-ind" style={{ opacity: tab === 'finish' ? 0 : 1 }} />
+          {TABS.map((t) => <button key={t.id} role="tab" aria-selected={tab === t.id} className="wtab" onClick={() => setTab(t.id)}>{t.label}</button>)}
         </div>
+        <button role="tab" aria-selected={tab === 'finish'} className={`btn ${tab === 'finish' ? '' : 'ghost'} wfinish`} onClick={() => setTab('finish')}>Finish up &amp; preview <Icon name="arrow" size={15} /></button>
+      </div>
 
-        <div className="preview-col">
-          <div className="row" style={{ marginBottom: 8, justifyContent: 'space-between' }}>
-            <span className={`chip ${pages > 1 ? 'bad' : 'good'}`}>{pages > 1 ? `${pages} pages, trim to 1` : '1 page'}</span>
-            <span className="faint" style={{ fontSize: '0.8rem' }}>Preview approximates the LaTeX output</span>
+      {tab !== 'finish' ? (
+        <div className={`writer ${mobileView ? 'show-preview' : ''}`}>
+          <div className="edit-col" key={tab} style={{ animation: 'tabIn .45s var(--ease) both' }}>{sectionBody()}</div>
+          <div className="preview-col">
+            <div className="row" style={{ marginBottom: 8, justifyContent: 'space-between' }}>
+              <span className={`chip ${pages > 1 ? 'bad' : 'good'}`}>{pages > 1 ? `${pages} pages, trim to 1` : '1 page'}</span>
+              <button className="chip btnish" onClick={() => setTplOpen(true)}><Icon name="layout" size={12} /> {meta.name} template</button>
+            </div>
+            <div className="paper-wrap"><ResumePreview data={cur.data} template={cur.template} accent={cur.options.accent} paper={cur.options.paper} fontSize={cur.options.fontSize} boldMetrics={cur.options.boldMetrics} onPages={setPages} /></div>
           </div>
-          <div className="paper-wrap"><ResumePreview data={cur.data} template={cur.template} accent={cur.options.accent} paper={cur.options.paper} fontSize={cur.options.fontSize} boldMetrics={cur.options.boldMetrics} onPages={setPages} /></div>
         </div>
-      </div>
+      ) : (
+        <div className="finish" style={{ animation: 'tabIn .45s var(--ease) both' }}>
+          <div>
+            <div className="ftool">
+              <button className="tag on" onClick={() => setTplOpen(true)}><Icon name="layout" size={13} /> Template · {meta.name}</button>
+              <div className="seg" role="group" aria-label="Paper"><button aria-pressed={cur.options.paper === 'letter'} onClick={() => setOpt({ paper: 'letter' })}>US Letter</button><button aria-pressed={cur.options.paper === 'a4'} onClick={() => setOpt({ paper: 'a4' })}>A4</button></div>
+              <div className="seg" role="group" aria-label="Font size"><button aria-pressed={cur.options.fontSize === 10} onClick={() => setOpt({ fontSize: 10 })}>10pt</button><button aria-pressed={cur.options.fontSize === 11} onClick={() => setOpt({ fontSize: 11 })}>11pt</button></div>
+              {meta.accentChoices.length > 1 && <div className="row" style={{ gap: 8 }} role="group" aria-label="Accent colour">{meta.accentChoices.map((c) => <button key={c} className="swatch" style={{ background: `#${c}` }} aria-label={`Accent #${c}`} aria-pressed={cur.options.accent === c} onClick={() => setOpt({ accent: c })} />)}</div>}
+              <label className="row" style={{ gap: 8, fontSize: '0.84rem', color: 'var(--text-2)' }}><button type="button" className={`tog2 ${cur.options.boldMetrics ? 'on' : ''}`} aria-pressed={cur.options.boldMetrics} onClick={() => setOpt({ boldMetrics: !cur.options.boldMetrics })} aria-label="Bold metrics" />Bold metrics</label>
+              <span style={{ flex: 1 }} /><span className={`chip ${pages > 1 ? 'bad' : 'good'}`}>{pages > 1 ? `${pages} pages` : '1 page'}</span>
+            </div>
+            <div className="paper-wrap" style={{ marginTop: 10 }}><ResumePreview data={cur.data} template={cur.template} accent={cur.options.accent} paper={cur.options.paper} fontSize={cur.options.fontSize} boldMetrics={cur.options.boldMetrics} onPages={setPages} /></div>
+          </div>
+          <div className="fside">
+            <div className="wcard" style={{ textAlign: 'center' }}>
+              <SemiGauge value={score?.overall ?? 0} size={230} />
+              <p className="faint" style={{ fontSize: '0.78rem', marginTop: 6 }}>{matchReport ? 'Scored against the job description below' : 'Live score of this draft'}</p>
+              <Link to="/score" className="btn ghost block" style={{ marginTop: 12 }}>Run the full review</Link>
+            </div>
+            <div className="wcard">
+              <div className="tag" style={{ border: 0, padding: 0, height: 'auto', marginBottom: 10, display: 'flex' }}>Fix backlog</div>
+              {(score?.findings ?? []).slice(0, 4).map((f) => (<div key={f.id} className="row" style={{ alignItems: 'flex-start', flexWrap: 'nowrap', marginBottom: 8, fontSize: '0.86rem' }}><span className={`chip ${f.priority.toLowerCase()}`}>{f.priority}</span><span>{f.title}</span></div>))}
+              {(score?.findings.length ?? 0) === 0 && <span className="muted" style={{ fontSize: '0.88rem' }}>Looking sharp. Nothing to fix.</span>}
+            </div>
+            <div className="wcard">
+              <div className="tag" style={{ border: 0, padding: 0, height: 'auto', marginBottom: 8, display: 'flex' }}>Keyword targeting</div>
+              <textarea className="textarea" rows={4} value={jd} onChange={(e) => setJd(e.target.value)} placeholder="Paste a job description to see which keywords your resume is missing…" aria-label="Job description" />
+              {matchReport?.keywordMatch && (
+                <div style={{ marginTop: 10 }}>
+                  <div className="row" style={{ justifyContent: 'space-between', fontSize: '0.86rem' }}><b>{matchReport.keywordMatch.percent}% match</b><span className="faint">{matchReport.keywordMatch.matched.length} of {matchReport.keywordMatch.matched.length + matchReport.keywordMatch.missing.length}</span></div>
+                  <div className="bar" style={{ margin: '6px 0 10px' }}><i style={{ width: `${matchReport.keywordMatch.percent}%`, background: 'var(--accent)' }} /></div>
+                  <div className="kw">{matchReport.keywordMatch.missing.slice(0, 10).map((k) => <span key={k} className="chip warn">{k}</span>)}</div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <button className="btn lg" style={{ position: 'fixed', right: 16, bottom: 'calc(5.2rem + var(--safe-b))', zIndex: 25 }} id="mobile-toggle" onClick={() => setMobileView((v) => !v)}>
         <Icon name={mobileView ? 'edit' : 'eye'} size={18} /> {mobileView ? 'Edit' : 'Preview'}
       </button>
       <style>{`#mobile-toggle{display:none}@media(max-width:1100px){#mobile-toggle{display:inline-flex}}`}</style>
+      <TemplateModal open={tplOpen} onClose={() => setTplOpen(false)} data={cur.data} current={cur.template} stage={level} onPick={(id) => patch((r) => ({ ...r, template: id, options: { ...r.options, accent: templateById(id).accentDefault, fontSize: templateById(id).fontSize } }))} />
       {printing && createPortal(
         <div id="print-root">
           <style>{`@page{size:${cur.options.paper === 'a4' ? 'A4' : 'letter'};margin:0}`}</style>

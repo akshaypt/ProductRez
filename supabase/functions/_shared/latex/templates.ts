@@ -137,7 +137,8 @@ const FONTS: Record<string, string> = {
 }
 
 /** Per-template macro definitions. The body generator only calls these macros. */
-const MACROS: Record<string, string> = {
+/** A function, not a constant: tagged templates (String.raw) count as side effects and would otherwise be bundled into the browser. */
+const macros = (): Record<string, string> => ({
   ledger: String.raw`
 \newcommand{\rzname}[1]{{\centering{\Huge\scshape\bfseries #1}\par}\vspace{3pt}}
 \newcommand{\rzheadline}[1]{{\centering{\large #1}\par}\vspace{1pt}}
@@ -192,7 +193,7 @@ const MACROS: Record<string, string> = {
 \newcommand{\rzroleone}[2]{\noindent\textbf{#1}\hfill #2\par\vspace{1pt}}
 \newcommand{\rzskill}[2]{\noindent\textbf{#1:} #2\par\vspace{1pt}}
 `,
-}
+})
 
 const LIST: Record<string, string> = {
   default: '\\setlist[itemize]{leftmargin=1.2em,itemsep=1.2pt,topsep=2pt,parsep=0pt,partopsep=0pt,label={\\textbullet}}',
@@ -222,7 +223,7 @@ ${geometry(meta.id, o)}
 \raggedright
 \raggedbottom
 ${meta.dense ? LIST.sprint : LIST.default}
-${MACROS[meta.id].trim()}
+${macros()[meta.id].trim()}
 `
 }
 

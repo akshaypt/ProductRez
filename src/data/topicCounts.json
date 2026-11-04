@@ -1,0 +1,16 @@
+{
+ "total": 65,
+ "topics": {
+  "start": 16,
+  "career": 19,
+  "ai": 15,
+  "strategy": 24,
+  "data": 9,
+  "discovery": 7,
+  "sense": 8,
+  "exec": 7,
+  "tech": 4,
+  "interview": 9
+ },
+ "paths": 5
+}

@@ -67,3 +67,19 @@ scripts/scrape-jobs.ts       daily ingestion (GitHub Action, 01:30 UTC)
 - **PDF output**: the best export is the `.tex` (compile with pdfLaTeX / Overleaf). The in-browser "Print / Save as PDF" is a quick path that mirrors the template but is not byte-identical. A server-side LaTeX compile service is the natural next step.
 - The Writer's live preview is an HTML approximation of the LaTeX output.
 - Resource links were verified at build time; `npm run resources:check` (monthly workflow) catches link rot.
+
+## Design & motion
+
+- **Look:** strictly monochrome, black and white, dark-led. The accent colour *is* ink (white on black, black on white). Status is shown with a luminance ramp and labels, never hue alone (P0 solid, P1 outlined, P2 muted; the score gauge runs grey → white). Light mode is the same system inverted (Account → Theme).
+- **Marketing site** (`src/components/mk/*`, `src/styles/mk.css`): framed column with hairlines, labels that sit on drawing rules, alternating black/white sections. Each section scopes its own colour tokens, so any component placed inside adapts automatically.
+- **Motion:** one easing curve everywhere (`cubic-bezier(0.165, 0.84, 0.44, 1)`), Lenis inertial scrolling (marketing only), one shared scroll ticker for all scroll-linked effects (`src/lib/motion.ts`), sticky stacking bands, scroll-scrubbed text, a self-playing hero demo with a scripted cursor, and an ATS-parsing simulation. Everything respects `prefers-reduced-motion`.
+- **App:** dark icon rail with a sliding indicator and tooltips, ⌘K command palette, section-tab Writer with a "Finish up & preview" step (template modal, live gauge, keyword targeting).
+
+## Security note: what must never ship in the browser bundle
+
+The LaTeX generator (`buildLatex` and its macro definitions) and the paid library are deliberately kept out of production client bundles; the export is served by the `export-resume` edge function. Template macros are wrapped in a function because `String.raw` tagged templates count as side effects and would otherwise be bundled. To re-check after changes:
+
+```bash
+VITE_SUPABASE_URL=https://x.supabase.co VITE_SUPABASE_ANON_KEY=x npx vite build --outDir /tmp/prod
+for n in rzroleone newcommand "Continuous Discovery Habits" pr.demo.user; do grep -rl -- "$n" /tmp/prod/assets | wc -l; done   # all must be 0
+```

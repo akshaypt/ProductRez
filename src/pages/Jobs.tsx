@@ -16,9 +16,9 @@ const STATUS: { id: JobStatus; label: string }[] = [
   { id: 'offer', label: 'Offer' },
 ]
 
-function JobCard({ job, saved, onSave, onUnsave }: { job: Job; saved?: SavedJob; onSave: () => void; onUnsave: () => void }) {
+function JobCard({ job, saved, onSave, onUnsave, idx = 0 }: { idx?: number; job: Job; saved?: SavedJob; onSave: () => void; onUnsave: () => void }) {
   return (
-    <article className="job">
+    <article className="job" style={{ ['--i' as string]: Math.min(idx, 12) }}>
       <div className="logo-tile" style={{ background: tone(job.company) }} aria-hidden="true">{job.company[0]}</div>
       <div>
         <div className="t">{job.title}</div>
@@ -145,7 +145,7 @@ export default function Jobs() {
           </div>
           {!jobs ? <div className="skeleton" style={{ height: 260 }} /> : shown.length === 0 ? (
             <div className="card soft">No jobs match these filters{jobs.length === 0 ? ' yet. The next drop lands at 7:00 AM IST.' : '.'}</div>
-          ) : <div className="rows">{shown.map((j) => <JobCard key={j.id} job={j} saved={savedMap.get(j.id)} onSave={() => save(j)} onUnsave={() => unsave(j.id)} />)}</div>}
+          ) : <div className="rows">{shown.map((j, i) => <JobCard key={j.id} idx={i} job={j} saved={savedMap.get(j.id)} onSave={() => save(j)} onUnsave={() => unsave(j.id)} />)}</div>}
         </>
       ) : (
         <div className="pipeline-board">
