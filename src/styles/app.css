@@ -13,7 +13,7 @@
   --border-strong: #cfcfcf;
   --text: #0a0a0a;
   --text-2: #484848;
-  --text-3: #6a6a6a;
+  --text-3: #5a5a5a;
   --ink: #0a0a0a;          /* primary action + display colour */
   --ink-fg: #ffffff;
   --accent: #0a0a0a;       /* monochrome: the accent IS ink */
@@ -53,7 +53,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --bg: #000000; --bg-subtle: #000000; --surface: #0e0e0e; --surface-2: #151515; --surface-3: #1e1e1e;
-    --border: #232323; --border-strong: #363636; --text: #ffffff; --text-2: #b0b0b0; --text-3: #8e8e8e;
+    --border: #232323; --border-strong: #363636; --text: #ffffff; --text-2: #cfcfcf; --text-3: #a8a8a8;
     --ink: #ffffff; --ink-fg: #000000; --accent: #ffffff; --accent-text: #ffffff; --accent-soft: #1a1a1a; --accent-line: #333333;
     --green: #3ddc97; --green-soft: rgba(61,220,151,.14); --amber: #ffb84d; --amber-soft: rgba(255,184,77,.14); --red: #ff7a7a; --red-soft: rgba(255,122,122,.14); --info: #8fa8ff; --info-soft: rgba(143,168,255,.14); --gauge-1: #ff5c5c; --gauge-2: #ffb020; --gauge-3: #34d399;
     --sh-pop: 0 24px 60px -12px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255,255,255,0.05);
@@ -64,7 +64,7 @@
 }
 :root[data-theme='dark'] {
   --bg: #000000; --bg-subtle: #000000; --surface: #0e0e0e; --surface-2: #151515; --surface-3: #1e1e1e;
-  --border: #232323; --border-strong: #363636; --text: #ffffff; --text-2: #b0b0b0; --text-3: #8e8e8e;
+  --border: #232323; --border-strong: #363636; --text: #ffffff; --text-2: #cfcfcf; --text-3: #a8a8a8;
   --ink: #ffffff; --ink-fg: #000000; --accent: #ffffff; --accent-text: #ffffff; --accent-soft: #1a1a1a; --accent-line: #333333;
   --green: #3ddc97; --green-soft: rgba(61,220,151,.14); --amber: #ffb84d; --amber-soft: rgba(255,184,77,.14); --red: #ff7a7a; --red-soft: rgba(255,122,122,.14); --info: #8fa8ff; --info-soft: rgba(143,168,255,.14); --gauge-1: #ff5c5c; --gauge-2: #ffb020; --gauge-3: #34d399;
   --sh-pop: 0 24px 60px -12px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255,255,255,0.05);
@@ -140,7 +140,7 @@ button { font: inherit; color: inherit; }
 .rail .logo svg rect { fill: #fff; } .rail .logo svg path { stroke: #000; } .rail .logo svg circle { fill: #000; }
 .rail-nav { position: relative; display: grid; gap: 4px; }
 .rail-ind { position: absolute; left: 0; top: 0; width: 44px; height: 44px; border-radius: 12px; background: #1c1c1c; transform: translateY(var(--y, 0)); transition: transform 0.55s var(--ease), opacity 0.3s; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
-.nav-link { position: relative; z-index: 1; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 12px; border: 0; background: none; color: #7a7a7a; cursor: pointer; text-decoration: none; transition: color 0.3s var(--ease), transform 0.3s var(--ease), background 0.3s; }
+.nav-link { position: relative; z-index: 1; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 12px; border: 0; background: none; color: #b4b4b4; cursor: pointer; text-decoration: none; transition: color 0.3s var(--ease), transform 0.3s var(--ease), background 0.3s; }
 .nav-link:hover { color: #fff; transform: translateY(-1px); } .nav-link.active { color: #fff; background: transparent; }
 .nav-link .lock { position: absolute; right: 7px; bottom: 7px; opacity: 0.7; color: #fff; }
 .nav-link.up { color: #fff; } .nav-link.up:hover { background: #151515; }
@@ -149,7 +149,7 @@ button { font: inherit; color: inherit; }
 .nav-link kbd { font-family: var(--font-mono); font-size: 0.75rem; padding: 1px 5px; border-radius: 4px; background: #eee; color: #555; }
 .rail .spacer { flex: 1; }
 .rail-avatar { position: relative; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: #fff; color: #000; font-weight: 600; font-size: 0.9rem; text-decoration: none; margin-top: 4px; transition: transform 0.3s var(--ease); } .rail-avatar:hover { transform: scale(1.08); }
-.rail-avatar .lbl { flex-direction: column; align-items: flex-start; gap: 0; } .rail-avatar .lbl small { color: #666; font-weight: 400; font-size: 0.75rem; }
+.rail-avatar .lbl { flex-direction: column; align-items: flex-start; gap: 0; } .rail-avatar .lbl small { color: #a0a0a0; font-weight: 400; font-size: 0.75rem; }
 .demo-dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; margin-top: 8px; opacity: .5; }
 .main { min-width: 0; padding: clamp(1.25rem, 3vw, 2.25rem); padding-bottom: 6rem; }
 .page { max-width: 1180px; margin: 0 auto; animation: pageIn 0.5s var(--ease); }
