@@ -21,10 +21,10 @@ function ScoreCard() {
   return (
     <div style={{ padding: 22 }}>
       <div className="aw-bar"><span className="tag soft">Overall review</span><span className="tag">Level: PM</span><span style={{ flex: 1 }} /><span className="tag on">Fix in Writer</span></div>
-      <div className="aw-grid" style={{ gridTemplateColumns: 'minmax(0,1fr) 250px' }}>
+      <div className="aw-grid">
         <div className="aw-card">
           <div className="tag" style={{ border: 0, padding: 0, height: 'auto', marginBottom: 10 }}>PM competencies evidenced</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(64px, 1fr))', gap: 8 }}>
             {report.competencies.map((c, i) => (
               <div key={c.id} style={{ border: '1px solid var(--line)', borderRadius: 12, padding: '10px 10px 8px', background: c.hits > 0 ? 'var(--surface-3)' : 'var(--surface)', animation: `tabIn .6s var(--ease) ${150 + i * 90}ms both` }}>
                 <div style={{ fontSize: '1.4rem', fontWeight: 500, letterSpacing: '-0.04em', color: c.hits > 0 ? 'var(--text)' : 'var(--text-3)', lineHeight: 1 }}>{c.hits}</div>
@@ -190,8 +190,8 @@ export function AtsStory() {
             <div style={{ textAlign: 'center' }}><span className="ats-tab">What a parser sees</span></div>
             <div className="ats-logos" style={{ justifyContent: 'center' }}>
               <div className="ats-tog" role="group" aria-label="Resume type">
-                <button className={variant === 'designed' ? 'on' : ''} onClick={() => setVariant('designed')}>Designed two-column resume</button>
-                <button className={variant === 'clean' ? 'on' : ''} onClick={() => setVariant('clean')}>ProductRez LaTeX resume</button>
+                <button className={variant === 'designed' ? 'on' : ''} onClick={() => setVariant('designed')}>Designed resume</button>
+                <button className={variant === 'clean' ? 'on' : ''} onClick={() => setVariant('clean')}>LaTeX resume</button>
               </div>
             </div>
             <div className="ats-body">

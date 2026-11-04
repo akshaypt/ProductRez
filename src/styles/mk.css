@@ -263,3 +263,26 @@ html, body { overflow-x: clip; }
 .ats-body > *, .ats-doc, .ats-out, .ats-paper { min-width: 0; }
 @media (max-width: 860px) { .ats-body { grid-template-columns: minmax(0, 1fr); } .ats-doc { padding-left: 14px; padding-right: 14px; } .ats-paper { max-width: 100%; } }
 @media (max-width: 480px) { .ats-out { padding: 1.1rem 1rem; } .ats-top { flex-wrap: wrap; } .fld { grid-template-columns: 22px 84px minmax(0, 1fr); gap: 8px; font-size: 0.85rem; } .fld span { min-width: 0; overflow-wrap: anywhere; } }
+
+/* ---- landing: small-screen rebuild of the fragile sections ---- */
+@media (max-width: 760px) {
+  .aw-screen .aw-rail { display: none !important; }
+  .aw-screen { grid-template-columns: minmax(0, 1fr) !important; }
+  .aw-bar { flex-wrap: wrap; gap: 8px; }
+  .rz-stat { min-height: 0; padding: 1.25rem; gap: 0.7rem; align-content: start; }
+  .rz-stat .big { font-size: 2rem; }
+  .story-vis { min-height: 0 !important; margin-top: 1rem; }
+  .story-card { position: static !important; inset: auto !important; display: none; opacity: 1; transform: none !important; margin: 0; }
+  .story-card.on { display: block; }
+  .ats-doc { min-height: 0; padding: 22px 14px; }
+  .band-split { min-height: 0 !important; }
+  .typewriter, .band-split pre, .band-split code { max-height: 260px; overflow: auto; }
+  .plans .plan:nth-child(2) { order: 4; }
+  .rz-sec { overflow-x: clip; }
+}
+@media (max-width: 560px) {
+  .phones { height: 480px; }
+  .phone.a { right: auto; left: 50%; top: 10px; transform: translateX(-50%) rotate(2deg) !important; width: min(270px, 80vw); }
+  .ats-body .seg2, .ats-head button { white-space: nowrap; font-size: 0.82rem; padding: 0.45rem 0.8rem; }
+}
+@media (max-width: 560px) { .phones { height: 380px !important; overflow: hidden; } }
