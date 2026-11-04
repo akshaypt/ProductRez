@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { hasMetric, isWeakOpening, parseResume, scoreResume } from '@scoring'
+import { hasMetric, isWeakOpening, parseResume, reviewBullet, scoreResume } from '@scoring'
 
 const weak = readFileSync('tests/fixtures/weak.txt', 'utf8')
 const strong = readFileSync('tests/fixtures/strong.txt', 'utf8')
@@ -82,5 +82,13 @@ describe('header split', () => {
     expect(x.company).toBe('Stripe-like Co. (sample)')
     expect(x.location).toBe('San Francisco, CA')
     expect(x.start).toBe('Jan 2021')
+  })
+})
+
+describe('verb recognition', () => {
+  it('treats irregular past-tense verbs as action verbs (no false "no-verb")', () => {
+    for (const b of ['Wrote requirements for the reporting module shipped to 2,400 customers', 'Ran 6 pricing A/B tests, lifting conversion 14%', 'Grew activation from 38% to 52%', 'Built a self-serve billing portal for 8,000 customers']) {
+      expect(reviewBullet(b, 'experience', '', true).flags).not.toContain('no-verb')
+    }
   })
 })

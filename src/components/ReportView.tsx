@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { BulletFlag, ScoreReport } from '@scoring'
 import { Icon } from './Icon'
+import { Radar } from './Radar'
 import { cx } from '../lib/util'
 
 const FLAG_LABEL: Record<BulletFlag, string> = {
@@ -14,8 +15,8 @@ const FLAG_LABEL: Record<BulletFlag, string> = {
   buzzword: 'buzzword',
 }
 
-const barColor = (s: number) => (s >= 80 ? 'var(--green)' : s >= 62 ? '#7fd3ae' : s >= 42 ? 'var(--yellow)' : 'var(--red)')
-const gradeColor = { ship: 'var(--green)', beta: 'var(--blue)', alpha: '#d98300', prototype: 'var(--red)' }
+const barColor = (s: number) => (s >= 80 ? 'var(--green)' : s >= 62 ? '#6cc99a' : s >= 42 ? 'var(--amber)' : 'var(--red)')
+const gradeColor = { ship: 'var(--green)', beta: 'var(--brand)', alpha: 'var(--amber)', prototype: 'var(--red)' }
 
 export function useCountUp(target: number, ms = 1200) {
   const [v, setV] = useState(0)
@@ -47,7 +48,7 @@ export function Gauge({ value, color }: { value: number; color: string }) {
   const r = 88
   const c = 2 * Math.PI * r
   return (
-    <div className="gauge" role="img" aria-label={`Overall score ${value} out of 100`}>
+    <div className="gauge" style={{ ['--gc' as string]: color }} role="img" aria-label={`Overall score ${value} out of 100`}>
       <svg viewBox="0 0 200 200">
         <circle className="track" cx="100" cy="100" r={r} fill="none" strokeWidth="18" />
         <circle className="val" cx="100" cy="100" r={r} fill="none" stroke={color} strokeWidth="18" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={on ? c * (1 - value / 100) : c} />
@@ -75,6 +76,7 @@ function Meter({ level }: { level: 0 | 1 | 2 | 3 }) {
 export function ReportView({ report, onFix, fixLabel = 'Fix this in the Writer' }: { report: ScoreReport; onFix?: () => void; fixLabel?: string }) {
   const [tab, setTab] = useState<'backlog' | 'bullets' | 'craft' | 'match'>('backlog')
   const [open, setOpen] = useState<string | null>(report.findings[0]?.id ?? null)
+  const [hot, setHot] = useState<string | null>(null)
   const color = gradeColor[report.grade]
   const potential = Math.min(100 - report.overall, Math.round(report.findings.reduce((s, f) => s + f.gain, 0)))
   const counts = { P0: 0, P1: 0, P2: 0 }
@@ -97,8 +99,9 @@ export function ReportView({ report, onFix, fixLabel = 'Fix this in the Writer' 
           </p>
         </div>
         <div className="card flat stack" style={{ gap: 14 }}>
+          <Radar dims={report.dimensions} hot={hot} onHot={setHot} />
           {report.dimensions.map((d) => (
-            <div className="dim" key={d.id}>
+            <div className={`dim ${hot === d.id ? 'hot' : ''}`} key={d.id} onMouseEnter={() => setHot(d.id)} onMouseLeave={() => setHot(null)}>
               <div className="top">
                 <span>{d.label}</span>
                 <span className="mono">{d.score}</span>

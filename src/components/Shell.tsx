@@ -6,6 +6,7 @@ import { Logo, LogoMark } from './Logo'
 import { AuthModal } from './AuthModal'
 import { InstallPrompt } from './InstallPrompt'
 import { Onboarding } from './Onboarding'
+import { CommandPalette } from './CommandPalette'
 import { formatDate } from '../lib/util'
 
 const NAV: { to: string; label: string; icon: IconName; paid: boolean }[] = [
@@ -35,9 +36,20 @@ export function Shell() {
   const { user, ent, openAuth, api, toasts } = useApp()
   const online = useOnline()
   const loc = useLocation()
+  const [cmd, setCmd] = useState(false)
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [loc.pathname])
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setCmd((c) => !c)
+      }
+    }
+    window.addEventListener('keydown', k)
+    return () => window.removeEventListener('keydown', k)
+  }, [])
   const planLabel = ent.active ? (ent.plan === 'lifetime' ? 'Lifetime member' : `Pro · until ${formatDate(ent.expiresAt)}`) : 'Free plan'
   return (
     <>
@@ -47,6 +59,9 @@ export function Shell() {
           <Link to="/" className="logo" aria-label="ProductRez home">
             <Logo />
           </Link>
+          <button className="cmdk-btn" onClick={() => setCmd(true)} aria-label="Open command palette">
+            <Icon name="filter" size={15} /> Search <kbd>⌘K</kbd>
+          </button>
           {NAV.map((n) => (
             <NavLink key={n.to} to={n.to} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
               <Icon name={n.icon} />
@@ -109,6 +124,7 @@ export function Shell() {
         ))}
       </nav>
       <AuthModal />
+      <CommandPalette open={cmd} onClose={() => setCmd(false)} />
       <Onboarding />
       <InstallPrompt />
       <div className="toasts" role="status" aria-live="polite">

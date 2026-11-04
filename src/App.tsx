@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppProvider } from './state/app'
 import { Shell } from './components/Shell'
 import Landing from './pages/Landing'
+import { Methodology, Privacy, Terms } from './pages/Legal'
 
 const Score = lazy(() => import('./pages/Score'))
 const Writer = lazy(() => import('./pages/Writer'))
@@ -20,6 +21,9 @@ export default function App() {
         <Suspense fallback={<Fallback />}>
           <Routes>
             <Route path="/" element={<Landing />} />
+            <Route path="/methodology" element={<Methodology />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             <Route element={<Shell />}>
               <Route path="/score" element={<Score />} />
               <Route path="/writer" element={<Writer />} />

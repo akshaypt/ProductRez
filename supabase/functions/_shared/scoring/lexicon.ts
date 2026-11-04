@@ -7,7 +7,11 @@ export const STRONG_VERBS = new Set(
    monetized monetised productized productised rolled instituted overhauled consolidated simplified standardized
    standardised initiated formulated developed implemented executed deployed released piloted tested experimented
    analyzed analysed synthesized synthesised crafted authored drafted shaped steered reshaped turned repositioned
-   evangelized evangelised sponsored incubated bootstrapped sourced partnered drove`
+   evangelized evangelised sponsored incubated bootstrapped sourced partnered drove
+   wrote ran made took won sold held set put found began brought taught spent chose gave got kept rose
+   sought sent paid forged fostered reworked rewrote reran onboarded interviewed surveyed analysed analyzed
+   mapped scoped sized forecasted budgeted audited unblocked facilitated mediated documented specified
+   instrumented benchmarked curated trained supervised`
     .split(/\s+/)
     .filter(Boolean),
 )
