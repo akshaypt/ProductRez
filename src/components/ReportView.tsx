@@ -3,6 +3,8 @@ import type { BulletFlag, ScoreReport } from '@scoring'
 import { Icon } from './Icon'
 import { SemiGauge } from './SemiGauge'
 import { cx } from '../lib/util'
+import { renderScoreCard } from '../lib/shareCard'
+import { useApp } from '../state/app'
 
 const FLAG_LABEL: Record<BulletFlag, string> = {
   'no-metric': 'no metric',
@@ -70,7 +72,27 @@ function Meter({ level }: { level: 0 | 1 | 2 | 3 }) {
 export function ReportView({ report, onFix, fixLabel = 'Fix this in the Writer' }: { report: ScoreReport; onFix?: () => void; fixLabel?: string }) {
   const [tab, setTab] = useState<'backlog' | 'bullets' | 'craft' | 'match'>('backlog')
   const [open, setOpen] = useState<string | null>(report.findings[0]?.id ?? null)
+  const { toast } = useApp()
   const color = gradeColor[report.grade]
+  const share = async () => {
+    try {
+      const blob = await renderScoreCard(report)
+      const file = new File([blob], 'productrez-score.png', { type: 'image/png' })
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: `My PM resume score: ${report.overall}/100` })
+      } else {
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'productrez-score.png'
+        a.click()
+        setTimeout(() => URL.revokeObjectURL(url), 2000)
+        toast('Score card saved. It shows scores only: no name, no resume text.')
+      }
+    } catch (e) {
+      if ((e as Error).name !== 'AbortError') toast('Could not create the card', 'err')
+    }
+  }
   const potential = Math.min(100 - report.overall, Math.round(report.findings.reduce((s, f) => s + f.gain, 0)))
   const counts = { P0: 0, P1: 0, P2: 0 }
   report.findings.forEach((f) => counts[f.priority]++)
@@ -86,7 +108,7 @@ export function ReportView({ report, onFix, fixLabel = 'Fix this in the Writer' 
           <p className="faint" style={{ fontSize: '0.82rem', marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--border)' }}>{report.level.note}</p>
         </div>
         <div className="card stack" style={{ gap: 14 }}>
-          <div className="label" style={{ textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.68rem', color: 'var(--text-3)' }}>Breakdown</div>
+          <div className="label" style={{ textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.75rem', color: 'var(--text-3)' }}>Breakdown</div>
           {report.dimensions.map((d) => (
             <div className="dim" key={d.id}>
               <div className="top">
@@ -114,6 +136,9 @@ export function ReportView({ report, onFix, fixLabel = 'Fix this in the Writer' 
             <Icon name="pen" size={17} /> {fixLabel}
           </button>
         )}
+        <button className="btn ghost block" onClick={share}>
+          <Icon name="share" size={16} /> Share score card
+        </button>
       </aside>
 
       <section>
@@ -191,8 +216,8 @@ export function ReportView({ report, onFix, fixLabel = 'Fix this in the Writer' 
               Each bullet rated for impact: <b>3</b> number + outcome + change, <b>2</b> has a number, <b>1</b> mentions an outcome, <b>0</b> activity only. {weakest.length > 0 && `${weakest.length} need work.`}
             </p>
             {report.bullets.map((b, i) => (
-              <div key={i} className={`bul s${b.impact}`}>
-                <div className="rail-c" />
+              <div key={i} className="bul">
+                <span className={`imp l${b.impact}`} title={`Impact ${b.impact} of 3`}>{b.impact}</span>
                 <div>
                   <div className="ctx">{b.context}</div>
                   <div>{b.text}</div>
@@ -217,7 +242,7 @@ export function ReportView({ report, onFix, fixLabel = 'Fix this in the Writer' 
                 <div key={c.id} className={cx('skill', c.hits > 0 && 'on')}>
                   <span className="n">{c.hits}</span>
                   <b style={{ fontSize: '0.88rem' }}>{c.label}</b>
-                  <span className="faint" style={{ fontSize: '0.74rem' }}>
+                  <span className="faint" style={{ fontSize: '0.75rem' }}>
                     {c.hits > 0 ? `${c.hits} bullet${c.hits > 1 ? 's' : ''}` : c.covered ? 'only in summary/skills' : 'no evidence'}
                   </span>
                 </div>

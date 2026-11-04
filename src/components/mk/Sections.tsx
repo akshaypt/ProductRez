@@ -156,8 +156,8 @@ function Typewriter() {
     return () => clearInterval(t)
   }, [seen])
   return (
-    <div ref={ref} style={{ background: '#050505', color: '#d4d4d4', padding: '1.2rem 1.3rem', fontFamily: 'var(--font-mono)', fontSize: '0.74rem', lineHeight: 1.7, minHeight: 400, overflow: 'hidden' }}>
-      {TEX.slice(0, n).map((l, i) => <div key={i} style={{ whiteSpace: 'pre', animation: 'tabIn .4s var(--ease) both' }}><span style={{ color: '#555', marginRight: 14 }}>{String(i + 1).padStart(2, '0')}</span>{l.split(/(\\[a-zA-Z]+)/).map((p, k) => (p.startsWith('\\') ? <span key={k} style={{ color: '#fff' }}>{p}</span> : p))}</div>)}
+    <div ref={ref} style={{ background: '#050505', color: '#d4d4d4', padding: '1.2rem 1.3rem', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', lineHeight: 1.7, minHeight: 400, overflow: 'hidden' }}>
+      {TEX.slice(0, n).map((l, i) => <div key={i} style={{ whiteSpace: 'pre', animation: 'tabIn .4s var(--ease) both' }}><span style={{ color: '#8a8a8a', marginRight: 14 }}>{String(i + 1).padStart(2, '0')}</span>{l.split(/(\\[a-zA-Z]+)/).map((p, k) => (p.startsWith('\\') ? <span key={k} style={{ color: '#fff' }}>{p}</span> : p))}</div>)}
       {n < TEX.length && <span style={{ display: 'inline-block', width: 8, height: 14, background: '#fff', animation: 'blink 1s steps(2) infinite', verticalAlign: 'middle' }} />}
     </div>
   )
@@ -335,7 +335,7 @@ export function RzFooter() {
     <footer className="rz-sec dark">
       <div className="rz-frame">
         <div className="rz-foot">
-          <div><Logo /><p style={{ marginTop: 14, color: '#6b6b6b', maxWidth: '22em', fontSize: '0.92rem' }}>The career workspace for product managers and aspiring PMs in the US and India.</p></div>
+          <div><Logo /><p style={{ marginTop: 14, color: '#a0a0a0', maxWidth: '22em', fontSize: '0.92rem' }}>The career workspace for product managers and aspiring PMs in the US and India.</p></div>
           <div><h5>Product</h5><Link to="/score">Resume Score</Link><Link to="/writer">Resume Writer</Link><Link to="/jobs">Fresh Jobs</Link><Link to="/learn">Learn</Link></div>
           <div><h5>Resources</h5><Link to="/methodology">How scoring works</Link><a href="/#templates">Templates</a><a href="/#pricing">Pricing</a></div>
           <div><h5>Legal</h5><Link to="/privacy">Privacy</Link><Link to="/terms">Terms</Link></div>

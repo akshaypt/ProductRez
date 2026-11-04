@@ -228,7 +228,7 @@ export function AtsStory() {
                 {FIELDS.map((f, i) => (
                   <div key={f} className={`fld ${shown > i ? 'show' : ''}`}><i className={data[i][0] ? 'y' : 'n'}>{data[i][0] ? '✓' : '!'}</i><span>{f}</span><span>{data[i][1]}</span></div>
                 ))}
-                <p style={{ fontSize: '0.76rem', color: '#666', marginTop: 8 }}>Illustrative simulation of common parsing failures. Real systems vary.</p>
+                <p style={{ fontSize: '0.78rem', color: '#a0a0a0', marginTop: 8 }}>Illustrative simulation of common parsing failures. Real systems vary.</p>
               </div>
             </div>
           </div>

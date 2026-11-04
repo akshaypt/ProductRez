@@ -106,15 +106,23 @@ export default function Score() {
       {!user ? (
         <AuthPrompt title="Sign in to score your resume" body="It takes 10 seconds, needs no password, and your first score is free." onSignIn={() => openAuth('Create a free account to get your resume score.')} />
       ) : phase === 'running' ? (
-        <div className="card" aria-live="polite">
-          <h2 style={{ textAlign: 'center', fontSize: '1.6rem' }}>Reviewing like a hiring manager…</h2>
-          <div className="pipeline">
-            {STEPS.map((s, i) => (
-              <div key={s} className={`pipe-step ${i < step ? 'done' : i === step ? 'run' : ''}`}>
-                <span className="dot">{i < step && <Icon name="check" size={13} strokeWidth={3} />}</span>
-                {s}
-              </div>
-            ))}
+        <div className="card" aria-live="polite" style={{ padding: 'clamp(1.25rem, 4vw, 2.5rem)' }}>
+          <h2 style={{ textAlign: 'center', fontSize: '1.7rem' }}>Reviewing like a hiring manager…</h2>
+          <div className="scan">
+            <div className="scan-doc" aria-hidden="true">
+              {Array.from({ length: 19 }, (_, i) => (
+                <i key={i} className={`${i === 0 ? 'h' : i === 3 || i === 10 ? 's' : ''} ${i / 19 <= (step + 0.6) / STEPS.length ? 'on' : ''}`} style={{ width: i === 0 || i === 3 || i === 10 ? undefined : `${70 + ((i * 37) % 30)}%` }} />
+              ))}
+              <span className="scan-beam" />
+            </div>
+            <div className="pipeline">
+              {STEPS.map((s, i) => (
+                <div key={s} className={`pipe-step ${i < step ? 'done' : i === step ? 'run' : ''}`}>
+                  <span className="dot">{i < step && <Icon name="check" size={13} strokeWidth={3} />}</span>
+                  {s}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       ) : report ? (

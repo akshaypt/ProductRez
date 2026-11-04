@@ -1,8 +1,9 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppProvider } from './state/app'
 import { Shell } from './components/Shell'
 import Landing from './pages/Landing'
+import { installPointerFx } from './lib/motion'
 import { Methodology, Privacy, Terms } from './pages/Legal'
 
 const Score = lazy(() => import('./pages/Score'))
@@ -15,6 +16,7 @@ const Account = lazy(() => import('./pages/Account'))
 const Fallback = () => <div className="page"><div className="skeleton" style={{ height: 320 }} /></div>
 
 export default function App() {
+  useEffect(() => installPointerFx(), [])
   return (
     <AppProvider>
       <BrowserRouter>

@@ -170,6 +170,8 @@ export default function Writer() {
   const [cur, setCur] = useState<StoredResume | null>(null)
   const [loaded, setLoaded] = useState(false)
   const [pages, setPages] = useState(1)
+  const [fill, setFill] = useState(0)
+  const [xray, setXray] = useState(false)
   const [mobileView, setMobileView] = useState(false)
   const [menu, setMenu] = useState(false)
   const [printing, setPrinting] = useState(false)
@@ -465,10 +467,11 @@ export default function Writer() {
           <div className="edit-col" key={tab} style={{ animation: 'tabIn .45s var(--ease) both' }}>{sectionBody()}</div>
           <div className="preview-col">
             <div className="row" style={{ marginBottom: 8, justifyContent: 'space-between' }}>
-              <span className={`chip ${pages > 1 ? 'bad' : 'good'}`}>{pages > 1 ? `${pages} pages, trim to 1` : '1 page'}</span>
-              <button className="chip btnish" onClick={() => setTplOpen(true)}><Icon name="layout" size={12} /> {meta.name} template</button>
+              <span className={`chip fillchip ${pages > 1 ? 'bad' : 'good'}`} title="How full the last page is"><span className="fill"><i style={{ width: `${Math.round(fill * 100)}%` }} /></span>{pages > 1 ? `${pages} pages · trim to 1` : `1 page · ${Math.round(fill * 100)}% full`}</span>
+              <span className="row" style={{ gap: 6 }}><button className={`chip btnish ${xray ? 'on' : ''}`} onClick={() => setXray((x) => !x)} aria-pressed={xray}><Icon name="scan" size={12} /> X-ray</button><button className="chip btnish" onClick={() => setTplOpen(true)}><Icon name="layout" size={12} /> {meta.name}</button></span>
             </div>
-            <div className="paper-wrap"><ResumePreview data={cur.data} template={cur.template} accent={cur.options.accent} paper={cur.options.paper} fontSize={cur.options.fontSize} boldMetrics={cur.options.boldMetrics} onPages={setPages} /></div>
+            {xray && <p className="xr-legend"><i className="lg0" /> activity only <i className="lg1" /> needs a number <i className="lg3" /> strong</p>}
+            <div className="paper-wrap"><ResumePreview data={cur.data} template={cur.template} accent={cur.options.accent} paper={cur.options.paper} fontSize={cur.options.fontSize} boldMetrics={cur.options.boldMetrics} xray={xray} onPages={(n, f) => { setPages(n); setFill(f) }} /></div>
           </div>
         </div>
       ) : (
@@ -480,9 +483,12 @@ export default function Writer() {
               <div className="seg" role="group" aria-label="Font size"><button aria-pressed={cur.options.fontSize === 10} onClick={() => setOpt({ fontSize: 10 })}>10pt</button><button aria-pressed={cur.options.fontSize === 11} onClick={() => setOpt({ fontSize: 11 })}>11pt</button></div>
               {meta.accentChoices.length > 1 && <div className="row" style={{ gap: 8 }} role="group" aria-label="Accent colour">{meta.accentChoices.map((c) => <button key={c} className="swatch" style={{ background: `#${c}` }} aria-label={`Accent #${c}`} aria-pressed={cur.options.accent === c} onClick={() => setOpt({ accent: c })} />)}</div>}
               <label className="row" style={{ gap: 8, fontSize: '0.84rem', color: 'var(--text-2)' }}><button type="button" className={`tog2 ${cur.options.boldMetrics ? 'on' : ''}`} aria-pressed={cur.options.boldMetrics} onClick={() => setOpt({ boldMetrics: !cur.options.boldMetrics })} aria-label="Bold metrics" />Bold metrics</label>
-              <span style={{ flex: 1 }} /><span className={`chip ${pages > 1 ? 'bad' : 'good'}`}>{pages > 1 ? `${pages} pages` : '1 page'}</span>
+              <span style={{ flex: 1 }} />
+              <button className={`tag ${xray ? 'on' : ''}`} onClick={() => setXray((x) => !x)} aria-pressed={xray}><Icon name="scan" size={13} /> X-ray</button>
+              <span className={`chip fillchip ${pages > 1 ? 'bad' : 'good'}`}><span className="fill"><i style={{ width: `${Math.round(fill * 100)}%` }} /></span>{pages > 1 ? `${pages} pages` : `${Math.round(fill * 100)}% full`}</span>
             </div>
-            <div className="paper-wrap" style={{ marginTop: 10 }}><ResumePreview data={cur.data} template={cur.template} accent={cur.options.accent} paper={cur.options.paper} fontSize={cur.options.fontSize} boldMetrics={cur.options.boldMetrics} onPages={setPages} /></div>
+            {xray && <p className="xr-legend"><i className="lg0" /> activity only <i className="lg1" /> needs a number <i className="lg3" /> strong</p>}
+            <div className="paper-wrap" style={{ marginTop: 10 }}><ResumePreview data={cur.data} template={cur.template} accent={cur.options.accent} paper={cur.options.paper} fontSize={cur.options.fontSize} boldMetrics={cur.options.boldMetrics} xray={xray} onPages={(n, f) => { setPages(n); setFill(f) }} /></div>
           </div>
           <div className="fside">
             <div className="wcard" style={{ textAlign: 'center' }}>

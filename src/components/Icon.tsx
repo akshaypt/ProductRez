@@ -41,6 +41,8 @@ const P: Record<string, string> = {
   edit: 'M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4',
   chev: 'M9 6l6 6-6 6',
   chevd: 'M6 9l6 6 6-6',
+  share: 'M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4-4 4M12 2v13',
+  scan: 'M4 7V5a1 1 0 011-1h2M20 7V5a1 1 0 00-1-1h-2M4 17v2a1 1 0 001 1h2M20 17v2a1 1 0 01-1 1h-2M4 12h16',
   info: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 11v5M12 8h.01',
   home: 'M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10',
   grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',

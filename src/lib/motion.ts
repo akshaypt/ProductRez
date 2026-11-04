@@ -139,3 +139,38 @@ export function useCountUp(target: number, run = true, ms = 1300) {
   }, [target, run, ms])
   return v
 }
+
+/* ------------------------------------------------------------------ pointer effects (spotlight + magnetic CTAs) */
+const SPOT = '.card,.wcard,.rz-stat,.topic,.plan,.tm-card,.res,.aw-card,.rz-upload,.ticket,.path'
+const MAG = '.rz .btn.lg'
+export function installPointerFx(): () => void {
+  if (typeof window === 'undefined' || reducedMotion() || coarse()) return () => {}
+  const move = (e: PointerEvent) => {
+    const el = e.target as Element | null
+    const t = el?.closest?.(SPOT) as HTMLElement | null
+    if (t) {
+      const r = t.getBoundingClientRect()
+      t.style.setProperty('--mx', `${e.clientX - r.left}px`)
+      t.style.setProperty('--my', `${e.clientY - r.top}px`)
+    }
+    const m = el?.closest?.(MAG) as HTMLElement | null
+    if (m) {
+      const r = m.getBoundingClientRect()
+      m.style.setProperty('--tx', `${((e.clientX - (r.left + r.width / 2)) * 0.16).toFixed(1)}px`)
+      m.style.setProperty('--ty', `${((e.clientY - (r.top + r.height / 2)) * 0.28).toFixed(1)}px`)
+    }
+  }
+  const out = (e: PointerEvent) => {
+    const m = (e.target as Element | null)?.closest?.(MAG) as HTMLElement | null
+    if (m && !m.contains(e.relatedTarget as Node | null)) {
+      m.style.setProperty('--tx', '0px')
+      m.style.setProperty('--ty', '0px')
+    }
+  }
+  document.addEventListener('pointermove', move, { passive: true })
+  document.addEventListener('pointerout', out, { passive: true })
+  return () => {
+    document.removeEventListener('pointermove', move)
+    document.removeEventListener('pointerout', out)
+  }
+}

@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import type { ResumeData } from '@scoring'
 import { templateById } from '@latex'
+import { reviewBullet } from '@scoring'
 
 interface Props {
   data: ResumeData
@@ -12,7 +13,9 @@ interface Props {
   /** Fit the page to the container width */
   fit?: boolean
   width?: number
-  onPages?: (pages: number) => void
+  onPages?: (pages: number, fill: number) => void
+  /** Hatch + badge each bullet by impact (0 to 3) */
+  xray?: boolean
   showBreaks?: boolean
 }
 
@@ -31,7 +34,7 @@ const dates = (s: string, e: string) => [s, e].filter(Boolean).join(' – ')
 const has = (s: string) => !!s && s.trim().length > 0
 
 /** HTML twin of the LaTeX templates. Close, not pixel-identical: the .tex is the source of truth. */
-export function ResumePreview({ data, template, accent, paper, fontSize, boldMetrics = false, fit = true, width, onPages, showBreaks = true }: Props) {
+export function ResumePreview({ data, template, accent, paper, fontSize, boldMetrics = false, fit = true, width, onPages, showBreaks = true, xray = false }: Props) {
   const meta = templateById(template)
   const page = PAGE[paper]
   const wrap = useRef<HTMLDivElement>(null)
@@ -53,9 +56,12 @@ export function ResumePreview({ data, template, accent, paper, fontSize, boldMet
     const el = inner.current
     if (!el) return
     const measure = () => {
-      const h = el.scrollHeight
-      setContentH(h)
-      onPages?.(Math.max(1, Math.ceil((h - 4) / page.h)))
+      const kids = Array.from(el.children).filter((c) => !c.classList.contains('pb')) as HTMLElement[]
+      const last = kids[kids.length - 1]
+      const natural = last ? last.offsetTop + last.offsetHeight + parseFloat(getComputedStyle(el).paddingBottom || '0') : el.scrollHeight
+      setContentH(Math.max(el.scrollHeight, natural))
+      const pages = Math.max(1, Math.ceil((natural - 4) / page.h))
+      onPages?.(pages, Math.min(1, Math.max(0, (natural - (pages - 1) * page.h) / page.h)))
     }
     measure()
     const ro = new ResizeObserver(measure)
@@ -113,8 +119,9 @@ export function ResumePreview({ data, template, accent, paper, fontSize, boldMet
     return (
       <ul style={{ margin: meta.dense ? '1px 0 3px' : '2px 0 4px', paddingLeft: '1.15em', listStyle: 'disc' }}>
         {rows.map((b, i) => (
-          <li key={i} style={{ marginBottom: meta.dense ? 0 : 1.5 }}>
+          <li key={i} className={xray ? `xr xr${reviewBullet(b.replace(/\*\*/g, ''), 'experience', '', true).impact}` : undefined} style={{ marginBottom: meta.dense ? 0 : 1.5 }}>
             {rich(b, boldMetrics)}
+            {xray && <i className="xrb" title="Impact 0 to 3">{reviewBullet(b.replace(/\*\*/g, ''), 'experience', '', true).impact}</i>}
           </li>
         ))}
       </ul>

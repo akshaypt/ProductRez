@@ -47,7 +47,7 @@ function ScorePane({ cursor, stop, root }: PaneProps) {
               <button data-aw={`b${i}`} className={fixed[i] ? 'done' : ''} onClick={() => set(i)}>{fixed[i] ? 'Rewritten' : 'Rewrite'}</button>
             </div>
           ))}
-          <div style={{ color: 'var(--text-3)', fontSize: '0.72rem', marginTop: 8 }}>+ 3 more bullets · Associate Product Manager · Beta Systems</div>
+          <div style={{ color: 'var(--text-3)', fontSize: '0.75rem', marginTop: 8 }}>+ 3 more bullets · Associate Product Manager · Beta Systems</div>
         </div>
         <div className="aw-side">
           <div className="aw-card" style={{ textAlign: 'center' }}>
