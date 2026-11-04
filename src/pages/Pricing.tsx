@@ -4,7 +4,6 @@ import { PAID_FEATURES, PLANS, rupees } from '../data/plans'
 import { Icon } from '../components/Icon'
 import { useApp } from '../state/app'
 import { ApiError, type PlanId } from '../lib/types'
-import { Confetti } from '../components/Confetti'
 
 export function PriceCards({ onChoose, busy }: { onChoose: (id: PlanId) => void; busy: PlanId | null }) {
   return (
@@ -31,7 +30,6 @@ export default function Pricing() {
   const { user, ent, api, openAuth, refresh, toast } = useApp()
   const nav = useNavigate()
   const [busy, setBusy] = useState<PlanId | null>(null)
-  const [burst, setBurst] = useState(0)
 
   const choose = async (id: PlanId) => {
     if (!api) return
@@ -40,8 +38,7 @@ export default function Pricing() {
     try {
       await api.startCheckout(id)
       await refresh()
-      setBurst((b) => b + 1)
-      toast('You’re in. Everything is unlocked 🎉')
+      toast('Payment confirmed. Everything is unlocked.')
       setTimeout(() => nav('/writer'), 1600)
     } catch (e) {
       if (e instanceof ApiError && e.code === 'cancelled') toast('Checkout closed. No charge was made.')
@@ -54,7 +51,6 @@ export default function Pricing() {
 
   return (
     <div className="page">
-      <Confetti run={burst} />
       <div className="page-head" style={{ textAlign: 'center', justifyContent: 'center' }}>
         <div>
           <h1 style={{ fontSize: 'clamp(2rem,5vw,3.4rem)' }}>One price. <span className="hl">Zero subscriptions.</span></h1>

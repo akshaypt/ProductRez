@@ -62,6 +62,7 @@ export function Shell() {
           <button className="cmdk-btn" onClick={() => setCmd(true)} aria-label="Open command palette">
             <Icon name="filter" size={15} /> Search <kbd>⌘K</kbd>
           </button>
+          <div className="nav-label">Workspace</div>
           {NAV.map((n) => (
             <NavLink key={n.to} to={n.to} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
               <Icon name={n.icon} />

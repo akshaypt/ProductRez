@@ -102,8 +102,8 @@ export default function Jobs() {
           {counts && counts.total > 0 && (
             <div className="row">
               <span className="chip good">{counts.total} PM roles live right now</span>
-              <span className="chip">🇺🇸 {counts.US} US</span>
-              <span className="chip">🇮🇳 {counts.IN} India</span>
+              <span className="chip">{counts.US} United States</span>
+              <span className="chip">{counts.IN} India</span>
             </div>
           )}
           <div className="blur" aria-hidden="true">
@@ -131,7 +131,7 @@ export default function Jobs() {
         <>
           <div className="filters">
             <div className="seg" role="group" aria-label="Country">
-              {([['all', 'All'], ['IN', '🇮🇳 India'], ['US', '🇺🇸 US']] as const).map(([v, l]) => <button key={v} aria-pressed={country === v} onClick={() => setCountry(v)}>{l}</button>)}
+              {([['all', 'All'], ['IN', 'India'], ['US', 'United States']] as const).map(([v, l]) => <button key={v} aria-pressed={country === v} onClick={() => setCountry(v)}>{l}</button>)}
             </div>
             <select className="select" style={{ width: 'auto' }} value={level} onChange={(e) => setLevel(e.target.value)} aria-label="Level">
               <option value="all">Any level</option>
@@ -145,7 +145,7 @@ export default function Jobs() {
           </div>
           {!jobs ? <div className="skeleton" style={{ height: 260 }} /> : shown.length === 0 ? (
             <div className="card soft">No jobs match these filters{jobs.length === 0 ? ' yet. The next drop lands at 7:00 AM IST.' : '.'}</div>
-          ) : shown.map((j) => <JobCard key={j.id} job={j} saved={savedMap.get(j.id)} onSave={() => save(j)} onUnsave={() => unsave(j.id)} />)}
+          ) : <div className="rows">{shown.map((j) => <JobCard key={j.id} job={j} saved={savedMap.get(j.id)} onSave={() => save(j)} onUnsave={() => unsave(j.id)} />)}</div>}
         </>
       ) : (
         <div className="pipeline-board">

@@ -71,7 +71,7 @@ function BulletEditor({ value, role, level, onChange, onRemove, onMove, first, l
         {rev && <span className={`meter l${rev.impact}`} title={`Impact ${rev.impact}/3`}><i /><i /><i /></span>}
         {rev?.flags.slice(0, 3).map((f) => <span key={f} className="chip warn">{FLAGS[f]}</span>)}
         <span style={{ flex: 1 }} />
-        <button className="btn sm ghost" onClick={() => setCoach((c) => !c)} aria-expanded={coach}><Icon name="sparkle" size={14} /> Coach</button>
+        <button className="btn sm ghost" onClick={() => setCoach((c) => !c)} aria-expanded={coach}><Icon name="edit" size={14} /> Coach</button>
         <button className="btn sm ghost" onClick={onRemove} aria-label="Remove bullet"><Icon name="trash" size={14} /></button>
       </div>
       {coach && (
@@ -83,7 +83,7 @@ function BulletEditor({ value, role, level, onChange, onRemove, onMove, first, l
             ))}
           </div>
           <div>
-            <button className="btn sm" onClick={rewrite} disabled={busy}><Icon name="sparkle" size={14} /> {busy ? 'Thinking…' : 'Suggest rewrites'}</button>
+            <button className="btn sm" onClick={rewrite} disabled={busy}><Icon name="edit" size={14} /> {busy ? 'Working…' : 'Suggest rewrites'}</button>
             <span className="faint" style={{ fontSize: '0.8rem', marginLeft: 8 }}>Never invents numbers. Fill the highlighted [blanks] yourself.</span>
           </div>
           {opts && (

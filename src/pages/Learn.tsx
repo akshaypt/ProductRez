@@ -3,7 +3,6 @@ import { useApp } from '../state/app'
 import type { LearningPath, Progress, Resource, ResourceKind } from '../lib/types'
 import { Icon, type IconName } from '../components/Icon'
 import { AuthPrompt, LockCard } from '../components/Paywall'
-import { Confetti } from '../components/Confetti'
 
 const KIND: Record<ResourceKind, { icon: IconName; label: string }> = {
   video: { icon: 'video', label: 'Video' },
@@ -27,7 +26,6 @@ export default function Learn() {
   const [q, setQ] = useState('')
   const [pathId, setPathId] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
-  const [burst, setBurst] = useState(0)
 
   useEffect(() => {
     if (!api || !user || !ent.active) return
@@ -78,7 +76,7 @@ export default function Learn() {
         </div>
         <div className="acts row" style={{ flexWrap: 'nowrap' }}>
           <button className="btn sm ghost" aria-pressed={!!p.bookmarked} onClick={() => set(r.id, { bookmarked: !p.bookmarked })} aria-label="Bookmark"><Icon name="bookmark" size={14} style={{ fill: p.bookmarked ? 'currentColor' : 'none' }} /></button>
-          <button className={`btn sm ${p.done ? 'green' : 'ghost'}`} aria-pressed={!!p.done} onClick={() => { set(r.id, { done: !p.done }); if (!p.done) setBurst((b) => b + 1) }}><Icon name="check" size={14} /> {p.done ? 'Done' : 'Mark done'}</button>
+          <button className={`btn sm ${p.done ? 'green' : 'ghost'}`} aria-pressed={!!p.done} onClick={() => set(r.id, { done: !p.done })}><Icon name="check" size={14} /> {p.done ? 'Done' : 'Mark done'}</button>
           <a className="btn sm dark" href={r.url} target="_blank" rel="noopener noreferrer" aria-label={`Open ${r.title}`}><Icon name="external" size={14} /></a>
         </div>
       </article>
@@ -88,7 +86,6 @@ export default function Learn() {
   if (path) {
     return (
       <div className="page">
-        <Confetti run={burst} />
         <button className="link-btn" onClick={() => setPathId(null)}>← All paths</button>
         <div className="page-head" style={{ marginTop: 10 }}><div><h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.8rem)' }}>{path.title}</h1><p>{path.blurb}</p></div><div className="ring" style={{ ['--p' as string]: pathPct(path) }}><span>{pathPct(path)}%</span></div></div>
         {path.steps.map((s) => (

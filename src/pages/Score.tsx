@@ -6,7 +6,6 @@ import { ApiError } from '../lib/types'
 import { Icon } from '../components/Icon'
 import { ReportView } from '../components/ReportView'
 import { AuthPrompt, LockCard } from '../components/Paywall'
-import { Confetti } from '../components/Confetti'
 import { store } from '../lib/util'
 
 const STEPS = ['Reading your file', 'Splitting roles and bullets', 'Rating every bullet for impact', 'Checking 8 PM competencies', 'Testing how an ATS would parse it', 'Building your fix backlog']
@@ -25,7 +24,6 @@ export default function Score() {
   const [phase, setPhase] = useState<'idle' | 'running'>('idle')
   const [step, setStep] = useState(0)
   const [over, setOver] = useState(false)
-  const [burst, setBurst] = useState(0)
   const [blocked, setBlocked] = useState(false)
   const input = useRef<HTMLInputElement>(null)
 
@@ -73,7 +71,6 @@ export default function Score() {
       setStep(STEPS.length)
       setReport(r)
       store.set('pr.writer.import', r.parsed)
-      if (r.overall >= 85) setBurst((b) => b + 1)
     } catch (e) {
       if (e instanceof ApiError && e.code === 'free_score_used') setBlocked(true)
       else toast(e instanceof Error ? e.message : 'Something went wrong', 'err')
@@ -93,7 +90,6 @@ export default function Score() {
   const freeUsed = !!report && !ent.active
   return (
     <div className="page">
-      <Confetti run={burst} />
       <div className="page-head">
         <div>
           <span className="chip good">Free · your first score is on us</span>

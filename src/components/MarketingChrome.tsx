@@ -23,7 +23,7 @@ export function MkNav({ onHome = false }: { onHome?: boolean }) {
           <a className="t" href={h('templates')}>Templates</a>
           <Link className="t" to="/methodology">How scoring works</Link>
           <a className="t" href={h('pricing')}>Pricing</a>
-          {ready && user ? <Link className="btn sm" to="/score">Open app</Link> : <button className="btn sm" onClick={() => openAuth()}>Sign in</button>}
+          {ready && user ? <Link className="btn sm" to="/score">Open app</Link> : <><button className="t" style={{ background: 'none', border: 0, cursor: 'pointer', fontWeight: 500, fontSize: '0.9rem', color: 'var(--text-2)' }} onClick={() => openAuth()}>Sign in</button><button className="btn sm" onClick={() => openAuth('Create a free account. Your first resume score is on us.')}>Get started</button></>}
         </nav>
       </div>
     </header>

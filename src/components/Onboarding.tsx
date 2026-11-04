@@ -35,7 +35,7 @@ export function Onboarding() {
             <div className="seg" role="group" aria-label="Market">
               {(['IN', 'US'] as const).map((r) => (
                 <button key={r} aria-pressed={region === r} onClick={() => setRegion(r)}>
-                  {r === 'IN' ? '🇮🇳 India' : '🇺🇸 United States'}
+                  {r === 'IN' ? 'India' : 'United States'}
                 </button>
               ))}
             </div>
