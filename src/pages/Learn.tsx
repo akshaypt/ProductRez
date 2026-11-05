@@ -77,7 +77,7 @@ export default function Learn() {
         <div className="acts row" style={{ flexWrap: 'nowrap' }}>
           <button className="btn sm ghost" aria-pressed={!!p.bookmarked} onClick={() => set(r.id, { bookmarked: !p.bookmarked })} aria-label="Bookmark"><Icon name="bookmark" size={14} style={{ fill: p.bookmarked ? 'currentColor' : 'none' }} /></button>
           <button className={`btn sm ${p.done ? 'green' : 'ghost'}`} aria-pressed={!!p.done} onClick={() => set(r.id, { done: !p.done })}><Icon name="check" size={14} /> {p.done ? 'Done' : 'Mark done'}</button>
-          <a className="btn sm dark" href={r.url} target="_blank" rel="noopener noreferrer" aria-label={`Open ${r.title}`}><Icon name="external" size={14} /></a>
+          <a className="btn sm dark" href={r.url} target="_blank" rel="noopener noreferrer" aria-label={`Open ${r.title}`}><Icon name="external" size={14} /> <span className="open-l">Open</span></a>
         </div>
       </article>
     )

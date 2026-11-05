@@ -1,3 +1,4 @@
+import { useFocusTrap } from '../lib/useFocusTrap'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../state/app'
@@ -14,6 +15,7 @@ interface Cmd {
 }
 
 export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const trap = useFocusTrap<HTMLDivElement>(open)
   const nav = useNavigate()
   const { user, prefs, setPrefs, api, openAuth, toast } = useApp()
   const { canInstall, install } = useInstall()
@@ -64,7 +66,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   let lastGroup = ''
   return (
     <div className="overlay" role="dialog" aria-modal="true" aria-label="Command palette" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="card cmdk" onKeyDown={onKey}>
+      <div className="card cmdk" onKeyDown={onKey} ref={trap}>
         <input ref={input} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search pages and actions…" aria-label="Search commands" />
         <ul role="listbox">
           {shown.length === 0 && <li className="grp">No results</li>}

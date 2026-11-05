@@ -159,6 +159,7 @@ export default function Jobs() {
           {STATUS.map((st) => (
             <div className="col" key={st.id}>
               <h4><span>{st.label}</span><span>{saved.filter((s) => s.status === st.id).length}</span></h4>
+              {saved.filter((s) => s.status === st.id).length === 0 && <p className="faint" style={{ fontSize: '0.85rem', padding: '0.4rem 0.2rem' }}>{st.id === 'saved' ? 'Save roles from the feed to track them here.' : 'Move a job here from its status menu.'}</p>}
               {saved.filter((s) => s.status === st.id).map((s) => (
                 <div className="mini-job" key={s.job.id}>
                   <b>{s.job.title}</b>

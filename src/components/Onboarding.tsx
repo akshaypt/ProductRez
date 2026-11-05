@@ -1,3 +1,4 @@
+import { useFocusTrap } from '../lib/useFocusTrap'
 import { useState } from 'react'
 import { useApp, type Prefs } from '../state/app'
 
@@ -11,10 +12,11 @@ export function Onboarding() {
   const { user, prefs, setPrefs } = useApp()
   const [stage, setStage] = useState<Prefs['stage']>(prefs.stage)
   const [region, setRegion] = useState<Prefs['region']>(prefs.region)
+  const trap = useFocusTrap<HTMLDivElement>(!!user && !prefs.onboarded)
   if (!user || prefs.onboarded) return null
   return (
     <div className="overlay" role="dialog" aria-modal="true" aria-label="Personalise ProductRez">
-      <div className="card modal wide">
+      <div className="card modal wide" ref={trap}>
         <div className="stack">
           <div>
             <span className="chip accent">30 seconds</span>

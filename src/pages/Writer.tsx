@@ -7,6 +7,7 @@ import { useApp } from '../state/app'
 import { ApiError, type BuildOpts, type StoredResume } from '../lib/types'
 import { Icon } from '../components/Icon'
 import { ResumePreview } from '../components/ResumePreview'
+import { useFocusTrap } from '../lib/useFocusTrap'
 import { SemiGauge } from '../components/SemiGauge'
 import { AuthPrompt, LockCard } from '../components/Paywall'
 import { download, guessPaper, slug, store, uid } from '../lib/util'
@@ -135,13 +136,14 @@ function TemplateModal({ open, onClose, data, current, onPick, stage }: { open: 
     window.addEventListener('keydown', k)
     return () => window.removeEventListener('keydown', k)
   }, [open, onClose])
+  const trap = useFocusTrap<HTMLDivElement>(open)
   if (!open) return null
   const recommended = stage === 'apm' ? ['launchpad', 'ledger'] : stage === 'senior' ? ['northstar', 'sprint', 'ledger'] : ['roadmap', 'ledger']
   const shown = TEMPLATES.filter((t) => filter === 'All templates' || (filter === 'Recommended' ? recommended.includes(t.id) : STYLE_OF[t.id] === filter))
   const groups = ['All templates', 'Recommended', 'Classic', 'Modern', 'Compact']
   return (
     <div className="overlay" role="dialog" aria-modal="true" aria-label="Resume templates" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="card modal tmodal">
+      <div className="card modal tmodal" ref={trap}>
         <div className="tmodal-head"><b>Resume templates</b><button className="x" style={{ position: 'static' }} onClick={onClose} aria-label="Close"><Icon name="x" size={16} /></button></div>
         <div className="tmodal-body">
           <div className="tmodal-nav">
@@ -173,6 +175,7 @@ export default function Writer() {
   const [fill, setFill] = useState(0)
   const [xray, setXray] = useState(false)
   const [mobileView, setMobileView] = useState(false)
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [menu, setMenu] = useState(false)
   const [printing, setPrinting] = useState(false)
   const [tab, setTab] = useState<Tab>('experience')
@@ -216,8 +219,9 @@ export default function Writer() {
     if (!cur || !api) return
     store.set(`pr.writer.draft.${cur.id}`, cur)
     clearTimeout(saveTimer.current)
+    setSaveState('saving')
     saveTimer.current = setTimeout(() => {
-      api.saveResume(cur).then(() => setList((l) => [cur, ...l.filter((x) => x.id !== cur.id)])).catch(() => {})
+      api.saveResume(cur).then(() => { setList((l) => [cur, ...l.filter((x) => x.id !== cur.id)]); setSaveState('saved') }).catch(() => setSaveState('error'))
     }, 900)
     return () => clearTimeout(saveTimer.current)
   }, [cur, api])
@@ -450,6 +454,11 @@ export default function Writer() {
         <button className="btn sm ghost" aria-label="Duplicate resume" onClick={() => { const r = { ...structuredClone(cur), id: uid(), title: `${cur.title} (copy)` }; setList((l) => [r, ...l]); setCur(r) }}><Icon name="copy" size={14} /> <span className="bl">Duplicate</span></button>
         <button className="btn sm ghost" onClick={() => { if (!window.confirm('Delete this resume?')) return; api?.deleteResume(cur.id); const rest = list.filter((x) => x.id !== cur.id); setList(rest); setCur(rest[0] ?? null) }} aria-label="Delete resume"><Icon name="trash" size={14} /></button>
         <span style={{ flex: 1 }} />
+        {saveState !== 'idle' && (
+          <span className={`save-ind ${saveState}`} role="status" aria-live="polite">
+            {saveState === 'saving' ? 'Saving…' : saveState === 'saved' ? '✓ Saved' : 'Not saved: check your connection. Your draft is kept on this device.'}
+          </span>
+        )}
         {live && <div className="live-score" title="Live PM-resume score of your current draft"><b>{live.overall}</b><span className="mono faint">live score</span></div>}
         {exportMenu}
       </div>

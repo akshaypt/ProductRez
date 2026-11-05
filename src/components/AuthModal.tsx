@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../state/app'
+import { useFocusTrap } from '../lib/useFocusTrap'
 import { Icon } from './Icon'
 import { LogoMark } from './Logo'
 
@@ -10,6 +11,7 @@ export function AuthModal() {
   const [step, setStep] = useState<'email' | 'code'>('email')
   const [busy, setBusy] = useState(false)
   const first = useRef<HTMLInputElement>(null)
+  const trap = useFocusTrap<HTMLDivElement>(authOpen)
   const demo = api?.mode === 'demo'
 
   useEffect(() => {
@@ -71,7 +73,7 @@ export function AuthModal() {
 
   return (
     <div className="overlay" role="dialog" aria-modal="true" aria-label="Sign in" onMouseDown={(e) => e.target === e.currentTarget && closeAuth()}>
-      <div className="card modal">
+      <div className="card modal" ref={trap}>
         <button className="x" onClick={closeAuth} aria-label="Close">
           <Icon name="x" size={16} />
         </button>
