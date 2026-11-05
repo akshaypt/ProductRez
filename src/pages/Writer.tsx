@@ -530,7 +530,7 @@ export default function Writer() {
           <Icon name={mobileView ? 'edit' : 'eye'} size={18} /> <span className="bl-fab">{mobileView ? 'Edit' : 'Preview'}</span>
         </button>
       )}
-      <style>{`#mobile-toggle{display:none}@media(max-width:1100px){#mobile-toggle{display:inline-flex}}`}</style>
+      <style>{`#mobile-toggle{display:none}@media(max-width:900px){#mobile-toggle{display:inline-flex}}`}</style>
       <TemplateModal open={tplOpen} onClose={() => setTplOpen(false)} data={cur.data} current={cur.template} stage={level} onPick={(id) => patch((r) => ({ ...r, template: id, options: { ...r.options, accent: templateById(id).accentDefault, fontSize: templateById(id).fontSize } }))} />
       {printing && createPortal(
         <div id="print-root">
