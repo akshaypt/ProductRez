@@ -71,7 +71,7 @@ export function createSupabaseApi(): Api {
     },
     async sendCode(email) {
       const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true, emailRedirectTo: window.location.origin } })
-      if (error) throw new ApiError('unknown', error.message)
+      if (error) throw new ApiError('unknown', /rate limit|after \d+ seconds/i.test(error.message) ? 'We just sent you an email. Please wait about 30 seconds before asking for another, and check your spam folder.' : error.message)
     },
     async verifyCode(email, code) {
       const { error } = await sb.auth.verifyOtp({ email, token: code, type: 'email' })
@@ -181,7 +181,7 @@ export function createSupabaseApi(): Api {
           name: 'ProductRez',
           description: `ProductRez · ${order.label}`,
           prefill: { email: u.user?.email },
-          theme: { color: '#FF5B35' },
+          theme: { color: '#000000' },
           modal: { ondismiss: () => reject(new ApiError('cancelled')) },
           handler: async (resp: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
             try {

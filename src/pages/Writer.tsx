@@ -446,8 +446,8 @@ export default function Writer() {
             {list.map((r) => <option key={r.id} value={r.id}>{r.title}</option>)}
           </select>
         )}
-        <button className="btn sm ghost" onClick={() => { const r = newResume(emptyResume(), 'New resume'); setList((l) => [r, ...l]); setCur(r) }}><Icon name="plus" size={14} /> New</button>
-        <button className="btn sm ghost" onClick={() => { const r = { ...structuredClone(cur), id: uid(), title: `${cur.title} (copy)` }; setList((l) => [r, ...l]); setCur(r) }}><Icon name="copy" size={14} /> Duplicate</button>
+        <button className="btn sm ghost" aria-label="New resume" onClick={() => { const r = newResume(emptyResume(), 'New resume'); setList((l) => [r, ...l]); setCur(r) }}><Icon name="plus" size={14} /> <span className="bl">New</span></button>
+        <button className="btn sm ghost" aria-label="Duplicate resume" onClick={() => { const r = { ...structuredClone(cur), id: uid(), title: `${cur.title} (copy)` }; setList((l) => [r, ...l]); setCur(r) }}><Icon name="copy" size={14} /> <span className="bl">Duplicate</span></button>
         <button className="btn sm ghost" onClick={() => { if (!window.confirm('Delete this resume?')) return; api?.deleteResume(cur.id); const rest = list.filter((x) => x.id !== cur.id); setList(rest); setCur(rest[0] ?? null) }} aria-label="Delete resume"><Icon name="trash" size={14} /></button>
         <span style={{ flex: 1 }} />
         {live && <div className="live-score" title="Live PM-resume score of your current draft"><b>{live.overall}</b><span className="mono faint">live score</span></div>}
@@ -517,8 +517,8 @@ export default function Writer() {
       )}
 
       {tab !== 'finish' && (
-        <button className="btn lg" style={{ position: 'fixed', right: 16, bottom: 'calc(5.2rem + var(--safe-b))', zIndex: 25 }} id="mobile-toggle" onClick={() => setMobileView((v) => !v)}>
-          <Icon name={mobileView ? 'edit' : 'eye'} size={18} /> {mobileView ? 'Edit' : 'Preview'}
+        <button className="btn lg" style={{ position: 'fixed', right: 16, bottom: 'calc(5.2rem + var(--safe-b))', zIndex: 25 }} id="mobile-toggle" aria-label={mobileView ? 'Back to editing' : 'Preview resume'} onClick={() => setMobileView((v) => !v)}>
+          <Icon name={mobileView ? 'edit' : 'eye'} size={18} /> <span className="bl-fab">{mobileView ? 'Edit' : 'Preview'}</span>
         </button>
       )}
       <style>{`#mobile-toggle{display:none}@media(max-width:1100px){#mobile-toggle{display:inline-flex}}`}</style>

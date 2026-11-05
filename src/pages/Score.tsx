@@ -96,7 +96,7 @@ export default function Score() {
     <div className="page">
       <div className="page-head">
         <div>
-          <span className="chip good">Free · your first score is on us</span>
+          {report && !ent.active ? <span className="chip warn">Free score used</span> : <span className="chip good">{ent.active ? 'Unlimited scores' : 'Free · your first score is on us'}</span>}
           <h1 style={{ fontSize: 'clamp(2rem,4.5vw,3.2rem)', marginTop: 10 }}>PM Resume Score</h1>
           <p>Rated the way a PM hiring manager reads: impact, ownership, product craft, clarity and ATS safety. Your file is read in your browser.</p>
         </div>

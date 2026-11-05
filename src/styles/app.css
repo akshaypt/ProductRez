@@ -573,3 +573,14 @@ button { font: inherit; color: inherit; }
 @media (max-width: 400px) { .semi-num b { font-size: 2.6rem; } }
 /* iOS zooms the page when a focused field is under 16px: keep fields at 16px on touch screens */
 @media (pointer: coarse) { input, select, textarea, .input, .textarea, .select { font-size: 16px !important; } }
+
+/* writer on phones: compact toolbar so the form starts on the first screen */
+@media (max-width: 640px) {
+  .writer-bar { gap: 0.4rem; margin-bottom: 0.6rem; }
+  .writer-bar .input { flex: 1 1 100%; max-width: none !important; order: -1; }
+  .writer-bar .bl { display: none; }
+  .writer-bar .btn.sm { padding: 0 0.7rem; }
+  .wtabs { margin-bottom: 0.8rem; }
+  #mobile-toggle { width: 52px; height: 52px; padding: 0; border-radius: 50%; justify-content: center; box-shadow: 0 8px 24px rgba(0,0,0,.45); }
+  #mobile-toggle .bl-fab { display: none; }
+}

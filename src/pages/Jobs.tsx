@@ -144,7 +144,14 @@ export default function Jobs() {
             <input className="input" style={{ flex: 1, minWidth: 180 }} placeholder="Search title, company, city…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search jobs" />
           </div>
           {!jobs ? <div className="skeleton" style={{ height: 260 }} /> : shown.length === 0 ? (
-            <div className="card soft">No jobs match these filters{jobs.length === 0 ? ' yet. The next drop lands at 7:00 AM IST.' : '.'}</div>
+            jobs.length === 0 ? (
+              <div className="card stack" style={{ textAlign: 'center', justifyItems: 'center', padding: '2.2rem 1.2rem' }}>
+                <Icon name="clock" size={28} />
+                <h3>The first batch is on its way</h3>
+                <p className="muted" style={{ maxWidth: '34em' }}>Fresh PM roles from the last 2 days land every morning at 7:00 AM IST for the US and India. Anything older is removed automatically, so this list is always current.</p>
+                <p className="faint" style={{ fontSize: '0.9rem' }}>Meanwhile, tighten your resume in the Writer or pick a path in Learn.</p>
+              </div>
+            ) : <div className="card soft">No jobs match these filters. Try clearing a filter or the search box.</div>
           ) : <div className="rows">{shown.map((j, i) => <JobCard key={j.id} idx={i} job={j} saved={savedMap.get(j.id)} onSave={() => save(j)} onUnsave={() => unsave(j.id)} />)}</div>}
         </>
       ) : (
