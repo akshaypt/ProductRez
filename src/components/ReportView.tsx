@@ -141,7 +141,7 @@ export function ReportView({ report, onFix, fixLabel = 'Fix this in the Writer' 
         </button>
       </aside>
 
-      <section>
+      <section className="report-main">
         <div className="row" style={{ marginBottom: 14, justifyContent: 'space-between' }}>
           <div className="row" style={{ gap: 6 }}>
             <span className="chip p0">{counts.P0} P0</span>
