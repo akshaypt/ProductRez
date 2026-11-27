@@ -11,7 +11,7 @@ const BULLET_START = /^\s*(?:[•●▪■◦‣∙·○◆▸►➢➤✓✔*]|
 const EMAIL = /[\w.+-]+@[\w-]+\.[\w.-]+/
 const PHONE = /(?:\+?\d{1,3}[\s.-]?)?(?:\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}|\+?\d{2}[\s-]?\d{5}[\s-]?\d{5}/
 const LINKEDIN = /(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[\w-]+\/?/i
-const URL = /(?:https?:\/\/)?(?:www\.)?[\w-]+\.(?:com|io|dev|me|co|net|org|in|app|design|xyz)(?:\/[\w\-./?=%&#]*)?/i
+const URL = /(?:https?:\/\/)?(?:www\.)?(?:[\w-]+\.)+(?:com|io|dev|me|co|net|org|in|app|ai|design|xyz)\b(?:\/[\w\-./?=%&#]*)?/i
 
 let uid = 0
 const id = (p: string) => `${p}${++uid}`
@@ -152,8 +152,10 @@ export function parseResume(rawText: string): ParseResult {
   data.basics.email = headText.match(EMAIL)?.[0] ?? plain.join('\n').match(EMAIL)?.[0] ?? ''
   data.basics.phone = headText.match(PHONE)?.[0]?.trim() ?? ''
   data.basics.linkedin = (headText.match(LINKEDIN) ?? plain.join('\n').match(LINKEDIN))?.[0] ?? ''
-  const urls = headText.match(new RegExp(URL, 'gi')) ?? []
-  data.basics.website = urls.find((u) => !/linkedin|@/.test(u) && !EMAIL.test(u)) ?? ''
+  // Look for a website only after removing emails and LinkedIn, so an address like a@gmail.com is never read as a site.
+  const urlText = headText.replace(new RegExp(EMAIL, 'gi'), ' ').replace(new RegExp(LINKEDIN, 'gi'), ' ')
+  const urls = urlText.match(new RegExp(URL, 'gi')) ?? []
+  data.basics.website = urls.find((u) => !/linkedin/i.test(u)) ?? ''
   const firstLine = head[0]?.text ?? ''
   if (firstLine && !EMAIL.test(firstLine) && firstLine.split(/\s+/).length <= 5) data.basics.name = firstLine
   const second = head[1]?.text ?? ''

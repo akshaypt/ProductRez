@@ -14,6 +14,11 @@ describe('parser', () => {
     expect(p.data.basics.linkedin).toContain('linkedin.com/in/priyanair')
     expect(p.sectionsFound).toEqual(expect.arrayContaining(['summary', 'experience', 'education', 'skills']))
   })
+  it('does not read an email domain as a website, and keeps multi-part domains', () => {
+    const p = parseResume('Jo Doe\n+91 95914 61981 - jo.doe@gmail.com - linkedin.com/in/jodoe - jo-portfolio.vercel.app\n\nExperience\nPM, Acme   Jan 2020 - Present\n- Defined roadmap')
+    expect(p.data.basics.website).toBe('jo-portfolio.vercel.app')
+    expect(parseResume('Jo Doe\njo.doe@gmail.com\n\nExperience\nPM, Acme   Jan 2020 - Present\n- Defined roadmap').data.basics.website).toBe('')
+  })
   it('splits roles and bullets', () => {
     const p = parseResume(strong)
     expect(p.data.experience).toHaveLength(2)
