@@ -7,3 +7,4 @@ dist
 coverage
 dev-dist
 tests/out
+.vercel
