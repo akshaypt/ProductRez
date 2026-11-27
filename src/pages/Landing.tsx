@@ -8,14 +8,25 @@ import { LandingDesktop } from '../components/g/LandingDesktop'
 import { LandingMobile } from '../components/g/LandingMobile'
 import { useMedia, useTheme } from '../lib/g/useLanding'
 import { analysisStore } from '../lib/g/store'
+import { useApp } from '../state/app'
+import type { Analysis } from '../lib/g/analyze'
 
 function Page({ view }: { view: 'landing' | 'report' }) {
   const [theme, toggle] = useTheme()
   const mobile = useMedia('(max-width: 720px)')
   const analysis = useSyncExternalStore(analysisStore.subscribe, analysisStore.get)
   const go = useNavigate()
-  // A report only exists in memory. After a refresh there is nothing to show, so go back to the start.
-  useEffect(() => { if (view === 'report' && !analysis) go('/', { replace: true }) }, [view, analysis, go])
+  const { api, user, ready } = useApp()
+  // A fresh report only exists in memory. After a refresh, a signed-in person gets their saved check back; anyone else starts over.
+  useEffect(() => {
+    if (view !== 'report' || analysis || !ready) return
+    if (!user || !api) return void go('/', { replace: true })
+    api.getLatestScan().then((s) => {
+      if (!s) return go('/', { replace: true })
+      const a: Analysis = { resume: { name: s.fileName, text: '', pageCount: null, size: 0, source: 'pdf' }, picks: s.picks, jd: '', report: s.report }
+      analysisStore.set(a)
+    }).catch(() => go('/', { replace: true }))
+  }, [view, analysis, ready, user, api, go])
   useEffect(() => {
     document.title = view === 'report' ? 'Your PM resume report | ProductRez' : 'ProductRez | Built Exclusively for Product Managers'
     window.scrollTo(0, 0)

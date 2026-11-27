@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../../state/app'
 import { GoogleG, Ico } from './icons'
+import { analysisStore } from '../../lib/g/store'
 
 export function GToast({ msg }: { msg: string }) {
   return (
@@ -117,6 +118,7 @@ export function GAuth({ open, title, onClose, onDone }: { open: boolean; title: 
             <button type="button" className="auth-foot" style={{ background: 'none', border: 0, cursor: 'pointer', width: '100%', textDecoration: 'underline' }} onClick={() => setStep('email')}>Use a different email</button>
           </form>
         )}
+        {analysisStore.get() && <div className="auth-foot" style={{ marginTop: 0, marginBottom: 8 }}>Your resume check will be saved to your account, replacing any earlier one.</div>}
         <div className="auth-foot">By continuing, you agree to our <a href="/terms" style={{ color: 'inherit' }}>Terms</a> and <a href="/privacy" style={{ color: 'inherit' }}>Privacy Policy</a>.</div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { ResumeData, ScoreInput, ScoreReport } from '@scoring'
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from '../env'
-import { ApiError, type Api, type AppUser, type BuildOpts, type Entitlement, type Job, type JobStatus, type PlanId, type Progress, type SavedJob, type StoredResume } from '../types'
+import { ApiError, type Api, type AppUser, type BuildOpts, type Entitlement, type Job, type JobStatus, type LatestScan, type PlanId, type Progress, type SavedJob, type StoredResume } from '../types'
 
 declare global {
   interface Window {
@@ -97,6 +97,15 @@ export function createSupabaseApi(): Api {
     async getSavedScore() {
       const { data } = await sb.from('score_usage').select('report').order('created_at', { ascending: false }).limit(1).maybeSingle()
       return (data?.report as ScoreReport) ?? null
+    },
+    async getLatestScan() {
+      const { data } = await sb.from('latest_scan').select('file_name,picks,report,updated_at').maybeSingle()
+      return data ? { fileName: data.file_name as string, picks: data.picks as LatestScan['picks'], report: data.report as LatestScan['report'], updatedAt: data.updated_at as string } : null
+    },
+    async saveLatestScan(s) {
+      const user_id = await uid()
+      const { error } = await sb.from('latest_scan').upsert({ user_id, file_name: s.fileName, picks: s.picks, report: s.report, updated_at: new Date().toISOString() })
+      if (error) throw new ApiError('unknown')
     },
     async scoreResume(input: ScoreInput) {
       const res = await invoke<{ report: ScoreReport }>('score-resume', input)

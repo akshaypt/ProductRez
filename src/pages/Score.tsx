@@ -7,6 +7,8 @@ import { Icon } from '../components/Icon'
 import { ReportView } from '../components/ReportView'
 import { AuthPrompt, LockCard } from '../components/Paywall'
 import { store } from '../lib/util'
+import { analysisStore } from '../lib/g/store'
+import type { LatestScan } from '../lib/types'
 
 const STEPS = ['Reading your file', 'Splitting roles and bullets', 'Rating every bullet for impact', 'Checking 8 PM competencies', 'Testing how an ATS would parse it', 'Building your fix backlog']
 
@@ -27,6 +29,13 @@ export default function Score() {
   const [err, setErr] = useState('')
   const [blocked, setBlocked] = useState(false)
   const input = useRef<HTMLInputElement>(null)
+  const [latest, setLatest] = useState<LatestScan | null>(null)
+  useEffect(() => { if (api && user) api.getLatestScan().then(setLatest).catch(() => {}) }, [api, user])
+  const openLatest = () => {
+    if (!latest) return
+    analysisStore.set({ resume: { name: latest.fileName, text: '', pageCount: null, size: 0, source: 'pdf' }, picks: latest.picks, jd: '', report: latest.report })
+    nav('/report')
+  }
 
   useEffect(() => {
     if (!api || !user) {
@@ -106,6 +115,16 @@ export default function Score() {
           </button>
         )}
       </div>
+
+      {user && latest && !report && phase === 'idle' && (
+        <div className="card" style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div style={{ minWidth: 0 }}>
+            <span className="chip good">Saved to your account</span>
+            <p style={{ marginTop: 8, overflowWrap: 'anywhere' }}><b>{latest.fileName}</b> · <b>{latest.report.overall}/100</b> <span className="faint">· {new Date(latest.updatedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</span></p>
+          </div>
+          <button className="btn" onClick={openLatest}>View report</button>
+        </div>
+      )}
 
       {!user ? (
         <AuthPrompt title="Sign in to score your resume" body="It takes 10 seconds, needs no password, and your first score is free." onSignIn={() => openAuth('Create a free account to get your resume score.')} />

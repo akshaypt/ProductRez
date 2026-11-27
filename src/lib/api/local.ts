@@ -1,6 +1,6 @@
 import { scoreResume, checkResume, type ScoreInput, type ScoreReport } from '@scoring'
 import { buildLatex } from '@latex'
-import { ApiError, type Api, type AppUser, type Entitlement, type Job, type JobStatus, type PlanId, type Progress, type SavedJob, type StoredResume } from '../types'
+import { ApiError, type Api, type AppUser, type Entitlement, type Job, type JobStatus, type LatestScan, type PlanId, type Progress, type SavedJob, type StoredResume } from '../types'
 import { demoJobs } from './demoJobs'
 import { localRewrite } from '../rewrite'
 import resources from '../../data/resources.json'
@@ -77,6 +77,13 @@ export function createLocalApi(): Api {
     },
     async getSavedScore() {
       return read<ScoreReport | null>(K.score, null)
+    },
+    async getLatestScan() {
+      return read<LatestScan | null>('pr.demo.latestScan', null)
+    },
+    async saveLatestScan(s) {
+      if (!read<AppUser | null>(K.user, null)) throw new ApiError('unauthenticated')
+      write('pr.demo.latestScan', { ...s, updatedAt: new Date().toISOString() })
     },
     async scoreResume(input: ScoreInput) {
       if (!read<AppUser | null>(K.user, null)) throw new ApiError('unauthenticated')

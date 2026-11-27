@@ -1,4 +1,5 @@
 import type { ResumeData, ScoreInput, ScoreReport } from '@scoring'
+import type { ScoreReport as ScoreReportV2 } from '@ats'
 
 export type PlanId = 'month' | 'six_months' | 'lifetime'
 export interface AppUser {
@@ -74,6 +75,14 @@ export class ApiError extends Error {
   }
 }
 
+/** The latest resume check kept against an account (one per account; a new upload replaces it). */
+export interface LatestScan {
+  fileName: string
+  picks: { level: string | null; track: string | null; company: string | null }
+  report: ScoreReportV2
+  updatedAt: string
+}
+
 export interface Api {
   mode: 'supabase' | 'demo'
   getUser(): Promise<AppUser | null>
@@ -85,6 +94,8 @@ export interface Api {
   deleteAccount(): Promise<void>
   getEntitlement(): Promise<Entitlement>
   getSavedScore(): Promise<ScoreReport | null>
+  getLatestScan(): Promise<LatestScan | null>
+  saveLatestScan(s: Omit<LatestScan, 'updatedAt'>): Promise<void>
   scoreResume(input: ScoreInput): Promise<ScoreReport>
   jobCounts(): Promise<{ US: number; IN: number; total: number }>
   listJobs(): Promise<Job[]>

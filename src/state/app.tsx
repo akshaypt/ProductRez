@@ -56,10 +56,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [prefs.theme])
 
   // Someone who was scored on the landing page and then signs in has already told us their level, focus and market,
-  // and we have their resume. Complete setup for them instead of asking again. Returning users keep what they have.
-  const applyHandoff = useCallback(() => {
+  // and we have their resume. Keep that check against the account (one per account, a new upload replaces it) and, for a
+  // first-time user, complete setup and seed the Writer instead of asking again. Returning users keep their settings.
+  const applyHandoff = useCallback((a: Api) => {
     const h = takeHandoff()
     if (!h) return
+    // Deferred: supabase-js can deadlock if you call it from inside its own auth-change callback.
+    setTimeout(() => a.saveLatestScan({ fileName: h.fileName, picks: { level: h.level, track: h.track, company: h.company }, report: h.report }).catch(() => {}), 0)
     const saved = store.get<Prefs | null>('pr.prefs', null)
     if (saved?.onboarded) return
     setPrefs({ stage: stageFor(h.level), region: regionFor(h.market), onboarded: true })
@@ -78,12 +81,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!alive) return
       setApi(a)
       const u = await a.getUser()
-      if (u) applyHandoff()
+      if (u) applyHandoff(a)
       setUser(u)
       await loadEnt(a, u)
       setReady(true)
       off = a.onAuthChange(async (nu) => {
-        if (nu) applyHandoff()
+        if (nu) applyHandoff(a)
         setUser(nu)
         await loadEnt(a, nu)
       })

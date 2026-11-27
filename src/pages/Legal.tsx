@@ -52,6 +52,7 @@ export function Privacy() {
       <ul>
         <li>When you upload a PDF, the text is extracted <b>in your browser</b>. The file itself is never uploaded.</li>
         <li>To compute your score, the extracted text is sent to our scoring service. We keep your <b>latest score report</b>, which includes the parsed resume (name, contact details, experience), so you can revisit it. It’s visible only to your account.</li>
+        <li>If you check your resume on our home page <i>before</i> signing in, that check runs in your browser and nothing is sent to us. If you then sign in, we save that one check (the parsed resume, its score, and the level, focus and company type you picked) to your account, replacing any earlier one. We never keep the file itself, and deleting your account deletes the saved check.</li>
         <li>Resumes you build in the Writer are saved to your account so you can access them across devices (paid plans).</li>
         <li>If AI rewrites are enabled, the single bullet you ask about plus your role and level are sent to our AI provider to generate suggestions.</li>
       </ul>
