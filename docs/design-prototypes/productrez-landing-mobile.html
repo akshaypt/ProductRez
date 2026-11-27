@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProductRez Mobile | Built Exclusively for Product Managers</title>
+  <style>
+    :root, [data-theme="light"] {
+      --bg: #fafaf9;
+      --surface: #ffffff;
+      --surface-soft: #f4f4f5;
+      --nav-bg: rgba(250, 250, 249, 0.92);
+      --ink: #0f172a;
+      --ink-2: #334155;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --accent: #fc8019;
+      --accent-dark: #e26d0b;
+      --accent-soft: #fff3e8;
+      --emerald: #059669;
+      --emerald-soft: #ecfdf5;
+      --amber: #d97706;
+      --amber-soft: #fffbeb;
+      --rose: #e11d48;
+      --rose-soft: #fff1f2;
+      --dark-bg: #111115;
+      --dark-border: #27272f;
+    }
+
+    [data-theme="dark"] {
+      --bg: #09090b;
+      --surface: #111115;
+      --surface-soft: #18181d;
+      --nav-bg: rgba(9, 9, 11, 0.92);
+      --ink: #fafafa;
+      --ink-2: #d4d4d8;
+      --muted: #a1a1aa;
+      --border: #27272a;
+      --border-strong: #3f3f46;
+      --accent: #fc8019;
+      --accent-dark: #e26d0b;
+      --accent-soft: rgba(252, 128, 25, 0.16);
+      --emerald: #10b981;
+      --emerald-soft: rgba(16, 185, 129, 0.16);
+      --amber: #f59e0b;
+      --amber-soft: rgba(245, 158, 11, 0.16);
+      --rose: #f43f5e;
+      --rose-soft: rgba(244, 63, 94, 0.16);
+      --dark-bg: #0d0d11;
+      --dark-border: #27272f;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #18181b;
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 20px 12px;
+      -webkit-font-smoothing: antialiased;
+    }
+    @media (max-width: 480px) {
+      body { padding: 0; background: var(--bg); }
+    }
+
+    /* Mobile Device Frame */
+    .phone-frame {
+      width: 100%;
+      max-width: 393px;
+      background: var(--bg);
+      color: var(--ink);
+      border-radius: 36px;
+      border: 8px solid #27272a;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      max-height: 852px;
+    }
+    @media (max-width: 480px) {
+      .phone-frame { max-width: 100%; border-radius: 0; border: none; max-height: none; box-shadow: none; }
+    }
+
+    .phone-scroll {
+      overflow-y: auto;
+      flex: 1;
+      padding-bottom: 84px;
+      scroll-behavior: smooth;
+    }
+
+    .ico {
+      width: 15px; height: 15px; flex-shrink: 0;
+      stroke: currentColor; fill: none; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+      display: inline-block; vertical-align: middle;
+    }
+    .ico-sm { width: 13px; height: 13px; }
+
+    /* Mobile Sticky Nav */
+    .m-nav {
+      position: sticky; top: 0; z-index: 30;
+      background: var(--nav-bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 800; font-size: 15.5px; color: var(--ink); text-decoration: none;
+    }
+    .brand-mark {
+      width: 26px; height: 26px; border-radius: 7px;
+      background: linear-gradient(135deg, #fc8019, #e26d0b);
+      color: #fff; display: grid; place-items: center; font-size: 11px; font-weight: 800;
+    }
+    .nav-right { display: flex; align-items: center; gap: 8px; }
+    .icon-btn {
+      width: 34px; height: 34px; border-radius: 9px;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--ink-2); display: grid; place-items: center; cursor: pointer;
+    }
+    .signin-link {
+      font-size: 12.5px; font-weight: 700; color: var(--ink-2);
+      text-decoration: none; padding: 6px 10px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--surface);
+    }
+
+    /* Mobile Hero */
+    .m-hero { padding: 20px 16px 26px; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 999px;
+      background: var(--accent-soft); color: var(--accent);
+      font-size: 11px; font-weight: 700; margin-bottom: 12px;
+    }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--emerald); }
+    .m-hero h1 {
+      font-size: 27px; font-weight: 800; line-height: 1.12;
+      letter-spacing: -0.03em; margin-bottom: 10px;
+    }
+    .m-hero h1 span { color: var(--accent); }
+    .m-hero-sub { font-size: 14px; color: var(--ink-2); line-height: 1.5; margin-bottom: 14px; }
+    .m-hero-proof {
+      display: flex; flex-wrap: wrap; gap: 8px 14px;
+      font-size: 12px; color: var(--muted); font-weight: 500;
+      margin-bottom: 16px;
+    }
+    .m-hero-proof span { display: inline-flex; align-items: center; gap: 5px; }
+    .m-hero-proof .ico { color: var(--emerald); }
+
+    /* Mobile Drop Card */
+    .drop-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 12px;
+    }
+    .drop-stage {
+      border-radius: 14px;
+      padding: 16px 14px;
+      background:
+        radial-gradient(circle at 85% 20%, rgba(252, 128, 25, 0.24), transparent 55%),
+        var(--dark-bg);
+      border: 1px solid var(--dark-border);
+      color: #fff;
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer;
+    }
+    .mini-sheet {
+      width: 56px; height: 70px; flex-shrink: 0;
+      border-radius: 9px; background: #18181f; border: 1px solid #30303b;
+      padding: 8px 6px; display: flex; flex-direction: column; gap: 4px;
+      position: relative; transform: rotate(-3deg);
+    }
+    .ms-n { height: 5px; width: 65%; border-radius: 2px; background: #fff; }
+    .ms-r { height: 3px; width: 45%; border-radius: 2px; background: var(--accent); margin-bottom: 3px; }
+    .ms-l { height: 3px; width: 100%; border-radius: 2px; background: #3f3f46; }
+    .ms-l.w { background: rgba(252, 128, 25, 0.6); width: 82%; }
+    .ms-l.ok { background: rgba(16, 185, 129, 0.6); width: 70%; }
+    .drop-copy h3 { font-size: 14.5px; font-weight: 800; line-height: 1.25; margin-bottom: 3px; }
+    .drop-copy p { font-size: 12px; color: #a1a1aa; line-height: 1.35; }
+
+    .madlibs {
+      margin-top: 10px; padding: 12px; border-radius: 13px;
+      background: var(--surface-soft); border: 1px solid var(--border);
+      font-size: 13px; line-height: 2.05; color: var(--ink-2); font-weight: 500;
+    }
+    .pick-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 9px; border-radius: 999px;
+      background: var(--accent-soft); border: 1px solid rgba(252, 128, 25, 0.45);
+      color: var(--accent); font-family: inherit; font-size: 12.5px; font-weight: 700;
+      cursor: pointer;
+    }
+    .pick-btn.empty {
+      background: var(--surface); border: 1px dashed var(--border-strong); color: var(--muted); font-weight: 600;
+    }
+
+    .card-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .btn-main {
+      flex: 1; padding: 12px; border-radius: 12px; border: none;
+      background: var(--accent); color: #fff; font-size: 14px; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      text-decoration: none; cursor: pointer;
+    }
+    .btn-jd {
+      padding: 0 12px; border-radius: 12px; border: 1px solid var(--border);
+      background: var(--surface-soft); color: var(--ink-2); font-size: 12px; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
+    }
+    .jd-box { display: none; margin-top: 8px; }
+    .jd-box.open { display: block; }
+    .jd-box textarea {
+      width: 100%; height: 64px; padding: 8px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface-soft); color: var(--ink);
+      font-family: inherit; font-size: 12px;
+    }
+
+    /* Section 2: 80% Collapsed Preview */
+    .m-band { padding: 34px 16px; border-top: 1px solid var(--border); }
+    .kicker {
+      font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--accent); margin-bottom: 5px;
+    }
+    .m-band h2 { font-size: 21px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 14px; }
+
+    .bento-shell { position: relative; }
+    .bento-collapse { max-height: 210px; overflow: hidden; transition: max-height 0.4s ease; }
+    .bento-collapse.expanded { max-height: 2200px; }
+    .bento-fade {
+      position: absolute; left: 0; right: 0; bottom: 0; height: 90px;
+      background: linear-gradient(to bottom, transparent, var(--bg) 85%);
+      display: flex; align-items: flex-end; justify-content: center;
+    }
+    .bento-collapse.expanded + .bento-fade { position: static; height: auto; background: none; margin-top: 12px; }
+    .bento-toggle {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 15px; border-radius: 999px;
+      background: var(--surface); border: 1.5px solid var(--accent); color: var(--accent);
+      font-size: 12px; font-weight: 700; cursor: pointer;
+    }
+
+    .m-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 14px; margin-bottom: 10px;
+    }
+    .m-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 12.5px; font-weight: 700; }
+    .score-row { display: flex; align-items: center; gap: 14px; }
+    .gauge-mini {
+      width: 78px; height: 78px; position: relative; flex-shrink: 0;
+    }
+    .gauge-mini svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .gauge-bg { fill: none; stroke: var(--surface-soft); stroke-width: 8; }
+    .gauge-fg { fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 220; stroke-dashoffset: 33; transition: all 0.4s ease; }
+    .gauge-num {
+      position: absolute; inset: 0; display: grid; place-items: center;
+      font-size: 22px; font-weight: 800;
+    }
+    .fix-chip {
+      margin-top: 8px; width: 100%; text-align: left;
+      padding: 7px 10px; border-radius: 10px;
+      background: var(--surface-soft); border: 1px solid var(--border);
+      color: var(--ink-2); font-size: 11.5px; font-weight: 600; cursor: pointer;
+      display: flex; justify-content: space-between;
+    }
+    .fix-chip.applied { background: var(--emerald-soft); border-color: var(--emerald); color: var(--emerald); }
+
+    .tag { font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 5px; display: inline-block; }
+    .t-ok { background: var(--emerald-soft); color: var(--emerald); }
+    .t-warn { background: var(--amber-soft); color: var(--amber); }
+    .t-bad { background: var(--rose-soft); color: var(--rose); }
+
+    /* Section 3: Bold Orange Swipeable Ticket Carousel */
+    .jobs-band {
+      padding: 36px 0;
+      background: #fc8019;
+      color: #09090b;
+    }
+    .jobs-head { padding: 0 16px 16px; }
+    .jobs-head h2 { font-size: 24px; font-weight: 900; letter-spacing: -0.03em; line-height: 1.1; }
+    .jobs-head p { font-size: 13px; font-weight: 600; color: rgba(9, 9, 11, 0.78); margin-top: 4px; }
+
+    .ticket-carousel {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding: 0 16px 6px;
+      scrollbar-width: none;
+    }
+    .ticket-carousel::-webkit-scrollbar { display: none; }
+    .m-ticket {
+      flex: 0 0 82%;
+      scroll-snap-align: start;
+      background: #fff;
+      color: #09090b;
+      border-radius: 16px;
+      padding: 16px;
+      text-decoration: none;
+      display: flex; flex-direction: column; justify-content: space-between; gap: 14px;
+      box-shadow: 0 12px 26px rgba(9, 9, 11, 0.14);
+    }
+    .mt-top { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; color: #52525b; text-transform: uppercase; }
+    .mt-time { background: #fff3e8; color: #c2410c; padding: 2px 8px; border-radius: 999px; }
+    .m-ticket h3 { font-size: 16px; font-weight: 800; line-height: 1.25; }
+    .mt-loc { font-size: 12px; font-weight: 600; color: #52525b; margin-top: 3px; }
+    .mt-foot {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 10px; border-top: 1.5px dashed #e4e4e7;
+      font-size: 12.5px; font-weight: 800; color: #059669;
+    }
+
+    /* Section 4: Vertical Rewrite Timeline */
+    .timeline { display: grid; gap: 12px; position: relative; padding-left: 18px; }
+    .timeline::before {
+      content: ""; position: absolute; left: 6px; top: 8px; bottom: 8px;
+      width: 2px; background: var(--border-strong);
+    }
+    .tl-item { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; }
+    .tl-dot {
+      position: absolute; left: -17px; top: 16px;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--accent); border: 2px solid var(--bg);
+    }
+    .tl-item h3 { font-size: 13.5px; font-weight: 700; margin-bottom: 2px; }
+    .tl-item p { font-size: 12px; color: var(--muted); }
+
+    .gate-card {
+      margin-top: 14px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 14px;
+    }
+    .gate-pair { display: flex; align-items: center; gap: 8px; margin: 10px 0; }
+    .gp-box {
+      flex: 1; text-align: center; padding: 10px; border-radius: 10px;
+      background: var(--surface-soft); border: 1px solid var(--border);
+    }
+    .gp-box.win { background: var(--emerald-soft); border-color: var(--emerald); }
+    .gp-box span { display: block; font-size: 10px; font-weight: 700; color: var(--muted); }
+    .gp-box strong { font-size: 16px; font-weight: 800; }
+    .gp-box.win strong { color: var(--emerald); }
+
+    /* Sticky Bottom Thumb Bar */
+    .sticky-cta {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 10px 16px 14px;
+      background: var(--nav-bg);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      z-index: 35;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    .sticky-cta .btn-main {
+      flex: 0 0 auto;
+      padding: 11px 18px;
+      border-radius: 12px;
+    }
+
+    /* Bottom Sheet Picker for Mobile */
+    .sheet-backdrop {
+      display: none; position: absolute; inset: 0; z-index: 60;
+      background: rgba(0, 0, 0, 0.55); align-items: flex-end;
+    }
+    .sheet-backdrop.open { display: flex; }
+    .sheet {
+      width: 100%; background: var(--surface); border-top-left-radius: 22px; border-top-right-radius: 22px;
+      padding: 16px; border-top: 1px solid var(--border);
+      display: grid; gap: 6px;
+    }
+    .sheet-handle { width: 38px; height: 4px; border-radius: 999px; background: var(--border-strong); margin: 0 auto 8px; }
+    .sheet-title { font-size: 13px; font-weight: 800; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+    .sheet-opt {
+      text-align: left; padding: 11px 12px; border-radius: 10px;
+      background: var(--surface-soft); border: 1px solid var(--border);
+      color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+    /* Mobile Toast */
+    .toast {
+      position: absolute;
+      bottom: 78px; left: 16px; right: 16px;
+      background: #18181b;
+      color: #fff;
+      border: 1px solid #fc8019;
+      border-radius: 14px;
+      padding: 11px 14px;
+      font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.38);
+      z-index: 70;
+      opacity: 0; transform: translateY(10px); pointer-events: none;
+      transition: all 0.2s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast .ico { color: #fc8019; }
+    @keyframes shakePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(252, 128, 25, 0); }
+      50% { box-shadow: 0 0 0 4px rgba(252, 128, 25, 0.4); border-color: #fc8019; }
+    }
+    .drop-stage.nudge { animation: shakePulse 0.6s ease 2; }
+    .m-footer {
+      padding: 24px 16px 28px;
+      border-top: 1px solid var(--border);
+      display: grid;
+      gap: 12px;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+    .mf-links {
+      display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+    }
+    .mf-links a {
+      color: var(--ink-2); text-decoration: none; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .mf-links a:hover { color: var(--accent); }
+
+    /* Mobile Resume Analysis Loading Overlay */
+    .scan-overlay {
+      display: none;
+      position: absolute; inset: 0; z-index: 80;
+      background: rgba(9, 9, 11, 0.78);
+      backdrop-filter: blur(8px);
+      align-items: center; justify-content: center;
+      padding: 18px;
+    }
+    .scan-overlay.open { display: flex; }
+    .scan-modal {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 22px;
+      padding: 24px 18px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+      text-align: center;
+    }
+    .scan-doc {
+      width: 68px; height: 86px; margin: 0 auto 14px;
+      border-radius: 10px;
+      background: var(--surface-soft);
+      border: 1.5px solid var(--border-strong);
+      padding: 10px 8px;
+      display: flex; flex-direction: column; gap: 5px;
+      position: relative; overflow: hidden;
+    }
+    .scan-doc .sd-h { height: 6px; width: 65%; border-radius: 3px; background: var(--ink); }
+    .scan-doc .sd-l { height: 4px; width: 100%; border-radius: 2px; background: var(--border-strong); }
+    .scan-doc .sd-l.s { width: 70%; }
+    .scan-laser {
+      position: absolute; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, #fc8019, transparent);
+      box-shadow: 0 0 12px #fc8019;
+      animation: laserSweep 1.3s ease-in-out infinite;
+    }
+    @keyframes laserSweep {
+      0% { top: 6%; }
+      50% { top: 90%; }
+      100% { top: 6%; }
+    }
+    .scan-modal h3 { font-size: 16.5px; font-weight: 800; color: var(--ink); margin-bottom: 3px; }
+    .scan-modal .scan-sub { font-size: 12.5px; color: var(--muted); margin-bottom: 14px; }
+    .scan-progress {
+      height: 5px; border-radius: 999px; background: var(--surface-soft);
+      overflow: hidden; margin-bottom: 14px;
+    }
+    .scan-bar {
+      height: 100%; width: 0%; border-radius: 999px;
+      background: linear-gradient(90deg, #fc8019, #10b981);
+      transition: width 0.4s ease;
+    }
+    .scan-steps { display: grid; gap: 7px; text-align: left; }
+    .scan-step {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 10px; border-radius: 10px;
+      background: var(--surface-soft); border: 1px solid var(--border);
+      font-size: 12px; font-weight: 600; color: var(--muted);
+      transition: all 0.2s ease;
+    }
+    .scan-step.active { border-color: var(--accent); color: var(--ink); }
+    .scan-step.done { border-color: var(--emerald); color: var(--emerald); background: var(--emerald-soft); }
+    .step-dot {
+      width: 15px; height: 15px; border-radius: 50%; flex-shrink: 0;
+      border: 2px solid var(--border-strong); display: grid; place-items: center;
+    }
+    .scan-step.active .step-dot { border-color: var(--accent); border-top-color: transparent; animation: spin 0.7s linear infinite; }
+    .scan-step.done .step-dot { border-color: var(--emerald); background: var(--emerald); color: #fff; animation: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Mobile Post-Analysis Report View */
+    #landingView.hidden { display: none; }
+    #reportView { display: none; padding: 16px; }
+    #reportView.active { display: block; }
+    body.is-report .signin-link,
+    body.is-report .sticky-cta { display: none; }
+    body.is-report .phone-scroll { padding-bottom: 24px; }
+    .rep-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--ink-2); padding: 6px 11px; border-radius: 9px;
+      font-size: 12px; font-weight: 600; cursor: pointer; margin-bottom: 12px;
+    }
+    .locked-wrap { position: relative; margin-top: 12px; }
+    .locked-grid {
+      display: grid; gap: 10px;
+      filter: blur(7px); user-select: none; pointer-events: none; transition: filter 0.35s ease;
+    }
+    .locked-wrap.unlocked .locked-grid { filter: none; user-select: auto; pointer-events: auto; }
+    .locked-wrap.unlocked .lock-gate { display: none; }
+    .lock-gate {
+      position: absolute; inset: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: center; padding: 12px;
+    }
+    .lock-card {
+      width: 100%; background: var(--surface); border: 1.5px solid var(--accent);
+      border-radius: 18px; padding: 20px 16px; text-align: center;
+      box-shadow: 0 20px 44px rgba(0,0,0,0.35);
+    }
+    .lock-card h3 { font-size: 17px; font-weight: 800; margin-bottom: 5px; }
+    .lock-card p { font-size: 12.5px; color: var(--ink-2); margin-bottom: 14px; }
+
+    /* Mobile Sign-In Screen / Overlay */
+    .auth-overlay {
+      display: none; position: absolute; inset: 0; z-index: 90;
+      background: rgba(9, 9, 11, 0.78); backdrop-filter: blur(8px);
+      align-items: flex-end; justify-content: center;
+    }
+    .auth-overlay.open { display: flex; }
+    .auth-card {
+      width: 100%; background: var(--surface);
+      border-top: 1px solid var(--border-strong);
+      border-top-left-radius: 24px; border-top-right-radius: 24px;
+      padding: 22px 18px 26px; position: relative;
+      box-shadow: 0 -20px 50px rgba(0,0,0,0.45);
+    }
+    .auth-close {
+      position: absolute; top: 14px; right: 14px;
+      width: 30px; height: 30px; border-radius: 8px;
+      background: var(--surface-soft); border: 1px solid var(--border);
+      color: var(--muted); display: grid; place-items: center; cursor: pointer;
+    }
+    .auth-head { text-align: center; margin-bottom: 16px; }
+    .auth-head .brand-mark { margin: 0 auto 10px; width: 34px; height: 34px; font-size: 13px; border-radius: 9px; }
+    .auth-head h3 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+    .auth-head p { font-size: 12.5px; color: var(--muted); }
+    .google-btn {
+      width: 100%; padding: 11px 12px; border-radius: 11px;
+      background: var(--surface-soft); border: 1px solid var(--border-strong);
+      color: var(--ink); font-size: 13.5px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 9px; cursor: pointer;
+    }
+    .auth-div {
+      display: flex; align-items: center; gap: 8px;
+      margin: 14px 0; font-size: 11px; font-weight: 600; color: var(--muted);
+    }
+    .auth-div::before, .auth-div::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+    .auth-input {
+      width: 100%; padding: 10px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface-soft); color: var(--ink);
+      font-size: 13.5px; margin-bottom: 10px; font-family: inherit;
+    }
+    .auth-foot { text-align: center; font-size: 11px; color: var(--muted); margin-top: 12px; }
+
+    /* Mobile Post-Sign-In App Shell (matching Shell.tsx tabbar) */
+    #homeView { display: none; padding: 16px; }
+    #homeView.active { display: block; }
+    body.is-home .signin-link,
+    body.is-home .sticky-cta { display: none; }
+    body.is-home .phone-scroll { padding-bottom: 76px; }
+    .app-tabbar {
+      display: none; position: absolute; bottom: 0; left: 0; right: 0; z-index: 40;
+      background: var(--nav-bg); backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 6px 4px 10px;
+      grid-template-columns: repeat(5, 1fr);
+    }
+    body.is-home .app-tabbar { display: grid; }
+    .at-btn {
+      background: transparent; border: none; color: var(--muted);
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      font-size: 10px; font-weight: 700; cursor: pointer; padding: 4px 2px;
+    }
+    .at-btn.active { color: var(--accent); }
+    .m-subpage { display: none; }
+    .m-subpage.active { display: block; }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="phone-scroll">
+      <!-- NAV -->
+      <header class="m-nav">
+        <a href="#top" class="brand">
+          <div class="brand-mark">PR</div>
+          ProductRez
+        </a>
+        <div class="nav-right">
+          <button class="icon-btn" id="themeToggle" aria-label="Toggle theme"></button>
+          <button type="button" class="signin-link" id="navSignInBtn" style="cursor:pointer;">Sign In</button>
+          <button type="button" class="home-signout" id="signOutBtn">Sign Out</button>
+        </div>
+      </header>
+
+      <div id="landingView">
+      <!-- HERO + DROP -->
+      <section class="m-hero" id="top">
+        <div class="eyebrow"><span class="dot"></span> Made Exclusively for Product Managers</div>
+        <h1>Stop Getting Ghosted.<br/><span>Know What Hiring Managers Actually See.</span></h1>
+        <p class="m-hero-sub">Get an honest 30-second teardown of your resume, market standing, and salary fit.</p>
+        <div class="m-hero-proof">
+          <span><svg class="ico ico-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Free instant check &middot; No signup</span>
+          <span><svg class="ico ico-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Calibrated to your level &amp; target companies</span>
+          <span><svg class="ico ico-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Actionable fixes, not generic fluff</span>
+        </div>
+
+        <div class="drop-card">
+          <div class="drop-stage" id="dropZone">
+            <div class="mini-sheet">
+              <div class="ms-n"></div>
+              <div class="ms-r"></div>
+              <div class="ms-l"></div>
+              <div class="ms-l w"></div>
+              <div class="ms-l ok"></div>
+              <div class="ms-l"></div>
+            </div>
+            <div class="drop-copy">
+              <h3 id="dropTitle">Tap to upload your resume</h3>
+              <p id="dropSub">PDF or DOCX &middot; Teardown in 30s</p>
+            </div>
+          </div>
+
+          <div class="madlibs">
+            <div id="autoHint" style="font-size:11px;color:var(--muted);line-height:1.3;margin-bottom:4px;">Auto-fills after upload, or tap to pick:</div>
+            I'm targeting
+            <button type="button" class="pick-btn empty" data-sheet="level" data-autofill="Senior PM"><span>Select level</span><svg class="ico ico-sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+            roles in
+            <button type="button" class="pick-btn empty" data-sheet="track" data-autofill="Growth & PLG"><span>PM focus</span><svg class="ico ico-sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+            at
+            <button type="button" class="pick-btn empty" data-sheet="company" data-autofill="Scale-ups"><span>company type</span><svg class="ico ico-sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>.
+          </div>
+
+          <div class="jd-box" id="jdBox">
+            <textarea placeholder="Paste target JD here..."></textarea>
+          </div>
+
+          <div class="card-actions">
+            <button type="button" class="btn-main" id="reviewBtn">
+              Review My Resume
+              <svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+            <button type="button" class="btn-jd" id="jdToggle">
+              <svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              JD
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 30s PREVIEW (80% COLLAPSED, MATCHES DESKTOP CONTENT 1:1) -->
+      <section class="m-band" id="preview">
+        <div class="kicker">What You Get in 30 Seconds</div>
+        <h2>Your Entire PM Profile, Decoded in One View</h2>
+
+        <div class="bento-shell">
+          <div class="bento-collapse" id="bentoCollapse">
+            <!-- CARD 1: SCORE + 4 MINI DIMS + FIX SIMULATOR -->
+            <div class="m-card">
+              <div class="m-card-head">
+                <span>PM Resume Score</span>
+                <span class="tag t-ok" id="gaugeGrade">Strong</span>
+              </div>
+              <div class="score-row">
+                <div class="gauge-mini">
+                  <svg viewBox="0 0 84 84">
+                    <circle class="gauge-bg" cx="42" cy="42" r="35"/>
+                    <circle class="gauge-fg" id="gaugeArc" cx="42" cy="42" r="35"/>
+                  </svg>
+                  <div class="gauge-num" id="gaugeScore">85</div>
+                </div>
+                <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                  <div style="background:var(--surface-soft);border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-size:11px;">
+                    <div style="display:flex;justify-content:space-between;"><span>Impact</span><strong>92</strong></div>
+                  </div>
+                  <div style="background:var(--surface-soft);border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-size:11px;">
+                    <div style="display:flex;justify-content:space-between;"><span>PM Craft</span><strong>96</strong></div>
+                  </div>
+                  <div style="background:var(--surface-soft);border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-size:11px;">
+                    <div style="display:flex;justify-content:space-between;"><span>Ownership</span><strong>91</strong></div>
+                  </div>
+                  <div style="background:var(--surface-soft);border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-size:11px;">
+                    <div style="display:flex;justify-content:space-between;"><span>Readability</span><strong>96</strong></div>
+                  </div>
+                  <div style="background:var(--surface-soft);border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-size:11px;">
+                    <div style="display:flex;justify-content:space-between;"><span>Experience</span><strong>85</strong></div>
+                  </div>
+                  <div style="background:var(--surface-soft);border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-size:11px;">
+                    <div style="display:flex;justify-content:space-between;"><span>Clarity</span><strong>88</strong></div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:10px;">
+                <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;">Tap to simulate fixes:</div>
+                <button type="button" class="fix-chip" data-pts="5"><span>Trim 6-bullet role</span><strong>+5</strong></button>
+                <button type="button" class="fix-chip" data-pts="2"><span>Vary "designed" opener</span><strong>+2</strong></button>
+              </div>
+            </div>
+
+            <!-- CARD 2: LINE-BY-LINE BULLET X-RAY -->
+            <div class="m-card">
+              <div class="m-card-head">
+                <span>Line-by-Line Bullet X-Ray</span>
+                <span class="tag t-warn">Spots Missing Guardrails</span>
+              </div>
+              <div style="background:var(--surface-soft);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:var(--rose);margin-bottom:4px;">
+                  <span>BEFORE: TASK LIST</span><span>IMPACT 0/3</span>
+                </div>
+                <p style="font-size:12px;color:var(--muted);text-decoration:line-through;">"Automated customer support workflows using LLMs and collaborated with engineering to ship new dashboard features."</p>
+                <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;">
+                  <span class="tag t-bad">No Metric</span>
+                  <span class="tag t-warn">Missing CSAT Guardrail</span>
+                </div>
+              </div>
+              <div style="background:var(--emerald-soft);border:1px solid rgba(16,185,129,0.35);border-radius:10px;padding:10px;">
+                <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:var(--emerald);margin-bottom:4px;">
+                  <span>AFTER: OUTCOME + GUARDRAIL</span><span>IMPACT 3/3</span>
+                </div>
+                <p style="font-size:12px;color:var(--ink);">"Shipped RAG support copilot across 3 regions, deflecting 31% of tier-1 tickets while holding CSAT flat at 4.6/5 via a 300-case eval set."</p>
+                <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;">
+                  <span class="tag t-ok">Before/After Delta</span>
+                  <span class="tag t-ok">Guardrail Proven</span>
+                  <span class="tag t-ok">AI Evals</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- CARD 3: MARKET STANDING & CAREER STORY -->
+            <div class="m-card">
+              <div class="m-card-head">
+                <span>Market Standing &amp; Career Story</span>
+                <span class="tag t-ok">Top 12%</span>
+              </div>
+              <div style="margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+                  <span><strong style="font-size:20px;color:var(--accent);">88th</strong> <span style="font-size:11.5px;color:var(--muted);">percentile among Senior PMs</span></span>
+                  <span style="font-size:11px;font-weight:700;color:var(--emerald);">Interview Ready</span>
+                </div>
+                <div style="height:6px;border-radius:999px;background:linear-gradient(90deg,var(--border),rgba(252,128,25,0.45),var(--emerald));position:relative;">
+                  <div style="position:absolute;top:50%;left:88%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;background:var(--accent);border:2px solid var(--surface);"></div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">
+                <div style="background:var(--surface-soft);border:1px solid var(--border);border-radius:8px;padding:6px;text-align:center;"><strong style="display:block;font-size:13px;">94%</strong><span style="font-size:10px;color:var(--muted);">Core</span></div>
+                <div style="background:var(--surface-soft);border:1px solid var(--border);border-radius:8px;padding:6px;text-align:center;"><strong style="display:block;font-size:13px;">80%</strong><span style="font-size:10px;color:var(--muted);">Growth</span></div>
+                <div style="background:var(--surface-soft);border:1px solid var(--border);border-radius:8px;padding:6px;text-align:center;"><strong style="display:block;font-size:13px;">71%</strong><span style="font-size:10px;color:var(--muted);">SaaS</span></div>
+                <div style="background:var(--surface-soft);border:1px solid var(--border);border-radius:8px;padding:6px;text-align:center;"><strong style="display:block;font-size:13px;">61%</strong><span style="font-size:10px;color:var(--muted);">AI/ML</span></div>
+              </div>
+              <div style="display:grid;gap:6px;font-size:11.5px;color:var(--ink-2);">
+                <div style="background:var(--surface-soft);border:1px solid var(--border);border-radius:8px;padding:8px;"><strong style="color:var(--emerald);display:block;font-size:10px;text-transform:uppercase;">+ Career Strength</strong>Founder to Product Leader arc signals high ownership &amp; 78% metric density.</div>
+                <div style="background:var(--surface-soft);border:1px solid var(--border);border-radius:8px;padding:8px;"><strong style="color:var(--amber);display:block;font-size:10px;text-transform:uppercase;">! Narrative Risk</strong>Older roles show 90% metrics vs. 63% in your latest role. Lead with recent wins.</div>
+              </div>
+            </div>
+
+            <!-- CARD 4: SALARY & EXPECTATION CHECK -->
+            <div class="m-card">
+              <div class="m-card-head">
+                <span>Salary &amp; Expectation Check</span>
+                <div style="display:inline-flex;background:var(--surface-soft);border:1px solid var(--border);border-radius:7px;padding:2px;">
+                  <button type="button" class="curr-btn active" data-curr="INR" style="border:none;background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:3px 7px;border-radius:5px;cursor:pointer;">INR (L)</button>
+                  <button type="button" class="curr-btn" data-curr="USD" style="border:none;background:transparent;color:var(--muted);font-size:10px;font-weight:700;padding:3px 7px;border-radius:5px;cursor:pointer;">USD ($k)</button>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px;">
+                <span id="bandMin">₹34L</span>
+                <span id="bandMid" style="color:var(--ink);">Median ₹44L (Fit: ₹44L–₹53L)</span>
+                <span id="bandMax">₹57L</span>
+              </div>
+              <div style="height:8px;border-radius:999px;background:var(--border);position:relative;margin-bottom:10px;">
+                <div style="position:absolute;top:0;bottom:0;left:43%;width:39%;border-radius:999px;background:rgba(16,185,129,0.45);"></div>
+                <div id="pinCur" style="position:absolute;top:50%;left:12%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;background:var(--amber);border:2px solid var(--surface);"></div>
+                <div id="pinExp" style="position:absolute;top:50%;left:48%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;background:var(--accent);border:2px solid var(--surface);"></div>
+              </div>
+              <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px;">
+                <span class="tag t-warn" id="curSample">Current: ₹35L (Underpaid)</span>
+                <span class="tag t-ok" id="expSample">Expected: ₹45L (Achievable)</span>
+              </div>
+              <p id="compNote" style="font-size:11.5px;color:var(--ink-2);">Sample output: ₹45L sits at the 54th percentile, right on market median and well aligned with a 92/100 Senior PM resume.</p>
+            </div>
+          </div>
+          <div class="bento-fade">
+            <button type="button" class="bento-toggle" id="bentoToggle">
+              <span>Expand Full 30s Preview</span>
+              <svg class="ico ico-sm" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- EARLY ACCESS PM JOBS (SWIPEABLE CAROUSEL) -->
+      <section class="jobs-band" id="jobs">
+        <div class="jobs-head">
+          <h2>Early Access PM Jobs. Gone in 72h.</h2>
+          <p>Swipe to explore roles matched to your resume.</p>
+        </div>
+
+        <div class="ticket-carousel">
+          <a href="#top" class="m-ticket">
+            <div class="mt-top"><span>Razorpay</span><span class="mt-time">9h ago</span></div>
+            <div>
+              <h3>Senior PM, Growth</h3>
+              <div class="mt-loc">Bengaluru &middot; ₹42L–₹54L</div>
+            </div>
+            <div class="mt-foot">
+              <span>91% Match</span>
+              <svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </div>
+          </a>
+
+          <a href="#top" class="m-ticket">
+            <div class="mt-top"><span>Linear</span><span class="mt-time">14h ago</span></div>
+            <div>
+              <h3>PM, Workflow &amp; API</h3>
+              <div class="mt-loc">Remote Global &middot; $210k–$260k</div>
+            </div>
+            <div class="mt-foot">
+              <span>86% Match</span>
+              <svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </div>
+          </a>
+
+          <a href="#top" class="m-ticket">
+            <div class="mt-top"><span>Postman</span><span class="mt-time">28h ago</span></div>
+            <div>
+              <h3>PM, AI Agents</h3>
+              <div class="mt-loc">Hybrid / Remote &middot; 1 gap</div>
+            </div>
+            <div class="mt-foot">
+              <span>82% Match</span>
+              <svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- SCORE-GUARANTEED REWRITE -->
+      <section class="m-band" id="rewriter">
+        <div class="kicker">Score-Guaranteed Rewrite</div>
+        <h2>We Only Deliver If It Beats Your Original Score</h2>
+
+        <div class="timeline">
+          <div class="tl-item"><span class="tl-dot"></span><h3>1. Upload Existing Resume</h3><p>Drop your current PDF or DOCX.</p></div>
+          <div class="tl-item"><span class="tl-dot"></span><h3>2. Pick a Template</h3><p>Choose a clean, single-column PM layout.</p></div>
+          <div class="tl-item"><span class="tl-dot"></span><h3>3. Quick Questionnaire</h3><p>Add any missing project metrics in 60s.</p></div>
+          <div class="tl-item"><span class="tl-dot"></span><h3>4. Submit &amp; Get It in 24h</h3><p>If we need more project details to lift your score, we ask first.</p></div>
+        </div>
+
+        <div class="gate-card">
+          <div style="font-size:11px;font-weight:800;color:var(--accent);text-transform:uppercase;">Our Quality Promise</div>
+          <div class="gate-pair">
+            <div class="gp-box"><span>Your Upload</span><strong>Baseline</strong></div>
+            <svg class="ico" style="color:var(--accent);" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            <div class="gp-box win"><span>Delivered</span><strong>Higher</strong></div>
+          </div>
+          <p style="font-size:12px;color:var(--muted);">We only deliver your rewritten resume if we can get a better score than your original.</p>
+        </div>
+      </section>
+
+      <footer class="m-footer">
+        <div class="mf-links">
+          <a href="mailto:hello@productrez.com">Contact</a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener">
+            <svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            LinkedIn
+          </a>
+          <a href="#terms">Terms</a>
+        </div>
+        <div>ProductRez &middot; Built exclusively for Product Managers</div>
+      </footer>
+      </div>
+
+      <!-- MOBILE POST-ANALYSIS REPORT VIEW -->
+      <section id="reportView">
+        <button type="button" class="rep-back" id="backToLanding">
+          <svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Back
+        </button>
+
+        <div class="m-card" style="position:relative;overflow:hidden;border-color:rgba(16,185,129,0.35);background:linear-gradient(160deg,var(--emerald-soft) 0%,var(--surface) 45%);">
+          <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#fc8019,#10b981);"></div>
+          <div class="m-card-head">
+            <span>Overall PM Score</span>
+            <span class="tag t-ok">Interview Ready</span>
+          </div>
+          <div class="score-row" style="align-items:center;">
+            <div class="gauge-mini">
+              <svg viewBox="0 0 84 84">
+                <circle class="gauge-bg" cx="42" cy="42" r="35"/>
+                <circle class="gauge-fg" cx="42" cy="42" r="35" style="stroke:var(--emerald);stroke-dashoffset:18;"/>
+              </svg>
+              <div class="gauge-num" style="font-size:28px;font-weight:900;color:var(--emerald);">92</div>
+            </div>
+            <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;">
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 8px;">
+                <div style="display:flex;justify-content:space-between;"><span>Impact</span><strong>92</strong></div>
+                <div style="height:4px;border-radius:999px;background:var(--border);overflow:hidden;margin-top:4px;"><div style="width:92%;height:100%;background:linear-gradient(90deg,#fc8019,#10b981);"></div></div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 8px;">
+                <div style="display:flex;justify-content:space-between;"><span>PM Craft</span><strong>96</strong></div>
+                <div style="height:4px;border-radius:999px;background:var(--border);overflow:hidden;margin-top:4px;"><div style="width:96%;height:100%;background:linear-gradient(90deg,#fc8019,#10b981);"></div></div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 8px;">
+                <div style="display:flex;justify-content:space-between;"><span>Ownership</span><strong>91</strong></div>
+                <div style="height:4px;border-radius:999px;background:var(--border);overflow:hidden;margin-top:4px;"><div style="width:91%;height:100%;background:linear-gradient(90deg,#fc8019,#10b981);"></div></div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 8px;">
+                <div style="display:flex;justify-content:space-between;"><span>Readability</span><strong>96</strong></div>
+                <div style="height:4px;border-radius:999px;background:var(--border);overflow:hidden;margin-top:4px;"><div style="width:96%;height:100%;background:linear-gradient(90deg,#fc8019,#10b981);"></div></div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 8px;">
+                <div style="display:flex;justify-content:space-between;"><span>Experience</span><strong>85</strong></div>
+                <div style="height:4px;border-radius:999px;background:var(--border);overflow:hidden;margin-top:4px;"><div style="width:85%;height:100%;background:linear-gradient(90deg,#fc8019,#10b981);"></div></div>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 8px;">
+                <div style="display:flex;justify-content:space-between;"><span>Clarity</span><strong>88</strong></div>
+                <div style="height:4px;border-radius:999px;background:var(--border);overflow:hidden;margin-top:4px;"><div style="width:88%;height:100%;background:linear-gradient(90deg,#fc8019,#10b981);"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="locked-wrap" id="lockedWrap">
+          <div class="lock-gate">
+            <div class="lock-card">
+              <h3>Sign in to unlock your full report</h3>
+              <p>See bullet-by-bullet fixes, market percentile, salary fit, and matching early-access jobs.</p>
+              <div style="display:grid;">
+                <button type="button" class="btn-main" id="unlockReportBtn" style="width:100%;">Sign In</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="locked-grid">
+            <div class="m-card"><div class="m-card-head"><span>Line-by-Line Bullet X-Ray</span><span class="tag t-warn">2 Fixes</span></div><p style="font-size:12px;color:var(--muted);">Detailed audit of all bullets, missing guardrails, and modern PM skill proof.</p></div>
+            <div class="m-card"><div class="m-card-head"><span>Market Standing &amp; Career</span><span class="tag t-ok">88th %ile</span></div><p style="font-size:12px;color:var(--muted);">Track readiness across Core PM, Growth, B2B SaaS &amp; AI/ML plus career risks.</p></div>
+            <div class="m-card"><div class="m-card-head"><span>Salary &amp; Expectation Check</span><span class="tag t-ok">₹34L–₹57L</span></div><p style="font-size:12px;color:var(--muted);">Interactive check on whether your current &amp; expected pay match your profile.</p></div>
+            <div class="m-card"><div class="m-card-head"><span>Early Access PM Jobs</span><span class="tag t-ok">3 Matches</span></div><p style="font-size:12px;color:var(--muted);">Razorpay (91%), Linear (86%), and Postman (82%) synced within 72h.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MOBILE POST-SIGN-IN HOME (MATCHES Shell.tsx) -->
+      <section id="homeView">
+        <div class="m-subpage active" id="m-score">
+          <div style="margin-bottom:14px;">
+            <h2 style="font-size:20px;font-weight:800;">Resume Score</h2>
+            <p style="font-size:12px;color:var(--muted);">Akshay_PM_Resume.pdf &middot; Senior PM &middot; Growth &amp; PLG</p>
+          </div>
+          <div class="m-card" style="position:relative;overflow:hidden;border-color:rgba(16,185,129,0.35);">
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#fc8019,#10b981);"></div>
+            <div class="m-card-head"><span>Active PM Score</span><span class="tag t-ok">Interview Ready</span></div>
+            <div class="score-row">
+              <div class="gauge-mini">
+                <svg viewBox="0 0 84 84"><circle class="gauge-bg" cx="42" cy="42" r="35"/><circle class="gauge-fg" cx="42" cy="42" r="35" style="stroke:var(--emerald);stroke-dashoffset:18;"/></svg>
+                <div class="gauge-num" style="font-size:26px;font-weight:900;color:var(--emerald);">92</div>
+              </div>
+              <div style="flex:1;display:grid;gap:6px;">
+                <button type="button" class="btn-main" id="homeRewriteBtn" style="padding:9px;font-size:12.5px;">Request 24h Rewrite</button>
+                <button type="button" class="btn-jd" id="homeViewFullBtn" style="padding:8px;justify-content:center;">Open Full Teardown</button>
+              </div>
+            </div>
+          </div>
+          <div class="m-card">
+            <div class="m-card-head"><span>2 Quick Wins</span><span class="tag t-warn">+7 pts</span></div>
+            <p style="font-size:12px;color:var(--ink-2);margin-bottom:4px;">&bull; Trim 1 role exceeding 5 bullets (+5 pts)</p>
+            <p style="font-size:12px;color:var(--ink-2);">&bull; Vary repeated "designed" opener (+2 pts)</p>
+          </div>
+          <div class="m-card">
+            <div class="m-card-head"><span>Salary Expectation Check</span><span class="tag t-ok" id="homeExpTag">Achievable</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+              <div><label style="display:block;font-size:10px;color:var(--muted);font-weight:700;">CURRENT (₹L)</label><input type="number" id="homeCurSal" value="35" style="width:100%;padding:7px;border-radius:8px;border:1px solid var(--border);background:var(--surface-soft);color:var(--ink);font-weight:700;" /></div>
+              <div><label style="display:block;font-size:10px;color:var(--muted);font-weight:700;">EXPECTED (₹L)</label><input type="number" id="homeExpSal" value="45" style="width:100%;padding:7px;border-radius:8px;border:1px solid var(--border);background:var(--surface-soft);color:var(--ink);font-weight:700;" /></div>
+            </div>
+            <p id="homeCompMsg" style="font-size:11.5px;color:var(--ink-2);">Market: ₹34L–₹57L. ₹45L aligns cleanly with your profile.</p>
+          </div>
+        </div>
+
+        <div class="m-subpage" id="m-writer">
+          <h2 style="font-size:20px;font-weight:800;margin-bottom:8px;">24h Rewrite</h2>
+          <div class="m-card"><p style="font-size:12.5px;color:var(--ink-2);margin-bottom:10px;">Upload resume, pick template, answer quick questions, and we deliver only if it beats your original score.</p><button type="button" class="btn-main" style="width:100%;" onclick="switchMobileTab('m-account')">View Plans (₹299 / ₹599 / ₹999)</button></div>
+        </div>
+
+        <div class="m-subpage" id="m-jobs">
+          <h2 style="font-size:20px;font-weight:800;margin-bottom:8px;">Early Access Jobs (&le;72h)</h2>
+          <div class="m-card"><div class="m-card-head"><span>Razorpay &middot; Senior PM Growth</span><span class="tag t-ok">91%</span></div><p style="font-size:12px;color:var(--muted);">Bengaluru &middot; 9h ago &middot; ₹42L–₹54L</p></div>
+          <div class="m-card"><div class="m-card-head"><span>Linear &middot; PM Workflow &amp; API</span><span class="tag t-ok">86%</span></div><p style="font-size:12px;color:var(--muted);">Remote Global &middot; 14h ago &middot; $210k–$260k</p></div>
+        </div>
+
+        <div class="m-subpage" id="m-learn">
+          <h2 style="font-size:20px;font-weight:800;margin-bottom:8px;">Learn</h2>
+          <div class="m-card"><p style="font-size:12.5px;color:var(--ink-2);">PM playbooks on AI Evals, PLG metrics, and storytelling unlock with Pro or Lifetime.</p></div>
+        </div>
+
+        <div class="m-subpage" id="m-account">
+          <h2 style="font-size:20px;font-weight:800;margin-bottom:8px;">Account</h2>
+          <div class="m-card"><p style="font-size:12.5px;color:var(--ink-2);margin-bottom:10px;">Signed in as Akshay &middot; Free Plan</p><button type="button" class="btn-jd" id="signOutBtn" style="width:100%;justify-content:center;padding:10px;">Sign Out</button></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- MOBILE SHELL TABBAR -->
+    <nav class="app-tabbar" aria-label="Primary mobile">
+      <button type="button" class="at-btn active" data-mtab="m-score"><svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>Score</button>
+      <button type="button" class="at-btn" data-mtab="m-writer"><svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Writer</button>
+      <button type="button" class="at-btn" data-mtab="m-jobs"><svg class="ico ico-sm" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Jobs</button>
+      <button type="button" class="at-btn" data-mtab="m-learn"><svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Learn</button>
+      <button type="button" class="at-btn" data-mtab="m-account"><svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Account</button>
+    </nav>
+
+    <!-- STICKY BOTTOM CTA -->
+    <div class="sticky-cta">
+      <a href="#top" class="btn-main" id="stickyCheckBtn">
+        Check My Resume
+        <svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast" style="bottom:78px;">
+      <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="toastMsg">Please upload your resume first.</span>
+    </div>
+
+    <!-- MOBILE SIGN IN SCREEN -->
+    <div class="auth-overlay" id="authOverlay">
+      <div class="auth-card">
+        <button type="button" class="auth-close" id="authClose" aria-label="Close">
+          <svg class="ico ico-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <div class="auth-head">
+          <div class="brand-mark">PR</div>
+          <h3 id="authTitle">Sign in to ProductRez</h3>
+        </div>
+
+        <div id="authStep1">
+          <button type="button" class="google-btn" id="googleSignInBtn">
+            <svg width="17" height="17" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.8C6.2 7.2 8.9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6l3.7 2.9c2.2-2 3.7-5 3.7-8.7z"/><path fill="#FBBC05" d="M5.3 14.8c-.2-.8-.4-1.6-.4-2.8s.2-2 .4-2.8L1.6 6.4C.6 8.1 0 10 0 12s.6 3.9 1.6 5.6l3.7-2.8z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5L1.6 16.1C3.5 19.9 7.4 23 12 23z"/></svg>
+            Continue with Google
+          </button>
+          <div class="auth-div">or continue with email</div>
+          <input type="email" class="auth-input" id="authEmail" placeholder="you@company.com" />
+          <button type="button" class="btn-main" id="emailContinueBtn" style="width:100%;">Send 6-Digit Code</button>
+        </div>
+
+        <div id="authStep2" style="display:none;">
+          <input type="text" class="auth-input" id="authOtp" placeholder="Enter 6-digit code" maxlength="6" style="text-align:center;letter-spacing:0.2em;font-weight:800;" />
+          <button type="button" class="btn-main" id="verifyOtpBtn" style="width:100%;">Verify &amp; Continue</button>
+        </div>
+
+        <div class="auth-foot">By continuing, you agree to our Terms.</div>
+      </div>
+    </div>
+
+    <!-- RESUME ANALYSIS LOADING OVERLAY -->
+    <div class="scan-overlay" id="scanOverlay">
+      <div class="scan-modal">
+        <div class="scan-doc">
+          <div class="scan-laser"></div>
+          <div class="sd-h"></div>
+          <div class="sd-l"></div>
+          <div class="sd-l s"></div>
+          <div class="sd-l"></div>
+          <div class="sd-l s"></div>
+          <div class="sd-l"></div>
+        </div>
+        <h3>Analyzing your PM resume</h3>
+        <p class="scan-sub">Calibrating to your target role...</p>
+        <div class="scan-progress"><div class="scan-bar" id="scanBar"></div></div>
+        <div class="scan-steps">
+          <div class="scan-step" id="st1"><span class="step-dot"></span><span>Reading resume structure &amp; timeline</span></div>
+          <div class="scan-step" id="st2"><span class="step-dot"></span><span>Auditing bullet impact &amp; PM craft</span></div>
+          <div class="scan-step" id="st3"><span class="step-dot"></span><span>Benchmarking market &amp; salary fit</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM SHEET PICKER -->
+    <div class="sheet-backdrop" id="sheetBackdrop">
+      <div class="sheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-title" id="sheetTitle">Select Option</div>
+        <div id="sheetOpts" style="display:grid;gap:6px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const storage = {
+      get(k) { try { return window.localStorage.getItem(k); } catch { return null; } },
+      set(k, v) { try { window.localStorage.setItem(k, v); } catch {} }
+    };
+    const root = document.documentElement;
+    const themeToggle = document.getElementById("themeToggle");
+    const mql = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+    const SUN_SVG = `<svg class="ico ico-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`;
+    const MOON_SVG = `<svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+
+    function applyTheme(t) {
+      root.setAttribute("data-theme", t);
+      themeToggle.innerHTML = t === "dark" ? SUN_SVG : MOON_SVG;
+    }
+    applyTheme(storage.get("productrez_theme") || (mql && mql.matches ? "dark" : "light"));
+    themeToggle.addEventListener("click", () => {
+      const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      storage.set("productrez_theme", next);
+      applyTheme(next);
+    });
+
+    // Dropzone autofill + Review button guard
+    let hasResume = false;
+    let toastTimer = null;
+    const toastEl = document.getElementById("toast");
+    const dropStage = document.getElementById("dropZone");
+
+    function showToast(msg) {
+      document.getElementById("toastMsg").textContent = msg;
+      toastEl.classList.add("show");
+      dropStage.classList.remove("nudge");
+      void dropStage.offsetWidth;
+      dropStage.classList.add("nudge");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2800);
+    }
+
+    dropStage.addEventListener("click", () => {
+      hasResume = true;
+      document.getElementById("dropTitle").textContent = "Akshay_PM_Resume.pdf loaded";
+      document.getElementById("dropSub").textContent = "2 pages detected. Tap Review below.";
+      document.querySelectorAll(".pick-btn.empty").forEach(btn => {
+        btn.querySelector("span").textContent = btn.dataset.autofill;
+        btn.classList.remove("empty");
+      });
+      const hint = document.getElementById("autoHint");
+      hint.textContent = "Detected from your resume. Tap any pill to edit:";
+      hint.style.color = "var(--emerald)";
+    });
+
+    const CHECK_SVG = `<svg style="width:9px;height:9px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+    function runAnalysisAnimation() {
+      const overlay = document.getElementById("scanOverlay");
+      const bar = document.getElementById("scanBar");
+      const steps = [document.getElementById("st1"), document.getElementById("st2"), document.getElementById("st3")];
+      steps.forEach(s => { s.classList.remove("active", "done"); s.querySelector(".step-dot").innerHTML = ""; });
+      bar.style.width = "10%";
+      overlay.classList.add("open");
+
+      steps[0].classList.add("active");
+      setTimeout(() => {
+        steps[0].classList.remove("active"); steps[0].classList.add("done");
+        steps[0].querySelector(".step-dot").innerHTML = CHECK_SVG;
+        steps[1].classList.add("active");
+        bar.style.width = "48%";
+      }, 750);
+
+      setTimeout(() => {
+        steps[1].classList.remove("active"); steps[1].classList.add("done");
+        steps[1].querySelector(".step-dot").innerHTML = CHECK_SVG;
+        steps[2].classList.add("active");
+        bar.style.width = "82%";
+      }, 1500);
+
+      setTimeout(() => {
+        steps[2].classList.remove("active"); steps[2].classList.add("done");
+        steps[2].querySelector(".step-dot").innerHTML = CHECK_SVG;
+        bar.style.width = "100%";
+      }, 2200);
+
+      setTimeout(() => {
+        overlay.classList.remove("open");
+        document.body.classList.add("is-report");
+        document.getElementById("landingView").classList.add("hidden");
+        document.getElementById("reportView").classList.add("active");
+        document.querySelector(".phone-scroll").scrollTo({ top: 0, behavior: "smooth" });
+      }, 2550);
+    }
+
+    document.getElementById("backToLanding").addEventListener("click", () => {
+      document.body.classList.remove("is-report");
+      document.getElementById("reportView").classList.remove("active");
+      document.getElementById("landingView").classList.remove("hidden");
+      document.querySelector(".phone-scroll").scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    // Mobile Sign In Screen Logic
+    const authOverlay = document.getElementById("authOverlay");
+    const authStep1 = document.getElementById("authStep1");
+    const authStep2 = document.getElementById("authStep2");
+    let authUnlockTarget = false;
+
+    function openAuth(fromReport) {
+      authUnlockTarget = !!fromReport;
+      document.getElementById("authTitle").textContent = fromReport ? "Sign in to unlock your full report" : "Sign in to ProductRez";
+      authStep1.style.display = "block";
+      authStep2.style.display = "none";
+      authOverlay.classList.add("open");
+    }
+
+    function completeSignIn() {
+      authOverlay.classList.remove("open");
+      if (authUnlockTarget || document.getElementById("reportView").classList.contains("active")) {
+        document.getElementById("lockedWrap").classList.add("unlocked");
+        showToast("Signed in. Full report unlocked!");
+      } else {
+        document.body.classList.remove("is-report");
+        document.body.classList.add("is-home");
+        document.getElementById("landingView").classList.add("hidden");
+        document.getElementById("reportView").classList.remove("active");
+        document.getElementById("homeView").classList.add("active");
+        document.querySelector(".phone-scroll").scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+
+    document.getElementById("signOutBtn").addEventListener("click", () => {
+      document.body.classList.remove("is-home", "is-report");
+      document.getElementById("homeView").classList.remove("active");
+      document.getElementById("reportView").classList.remove("active");
+      document.getElementById("landingView").classList.remove("hidden");
+      document.querySelector(".phone-scroll").scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    function switchMobileTab(id) {
+      document.querySelectorAll(".m-subpage").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".at-btn").forEach(b => b.classList.remove("active"));
+      const t = document.getElementById(id);
+      if (t) t.classList.add("active");
+      const btn = document.querySelector(`.at-btn[data-mtab="${id}"]`);
+      if (btn) btn.classList.add("active");
+      document.querySelector(".phone-scroll").scrollTo({ top: 0, behavior: "smooth" });
+    }
+    document.querySelectorAll(".at-btn").forEach(b => b.addEventListener("click", () => switchMobileTab(b.dataset.mtab)));
+    document.getElementById("homeRewriteBtn").addEventListener("click", () => switchMobileTab("m-writer"));
+
+    document.getElementById("homeViewFullBtn").addEventListener("click", () => {
+      document.body.classList.remove("is-home");
+      document.body.classList.add("is-report");
+      document.getElementById("homeView").classList.remove("active");
+      document.getElementById("reportView").classList.add("active");
+      document.getElementById("lockedWrap").classList.add("unlocked");
+      document.querySelector(".phone-scroll").scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    const hCur = document.getElementById("homeCurSal");
+    const hExp = document.getElementById("homeExpSal");
+    function updateHomeComp() {
+      const e = Number(hExp.value) || 0;
+      const tag = document.getElementById("homeExpTag");
+      const msg = document.getElementById("homeCompMsg");
+      if (e <= 43) { tag.textContent = "Easy"; tag.className = "tag t-ok"; msg.textContent = `Market: ₹34L–₹57L. ₹${e}L is below your fit range; anchor higher.`; }
+      else if (e <= 53) { tag.textContent = "Achievable"; tag.className = "tag t-ok"; msg.textContent = `Market: ₹34L–₹57L. ₹${e}L aligns cleanly with your profile.`; }
+      else if (e <= 60) { tag.textContent = "Stretch"; tag.className = "tag t-warn"; msg.textContent = `Market: ₹34L–₹57L. ₹${e}L pushes near the top of the band.`; }
+      else { tag.textContent = "Inflated"; tag.className = "tag t-bad"; msg.textContent = `Market: ₹34L–₹57L. ₹${e}L exceeds typical Scale-up ceiling.`; }
+    }
+    hCur.addEventListener("input", updateHomeComp);
+    hExp.addEventListener("input", updateHomeComp);
+
+    document.getElementById("navSignInBtn").addEventListener("click", () => openAuth(false));
+    document.querySelectorAll(".m-ticket").forEach(t => {
+      t.addEventListener("click", (e) => { e.preventDefault(); openAuth(false); });
+    });
+    document.getElementById("authClose").addEventListener("click", () => authOverlay.classList.remove("open"));
+    authOverlay.addEventListener("click", e => { if (e.target === authOverlay) authOverlay.classList.remove("open"); });
+    document.getElementById("googleSignInBtn").addEventListener("click", completeSignIn);
+    document.getElementById("emailContinueBtn").addEventListener("click", () => {
+      authStep1.style.display = "none";
+      authStep2.style.display = "block";
+    });
+    document.getElementById("verifyOtpBtn").addEventListener("click", completeSignIn);
+
+    ["unlockReportBtn", "unlockEmailBtn"].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.addEventListener("click", () => {
+        openAuth(true);
+        if (id === "unlockEmailBtn") {
+          setTimeout(() => document.getElementById("authEmail").focus(), 50);
+        }
+      });
+    });
+
+    document.getElementById("reviewBtn").addEventListener("click", () => {
+      if (!hasResume) {
+        showToast("Please upload your resume first.");
+        return;
+      }
+      runAnalysisAnimation();
+    });
+
+    document.getElementById("stickyCheckBtn").addEventListener("click", (e) => {
+      e.preventDefault();
+      if (hasResume) {
+        runAnalysisAnimation();
+        return;
+      }
+      document.querySelector(".phone-scroll").scrollTo({ top: 0, behavior: "smooth" });
+      setTimeout(() => {
+        dropStage.classList.remove("nudge");
+        void dropStage.offsetWidth;
+        dropStage.classList.add("nudge");
+      }, 250);
+    });
+
+    // JD toggle
+    document.getElementById("jdToggle").addEventListener("click", () => {
+      document.getElementById("jdBox").classList.toggle("open");
+    });
+
+    // Bottom Sheet Picker
+    const OPTIONS = {
+      level: { title: "Target PM Level", items: ["APM (0–2 yrs)", "Product Manager", "Senior PM", "Lead / Group PM"] },
+      track: { title: "PM Focus", items: ["Core / Generalist", "AI / ML Product", "Growth & PLG", "B2B SaaS", "Fintech", "Platform & API"] },
+      company: { title: "Target Companies", items: ["Early Startups", "Scale-ups", "Big Tech / MAANG", "Enterprise"] }
+    };
+    const backdrop = document.getElementById("sheetBackdrop");
+    const sheetTitle = document.getElementById("sheetTitle");
+    const sheetOpts = document.getElementById("sheetOpts");
+    let activeBtn = null;
+
+    document.querySelectorAll(".pick-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        activeBtn = btn;
+        const cfg = OPTIONS[btn.dataset.sheet];
+        sheetTitle.textContent = cfg.title;
+        sheetOpts.innerHTML = cfg.items.map(i => `<button type="button" class="sheet-opt">${i}</button>`).join("");
+        sheetOpts.querySelectorAll(".sheet-opt").forEach(o => {
+          o.addEventListener("click", () => {
+            if (activeBtn) {
+              activeBtn.querySelector("span").textContent = o.textContent;
+              activeBtn.classList.remove("empty");
+            }
+            backdrop.classList.remove("open");
+          });
+        });
+        backdrop.classList.add("open");
+      });
+    });
+    backdrop.addEventListener("click", e => { if (e.target === backdrop) backdrop.classList.remove("open"); });
+
+    // Bento Collapse
+    const bentoCollapse = document.getElementById("bentoCollapse");
+    const bentoToggle = document.getElementById("bentoToggle");
+    bentoToggle.addEventListener("click", () => {
+      const exp = bentoCollapse.classList.toggle("expanded");
+      bentoToggle.querySelector("span").textContent = exp ? "Collapse Preview" : "Expand Full 30s Preview";
+    });
+
+    // Score Fix Simulator
+    function updateGauge() {
+      let bonus = 0;
+      document.querySelectorAll(".fix-chip.applied").forEach(c => bonus += Number(c.dataset.pts || 0));
+      const total = 85 + bonus;
+      document.getElementById("gaugeScore").textContent = total;
+      document.getElementById("gaugeArc").style.strokeDashoffset = 220 - (220 * total) / 100;
+      document.getElementById("gaugeArc").style.stroke = total >= 90 ? "var(--emerald)" : "var(--accent)";
+      document.getElementById("gaugeGrade").textContent = total >= 90 ? "Interview Ready" : "Strong";
+    }
+    document.querySelectorAll(".fix-chip").forEach(c => c.addEventListener("click", () => { c.classList.toggle("applied"); updateGauge(); }));
+    updateGauge();
+
+    // Sample Comp Currency Switch (INR / USD)
+    const CURR_CFG = {
+      INR: { min: "₹34L", mid: "Median ₹44L (Fit: ₹44L-₹53L)", max: "₹57L", cur: "Current: ₹35L (Underpaid)", exp: "Expected: ₹45L (Achievable)", note: "Sample output: ₹45L sits at the 54th percentile, right on market median and well aligned with a 92/100 Senior PM resume.", pinC: "12%", pinE: "48%" },
+      USD: { min: "$235k", mid: "Median $290k (Fit: $290k-$345k)", max: "$365k", cur: "Current: $245k (Underpaid)", exp: "Expected: $300k (Achievable)", note: "Sample output: $300k sits at the 54th percentile, well calibrated for a Senior PM at a funded US scale-up.", pinC: "14%", pinE: "50%" }
+    };
+    document.querySelectorAll(".curr-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".curr-btn").forEach(b => {
+          b.style.background = "transparent";
+          b.style.color = "var(--muted)";
+        });
+        btn.style.background = "var(--accent)";
+        btn.style.color = "#fff";
+        const cfg = CURR_CFG[btn.dataset.curr];
+        document.getElementById("bandMin").textContent = cfg.min;
+        document.getElementById("bandMid").textContent = cfg.mid;
+        document.getElementById("bandMax").textContent = cfg.max;
+        document.getElementById("curSample").textContent = cfg.cur;
+        document.getElementById("expSample").textContent = cfg.exp;
+        document.getElementById("compNote").textContent = cfg.note;
+        document.getElementById("pinCur").style.left = cfg.pinC;
+        document.getElementById("pinExp").style.left = cfg.pinE;
+      });
+    });
+  </script>
+</body>
+</html>

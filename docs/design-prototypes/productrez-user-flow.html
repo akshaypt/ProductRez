@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProductRez — End-to-End User Flow</title>
+  <style>
+    :root {
+      --bg: #0b0e14;
+      --surface: #121722;
+      --surface-2: #181f2e;
+      --border: #252e42;
+      --border-strong: #36435e;
+      --text: #eef2ff;
+      --muted: #94a3b8;
+      --dim: #64748b;
+      --accent: #6366f1;
+      --accent-soft: rgba(99, 102, 241, 0.14);
+      --green: #10b981;
+      --green-soft: rgba(16, 185, 129, 0.14);
+      --amber: #f59e0b;
+      --amber-soft: rgba(245, 158, 11, 0.14);
+      --rose: #f43f5e;
+      --rose-soft: rgba(244, 63, 94, 0.14);
+      --cyan: #06b6d4;
+      --cyan-soft: rgba(6, 182, 212, 0.14);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Top Bar */
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 24px;
+      background: rgba(18, 23, 34, 0.92);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      backdrop-filter: blur(10px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      display: grid; place-items: center;
+      font-weight: 800; font-size: 14px; color: #fff;
+    }
+    .brand h1 { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+    .brand span { font-size: 12px; color: var(--muted); display: block; }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .filter-btn {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .filter-btn:hover { color: var(--text); border-color: var(--border-strong); }
+    .filter-btn.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: #c7d2fe;
+    }
+
+    .metrics-strip {
+      display: flex;
+      gap: 16px;
+      padding: 10px 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .metric-pill strong { color: var(--text); font-weight: 700; }
+
+    /* Workspace Layout */
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      flex: 1;
+      min-height: 0;
+    }
+    @media (max-width: 1080px) {
+      .workspace { grid-template-columns: 1fr; }
+      .inspector { border-left: none !important; border-top: 1px solid var(--border); }
+    }
+
+    /* Flow Canvas */
+    .canvas {
+      padding: 28px 24px 60px;
+      background-image: radial-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+      background-size: 22px 22px;
+      overflow-y: auto;
+    }
+    .flow-wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .stage {
+      background: rgba(18, 23, 34, 0.72);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      position: relative;
+    }
+    .stage-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      gap: 8px;
+    }
+    .stage-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #cbd5e1;
+    }
+    .stage-num {
+      width: 22px; height: 22px; border-radius: 6px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-strong);
+      display: grid; place-items: center;
+      font-size: 11px; color: var(--text);
+    }
+    .stage-time {
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--surface-2);
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .node {
+      background: var(--surface-2);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 14px;
+      cursor: pointer;
+      transition: transform 0.14s ease, border-color 0.14s ease, opacity 0.18s ease, box-shadow 0.14s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+    }
+    .node:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-strong);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+    .node.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    }
+    .node.dimmed { opacity: 0.28; }
+
+    .node-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .b-free { background: var(--green-soft); color: #6ee7b7; }
+    .b-rule { background: var(--cyan-soft); color: #67e8f9; }
+    .b-paid { background: var(--amber-soft); color: #fcd34d; }
+    .b-llm  { background: var(--rose-soft); color: #fda4af; }
+    .b-gate { background: var(--accent-soft); color: #c7d2fe; }
+
+    .node h3 { font-size: 13.5px; font-weight: 700; line-height: 1.3; color: var(--text); }
+    .node p { font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+    .connector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--dim);
+      font-size: 11px;
+      font-weight: 600;
+      margin: -4px 0;
+    }
+    .connector svg { width: 18px; height: 18px; color: var(--accent); }
+
+    /* Inspector */
+    .inspector {
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      padding: 22px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: sticky;
+      top: 59px;
+      height: calc(100vh - 59px);
+      overflow-y: auto;
+    }
+    @media (max-width: 1080px) {
+      .inspector { position: static; height: auto; }
+    }
+    .insp-kicker {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .insp-title { font-size: 18px; font-weight: 800; line-height: 1.25; }
+    .insp-desc { font-size: 13px; color: var(--muted); line-height: 1.55; }
+    .insp-block {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 13px;
+    }
+    .insp-block h4 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #cbd5e1;
+      margin-bottom: 6px;
+    }
+    .insp-block ul {
+      padding-left: 16px;
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .insp-block code {
+      background: rgba(99, 102, 241, 0.16);
+      color: #c7d2fe;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 11.5px;
+    }
+    .screen-tag {
+      display: inline-block;
+      margin-top: 4px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #67e8f9;
+      background: var(--cyan-soft);
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">PR</div>
+      <div>
+        <h1>ProductRez — End-to-End User Flow</h1>
+        <span>Click any step to inspect engine logic, free vs. paid gates &amp; screen mapping</span>
+      </div>
+    </div>
+    <div class="filters" id="filters">
+      <button class="filter-btn active" data-filter="all">All Flows</button>
+      <button class="filter-btn" data-filter="free">Free Funnel (&lt;30s Aha!)</button>
+      <button class="filter-btn" data-filter="rule">₹0 Rule-Based Engine</button>
+      <button class="filter-btn" data-filter="paid">Paid Conversion Triggers</button>
+      <button class="filter-btn" data-filter="jobs">Fresh Job Radar (&le;72h)</button>
+    </div>
+  </header>
+
+  <div class="metrics-strip">
+    <div class="metric-pill"><strong>Target TTV:</strong> &lt; 30 seconds to full score</div>
+    <div class="metric-pill"><strong>Scoring Cost:</strong> ₹0/run (100% deterministic)</div>
+    <div class="metric-pill"><strong>Pricing:</strong> Free (1 scan) · ₹299/mo · ₹599/6mo · ₹999 Lifetime</div>
+    <div class="metric-pill"><strong>Job Freshness:</strong> Strictly &le; 72 hours</div>
+  </div>
+
+  <div class="workspace">
+    <main class="canvas">
+      <div class="flow-wrap" id="flow">
+
+        <!-- STAGE 1 -->
+        <section class="stage">
+          <div class="stage-header">
+            <div class="stage-title"><span class="stage-num">1</span> Zero-Friction Entry</div>
+            <span class="stage-time">0s – 15s · No Signup</span>
+          </div>
+          <div class="row">
+            <div class="node selected" data-id="landing" data-tags="all free">
+              <div class="node-top"><span class="badge b-free">Free · Un-gated</span></div>
+              <h3>Landing &amp; Instant Resume Drop</h3>
+              <p>PM-only positioning + drag-and-drop PDF/DOCX or paste text directly on the hero.</p>
+            </div>
+            <div class="node" data-id="validate" data-tags="all free rule">
+              <div class="node-top"><span class="badge b-rule">₹0 Parser Gate</span></div>
+              <h3>In-Browser Parse &amp; checkResume()</h3>
+              <p>Extracts text, page count &amp; file size; blocks scanned image PDFs before scoring.</p>
+            </div>
+          </div>
+        </section>
+
+        <div class="connector">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          10-second calibration (no salary asked upfront)
+        </div>
+
+        <!-- STAGE 2 -->
+        <section class="stage">
+          <div class="stage-header">
+            <div class="stage-title"><span class="stage-num">2</span> Smart Context Calibration</div>
+            <span class="stage-time">15s – 30s</span>
+          </div>
+          <div class="row">
+            <div class="node" data-id="context" data-tags="all free rule">
+              <div class="node-top"><span class="badge b-free">4 Fast Pills</span></div>
+              <h3>Level · Track · Company Type · Market</h3>
+              <p>Dynamically shifts dimension weights, market norms, and compensation bands.</p>
+            </div>
+            <div class="node" data-id="jd_opt" data-tags="all free rule">
+              <div class="node-top"><span class="badge b-gate">Optional Toggle</span></div>
+              <h3>Paste Target JD (Optional)</h3>
+              <p>Audits exact keyword placement (bullets vs. skills-only) &amp; YOE gap.</p>
+            </div>
+          </div>
+        </section>
+
+        <div class="connector">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          scoreResume() executes in &lt; 50ms at ₹0 cost
+        </div>
+
+        <!-- STAGE 3 -->
+        <section class="stage">
+          <div class="stage-header">
+            <div class="stage-title"><span class="stage-num">3</span> Instant Diagnostic Command Center (5 Modules)</div>
+            <span class="stage-time">Aha! Moment (&lt;30s)</span>
+          </div>
+          <div class="row">
+            <div class="node" data-id="score_card" data-tags="all free rule">
+              <div class="node-top"><span class="badge b-rule">₹0 Rule Engine</span></div>
+              <h3>1. ATS &amp; PM Score (0–100)</h3>
+              <p>7 weighted dimensions + prioritized P0/P1/P2 fixes with exact +pts gain.</p>
+            </div>
+            <div class="node" data-id="xray" data-tags="all free rule">
+              <div class="node-top"><span class="badge b-rule">₹0 Rule Engine</span></div>
+              <h3>2. Bullet X-Ray &amp; 2026 Skills</h3>
+              <p>Flags AI-washing, missing CSAT guardrails, and 2026 AI Evals / Prototyping gaps.</p>
+            </div>
+            <div class="node" data-id="market" data-tags="all free rule">
+              <div class="node-top"><span class="badge b-rule">₹0 Rule Engine</span></div>
+              <h3>3. Market Standing</h3>
+              <p>Cohort percentile + 6-Track Readiness Matrix + Next Bracket Lever.</p>
+            </div>
+            <div class="node" data-id="career" data-tags="all free rule">
+              <div class="node-top"><span class="badge b-rule">₹0 Rule Engine</span></div>
+              <h3>4. Career So Far</h3>
+              <p>Progression arc, tenure stability, and honest Positives vs. Narrative Risks.</p>
+            </div>
+            <div class="node" data-id="comp" data-tags="all free rule">
+              <div class="node-top"><span class="badge b-gate">Progressive Disclosure</span></div>
+              <h3>5. Comp &amp; Expectation Check</h3>
+              <p>Shows Market + Calibrated Band first; optional Current &amp; Expected Salary check.</p>
+            </div>
+          </div>
+        </section>
+
+        <div class="connector">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          Value Cliff: user wants to fix bullets, re-score, or apply
+        </div>
+
+        <!-- STAGE 4 -->
+        <section class="stage">
+          <div class="stage-header">
+            <div class="stage-title"><span class="stage-num">4</span> Concierge Resume Rewrite (24h Turnaround)</div>
+            <span class="stage-time">6h Batch Queue &rarr; Email Delivery</span>
+          </div>
+          <div class="row">
+            <div class="node" data-id="paywall" data-tags="all paid">
+              <div class="node-top"><span class="badge b-paid">Contextual Paywall</span></div>
+              <h3>Request Rewrite + Pick Template</h3>
+              <p>User selects an ATS-safe template, answers quick missing-metric prompts &amp; submits.</p>
+            </div>
+            <div class="node" data-id="rewriter" data-tags="all paid llm">
+              <div class="node-top"><span class="badge b-llm">6h Scheduled Worker</span></div>
+              <h3>2-Pass Rewrite + Score Gate</h3>
+              <p>Rewrites via 6h cron; runs scoreResume() to verify new_score &gt; old_score.</p>
+            </div>
+            <div class="node" data-id="rescore" data-tags="all paid rule">
+              <div class="node-top"><span class="badge b-free">Email Outcome</span></div>
+              <h3>Deliver New Resume or Request Info</h3>
+              <p>Pass: Email new resume + score jump. Fail: Ask for missing details &amp; free retry.</p>
+            </div>
+          </div>
+        </section>
+
+        <div class="connector">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          Daily / 6-hourly retention loop
+        </div>
+
+        <!-- STAGE 5 -->
+        <section class="stage">
+          <div class="stage-header">
+            <div class="stage-title"><span class="stage-num">5</span> Fresh PM Job Radar (&le; 72 Hours Old)</div>
+            <span class="stage-time">Retention &amp; Apply</span>
+          </div>
+          <div class="row">
+            <div class="node" data-id="scraper" data-tags="all jobs rule">
+              <div class="node-top"><span class="badge b-rule">6h Cron · ₹0</span></div>
+              <h3>ATS Feed Sync + Classifier</h3>
+              <p>Pulls Greenhouse, Lever &amp; Ashby JSON feeds; tags track, level &amp; skills.</p>
+            </div>
+            <div class="node" data-id="job_match" data-tags="all jobs free paid rule">
+              <div class="node-top"><span class="badge b-rule">Postgres RPC</span></div>
+              <h3>Ranked Fresh Job Feed</h3>
+              <p>45% Skills + 25% Track/Archetype + 15% Comp Fit + 15% Freshness (&le; 72h).</p>
+            </div>
+            <div class="node" data-id="tailor_apply" data-tags="all jobs paid rule">
+              <div class="node-top"><span class="badge b-paid">1-Click Tailor</span></div>
+              <h3>JD Match Check &rarr; Direct Apply</h3>
+              <p>Runs matchJobDescription() before redirecting to the company's official ATS.</p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <aside class="inspector" id="inspector"></aside>
+  </div>
+
+  <script>
+    const DETAILS = {
+      landing: {
+        kicker: "Stage 1 · Entry",
+        title: "Landing & Instant Resume Drop",
+        desc: "Eliminates signup friction so PM candidates hit value before creating an account. Most resume tools lose 60%+ of visitors behind an early auth wall.",
+        screen: "Screen 1: Landing & Instant Drop (/)",
+        logic: [
+          "Un-gated drag-and-drop PDF/DOCX zone in the hero",
+          "Client-side text extraction captures <code>pageCount</code> &amp; <code>fileSizeBytes</code>",
+          "Interactive sample preview lets skeptics test before uploading"
+        ],
+        gate: ["100% Free — zero login required to upload"]
+      },
+      validate: {
+        kicker: "Stage 1 · Guardrail",
+        title: "In-Browser Parse & checkResume()",
+        desc: "Prevents garbage-in / garbage-out by verifying readable text and structure before running the scorer.",
+        screen: "Screen 1: Inline Validation Toast",
+        logic: [
+          "<code>checkResume()</code> rejects non-resumes and &lt;50-word scanned PDFs",
+          "<code>parseResume()</code> detects multi-column layouts, weird glyphs, and PII",
+          "Checks Greenhouse 2.5 MB file-size cap"
+        ],
+        gate: ["100% Free &amp; Instant"]
+      },
+      context: {
+        kicker: "Stage 2 · Calibration",
+        title: "Level · Track · Company Type · Market",
+        desc: "4 fast pill selectors calibrate scoring weights, page-length norms, and 2026 compensation benchmarks.",
+        screen: "Screen 2: 10s Calibration Stepper",
+        logic: [
+          "<code>targetLevel</code>: auto | apm | pm | senior | lead",
+          "<code>track</code>: generalist | ai_ml | growth_plg | b2b_saas | platform_api | fintech",
+          "<code>companyArchetype</code>: early_startup | scaleup | maang | enterprise",
+          "<code>market</code>: india | us | remote_global",
+          "<strong>Excluded:</strong> Salary is NOT asked here to preserve trust"
+        ],
+        gate: ["100% Free"]
+      },
+      jd_opt: {
+        kicker: "Stage 2 · Optional",
+        title: "Paste Target JD (Optional)",
+        desc: "Collapsible toggle for candidates applying to a specific role who want exact keyword and YOE alignment.",
+        screen: "Screen 2: Collapsible JD Drawer",
+        logic: [
+          "<code>matchJobDescription()</code> extracts must-have terms + synonym groups",
+          "Credits bullet-proven skills 1.0x vs. skills-only 0.65x",
+          "Detects YOE gap (e.g. JD requires 8+ yrs vs. 5 yrs on resume)"
+        ],
+        gate: ["1st JD match free; unlimited JDs on paid plans"]
+      },
+      score_card: {
+        kicker: "Stage 3 · Diagnostic",
+        title: "1. ATS & PM Score (0–100)",
+        desc: "Deterministic 7-dimension scorecard that explains exactly why a resume passes or fails ATS &amp; PM screeners.",
+        screen: "Screen 3: Command Center (/report/:id)",
+        logic: [
+          "Dynamic weights per <code>companyArchetype</code> (always sum to 1.0)",
+          "Outputs Grade: Prototype / Alpha / Beta / Ready to Ship",
+          "Ranks <code>P0</code>, <code>P1</code>, <code>P2</code> fixes with exact <code>+gain pts</code>"
+        ],
+        gate: ["Free: Full score + Top 2 fixes", "Paid: All findings &amp; unlimited re-scores"]
+      },
+      xray: {
+        kicker: "Stage 3 · Diagnostic",
+        title: "2. Bullet X-Ray & 2026 Skills",
+        desc: "Line-by-line craft audit built specifically for 2026 PM hiring loops.",
+        screen: "Screen 3: Bullet X-Ray Tab",
+        logic: [
+          "<code>reviewBullet()</code> scores each bullet 0–3 on metric + delta + guardrail",
+          "Catches <strong>AI-washing</strong> and missing CSAT/accuracy guardrails",
+          "Audits 5 trending skills: AI Evals, Rapid Prototyping (v0/Cursor/Claude Code), Context/RAG, Unit Economics, PLG"
+        ],
+        gate: ["Free: Summary + 2 flagged bullets", "Paid: Full X-Ray + AI Rewrites"]
+      },
+      market: {
+        kicker: "Stage 3 · Diagnostic",
+        title: "3. Where You Stand in the PM Market",
+        desc: "Shows realistic competitiveness against peers in the exact same cohort and across all 6 PM tracks.",
+        screen: "Screen 3: Market Standing Card",
+        logic: [
+          "<code>analyzeMarketStanding()</code> calibrates percentile against cohort bar (MAANG/US steeper)",
+          "Scores <strong>Track Readiness</strong> across all 6 PM tracks",
+          "Highlights the single fastest lever to reach the next percentile bracket"
+        ],
+        gate: ["Free preview included on 1st scan"]
+      },
+      career: {
+        kicker: "Stage 3 · Diagnostic",
+        title: "4. Your Career So Far",
+        desc: "Reads across all roles chronologically to give candid, mentor-grade feedback on trajectory and narrative risks.",
+        screen: "Screen 3: Career Story Card",
+        logic: [
+          "<code>analyzeCareer()</code> classifies arc (Founder &rarr; PM, Ascending, Switcher, Plateau)",
+          "Computes tenure stability &amp; excludes internships from short-stint flags",
+          "Surfaces <strong>Positives</strong> and <strong>Negatives</strong> (e.g. older roles stronger than current role)"
+        ],
+        gate: ["Free preview included on 1st scan"]
+      },
+      comp: {
+        kicker: "Stage 3 · Progressive Disclosure",
+        title: "5. Comp Benchmark & Expectation Check",
+        desc: "Shows market salary range first, then invites the user to test if their current &amp; expected salary are calibrated.",
+        screen: "Screen 3: Compensation Card",
+        logic: [
+          "<code>buildCompensationReport()</code> uses India (₹ LPA) &amp; US/Remote ($k USD)",
+          "Never affects the 0–100 ATS score",
+          "<code>compareSalaryExpectations()</code> returns Current verdict (Underpaid/Decent/Good) + Expected verdict (Easy/Achievable/Stretch/Inflated)"
+        ],
+        gate: ["Free with soft email save gate"]
+      },
+      paywall: {
+        kicker: "Stage 4 · Concierge Intake",
+        title: "Request Rewrite + Pick Template",
+        desc: "Positioned as a human-grade expert PM rewrite delivered within 24 hours — making the async queue feel premium and trustworthy.",
+        screen: "Screen 4: Rewrite Request & Template Picker",
+        logic: [
+          "Instant <code>scoreResume()</code> pre-flight check asks 2–3 quick prompts if key metrics are missing",
+          "User picks from ATS-safe 1-column templates &amp; submits to <code>rewrite_requests</code> queue",
+          "Contextual upgrade modal (₹299/mo · ₹599/6mo · ₹999 Lifetime) sits directly on submit"
+        ],
+        gate: ["Paid (₹299 / ₹599 / ₹999 Lifetime)"]
+      },
+      rewriter: {
+        kicker: "Stage 4 · 6h Scheduled Worker",
+        title: "2-Pass Rewrite + Deterministic Score Gate",
+        desc: "Scheduled job runs every 6 hours, rewrites queued resumes using Track KB &amp; findings, and verifies the output against ats-engine-v2.",
+        screen: "Backend: 6h Scheduled Worker + scoreResume()",
+        logic: [
+          "Pass 1 rewrites using <code>ScoreReport.findings</code> + <code>BulletReview</code> flags (no invented metrics)",
+          "Runs <code>scoreResume()</code> on the draft; auto-retries once if <code>new_score &lt;= old_score</code>",
+          "For <code>old_score &ge; 85</code>, requires <code>new_score &ge; old_score</code> and fewer/equal findings"
+        ],
+        gate: ["Automated 6h cron · ₹0 marginal API fee on early setup"]
+      },
+      rescore: {
+        kicker: "Stage 4 · Email Notification",
+        title: "Deliver New Resume or Request More Info",
+        desc: "Protects user trust by never shipping a lower-scoring rewrite. Either delivers a verified upgrade or asks for specific missing context.",
+        screen: "Email + Screen 4: Download Ready Resume",
+        logic: [
+          "<strong>Gate Passed:</strong> Sends email with before/after score (e.g. 58 &rarr; 86) + PDF/DOCX download",
+          "<strong>Gate Failed:</strong> Emails exact missing details needed to raise score &amp; grants a free resubmit"
+        ],
+        gate: ["Free retry if quality gate rejects the rewrite"]
+      },
+      scraper: {
+        kicker: "Stage 5 · Backend Cron",
+        title: "6-Hourly ATS Feed Sync + Classifier",
+        desc: "Pulls verified PM roles directly from company ATS public APIs — zero CAPTCHAs, zero IP bans, zero LLM cost.",
+        screen: "Backend: GitHub Actions / Supabase Cron",
+        logic: [
+          "Fetches Greenhouse, Lever &amp; Ashby public JSON boards for tracked companies",
+          "Tags <code>level</code>, <code>track</code>, <code>market</code>, <code>extracted_skills[]</code> via <code>ats-engine-v2</code>",
+          "Stores <code>COALESCE(source_published_at, first_seen_at)</code> to enforce true &le; 72h freshness"
+        ],
+        gate: ["Runs automatically every 6 hours at ₹0"]
+      },
+      job_match: {
+        kicker: "Stage 5 · Retention",
+        title: "Ranked Fresh PM Job Feed (&le; 72h)",
+        desc: "Shows only active, &le; 3-day-old PM roles ranked specifically to the candidate's profile and salary target.",
+        screen: "Screen 5: Fresh PM Job Radar (/jobs)",
+        logic: [
+          "Postgres RPC <code>get_matched_jobs()</code> with GIN index on skills",
+          "Score: <strong>45%</strong> Skill Overlap + <strong>25%</strong> Track/Archetype + <strong>15%</strong> Comp + <strong>15%</strong> Freshness (&lt;24h boost)"
+        ],
+        gate: ["Free: Top 3 jobs", "Paid: Full daily feed + alerts"]
+      },
+      tailor_apply: {
+        kicker: "Stage 5 · Apply",
+        title: "1-Click JD Match &rarr; Direct ATS Apply",
+        desc: "Lets the candidate verify their resume against that exact job before clicking through to the company's ATS.",
+        screen: "Screen 5: Job Detail Drawer &rarr; External ATS",
+        logic: [
+          "Runs <code>matchJobDescription()</code> against the selected job's JD",
+          "Highlights exact missing keywords to add before applying",
+          "Redirects to official <code>apply_url</code> (Greenhouse / Lever / Ashby)"
+        ],
+        gate: ["Free: 1 JD check", "Paid: Unlimited 1-click tailoring"]
+      }
+    };
+
+    const nodes = document.querySelectorAll(".node");
+    const inspector = document.getElementById("inspector");
+    const filterBtns = document.querySelectorAll(".filter-btn");
+
+    function renderInspector(id) {
+      const d = DETAILS[id];
+      if (!d) return;
+      inspector.innerHTML = `
+        <div class="insp-kicker">${d.kicker}</div>
+        <div class="insp-title">${d.title}</div>
+        <p class="insp-desc">${d.desc}</p>
+        <div><span class="screen-tag">${d.screen}</span></div>
+        <div class="insp-block">
+          <h4>Engine &amp; UX Logic</h4>
+          <ul>${d.logic.map(x => `<li>${x}</li>`).join("")}</ul>
+        </div>
+        <div class="insp-block">
+          <h4>Access &amp; Monetization</h4>
+          <ul>${d.gate.map(x => `<li>${x}</li>`).join("")}</ul>
+        </div>
+      `;
+    }
+
+    nodes.forEach(node => {
+      node.addEventListener("click", () => {
+        nodes.forEach(n => n.classList.remove("selected"));
+        node.classList.add("selected");
+        renderInspector(node.dataset.id);
+      });
+    });
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        filterBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const f = btn.dataset.filter;
+        nodes.forEach(n => {
+          const tags = (n.dataset.tags || "").split(" ");
+          n.classList.toggle("dimmed", f !== "all" && !tags.includes(f));
+        });
+      });
+    });
+
+    renderInspector("landing");
+  </script>
+</body>
+</html>
