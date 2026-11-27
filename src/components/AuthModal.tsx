@@ -4,6 +4,8 @@ import { useFocusTrap } from '../lib/useFocusTrap'
 import { Icon } from './Icon'
 import { LogoMark } from './Logo'
 
+const GOOGLE_ON = import.meta.env.VITE_GOOGLE_AUTH === 'true'
+
 export function AuthModal() {
   const { authOpen, closeAuth, api, authReason, toast, user } = useApp()
   const [email, setEmail] = useState('')
@@ -94,8 +96,8 @@ export function AuthModal() {
               <button className="btn lg block" disabled={busy}>
                 {busy ? 'One sec…' : demo ? 'Continue' : 'Email me a sign-in link'} <Icon name="arrow" size={18} />
               </button>
-              {!demo && (
-                <button type="button" className="btn ghost block" onClick={() => api.signInWithGoogle().catch((e) => toast(e.message, 'err'))}>
+              {!demo && GOOGLE_ON && (
+                <button type="button" className="btn ghost block" onClick={() => api.signInWithGoogle().catch((e) => toast(/provider is not enabled|unsupported provider/i.test(e.message) ? 'Google sign-in is not available yet. Use your email instead.' : e.message, 'err'))}>
                   Continue with Google
                 </button>
               )}

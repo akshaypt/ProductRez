@@ -107,6 +107,10 @@ export function createSupabaseApi(): Api {
       const { error } = await sb.from('latest_scan').upsert({ user_id, file_name: s.fileName, picks: s.picks, report: s.report, updated_at: new Date().toISOString() })
       if (error) throw new ApiError('unknown')
     },
+    async deleteLatestScan() {
+      const { error } = await sb.from('latest_scan').delete().eq('user_id', await uid())
+      if (error) throw new ApiError('unknown')
+    },
     async scoreResume(input: ScoreInput) {
       const res = await invoke<{ report: ScoreReport }>('score-resume', input)
       return res.report

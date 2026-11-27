@@ -85,6 +85,9 @@ export function createLocalApi(): Api {
       if (!read<AppUser | null>(K.user, null)) throw new ApiError('unauthenticated')
       write('pr.demo.latestScan', { ...s, updatedAt: new Date().toISOString() })
     },
+    async deleteLatestScan() {
+      write('pr.demo.latestScan', null)
+    },
     async scoreResume(input: ScoreInput) {
       if (!read<AppUser | null>(K.user, null)) throw new ApiError('unauthenticated')
       if (!entitlement().active && read<ScoreReport | null>(K.score, null)) throw new ApiError('free_score_used')

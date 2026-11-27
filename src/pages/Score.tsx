@@ -1,134 +1,116 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import type { ScoreReport, TargetLevel } from '@scoring'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { useApp } from '../state/app'
-import { ApiError } from '../lib/types'
+import type { LatestScan } from '../lib/types'
 import { Icon } from '../components/Icon'
 import { ReportView } from '../components/ReportView'
-import { AuthPrompt, LockCard } from '../components/Paywall'
+import { Insights } from '../components/Insights'
 import { store } from '../lib/util'
-import { analysisStore } from '../lib/g/store'
-import type { LatestScan } from '../lib/types'
+import { toLegacy } from '../lib/v2'
+import { COMPANIES, LEVELS, TRACKS } from '../lib/g/data'
+import { readResume, ResumeReadError, runAnalysis, suggest, type LoadedResume, type Picks } from '../lib/g/analyze'
 
 const STEPS = ['Reading your file', 'Splitting roles and bullets', 'Rating every bullet for impact', 'Checking 8 PM competencies', 'Testing how an ATS would parse it', 'Building your fix backlog']
 
 export default function Score() {
-  const { user, ent, api, openAuth, prefs, toast, ready } = useApp()
+  const { user, ent, api, prefs, toast, ready } = useApp()
   const nav = useNavigate()
-  const [report, setReport] = useState<ScoreReport | null>(null)
-  const [loaded, setLoaded] = useState(false)
-  const [mode, setMode] = useState<'upload' | 'paste'>('upload')
-  const [file, setFile] = useState<File | null>(null)
-  const [text, setText] = useState('')
+  const [saved, setSaved] = useState<LatestScan | null | undefined>(undefined) // undefined while loading
+  const [uploading, setUploading] = useState(false)
+  const [loaded, setLoaded] = useState<LoadedResume | null>(null)
+  const [picks, setPicks] = useState<Picks>({ level: null, track: null, company: null })
   const [jd, setJd] = useState('')
   const [showJd, setShowJd] = useState(false)
-  const [level, setLevel] = useState<TargetLevel>(prefs.stage === 'aspiring' ? 'apm' : prefs.stage === 'senior' ? 'senior' : 'auto')
-  const [phase, setPhase] = useState<'idle' | 'running'>('idle')
+  const [phase, setPhase] = useState<'idle' | 'reading' | 'running'>('idle')
   const [step, setStep] = useState(0)
   const [over, setOver] = useState(false)
   const [err, setErr] = useState('')
-  const [blocked, setBlocked] = useState(false)
   const input = useRef<HTMLInputElement>(null)
-  const [latest, setLatest] = useState<LatestScan | null>(null)
-  useEffect(() => { if (api && user) api.getLatestScan().then(setLatest).catch(() => {}) }, [api, user])
-  const openLatest = () => {
-    if (!latest) return
-    analysisStore.set({ resume: { name: latest.fileName, text: '', pageCount: null, size: 0, source: 'pdf' }, picks: latest.picks, jd: '', report: latest.report })
-    nav('/report')
-  }
 
   useEffect(() => {
-    if (!api || !user) {
-      setLoaded(true)
-      return
-    }
-    api.getSavedScore().then((r) => {
-      setReport(r)
-      setLoaded(true)
-    })
+    if (!api || !user) return
+    api.getLatestScan().then((s) => setSaved(s)).catch(() => setSaved(null))
   }, [api, user])
 
-  const pick = (f: File | undefined | null) => {
+  const pick = useCallback(async (f: File | undefined | null) => {
     if (!f) return
-    if (!/\.pdf$/i.test(f.name) && f.type !== 'application/pdf') return toast('Please upload a PDF, or switch to “Paste text”.', 'err')
-    if (f.size > 8 * 1024 * 1024) return toast('That file is over 8 MB.', 'err')
-    setErr('')
-    setFile(f)
-  }
+    setErr(''); setLoaded(null); setPhase('reading')
+    try {
+      const r = await readResume(f)
+      const s = await suggest(r)
+      if (s.message) { setErr(s.message); return }
+      const fallback = prefs.stage === 'senior' ? 'Senior PM' : prefs.stage === 'aspiring' ? 'APM (0–2 yrs)' : 'Product Manager'
+      setLoaded(r)
+      setPicks((p) => ({ level: p.level ?? s.picks.level ?? fallback, track: p.track ?? s.picks.track, company: p.company ?? 'Scale-ups' }))
+    } catch (e) {
+      setErr(e instanceof ResumeReadError ? e.message : 'We could not read that file. Export your resume as a text-based PDF or DOCX and try again.')
+    } finally {
+      setPhase('idle')
+    }
+  }, [prefs.stage])
 
   const run = useCallback(async () => {
-    if (!api) return
-    if (!user) return openAuth('Create a free account to get your resume score. Your first score is on us.')
-    setErr('')
-    setPhase('running')
-    setStep(0)
-    const t = setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), 520)
-    const started = Date.now()
+    if (!loaded || !api) return
+    setErr(''); setPhase('running'); setStep(0)
+    const t = setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), 460)
     try {
-      let body = text
-      let pageCount: number | undefined
-      let source: 'pdf' | 'paste' = 'paste'
-      if (mode === 'upload') {
-        if (!file) throw new ApiError('unknown', 'Choose a PDF first.')
-        const { extractPdfText } = await import('../lib/pdf')
-        const ex = await extractPdfText(file)
-        body = ex.text
-        pageCount = ex.pageCount
-        source = 'pdf'
-      }
-      if (body.trim().length < 40) throw new ApiError('unknown', mode === 'upload' ? 'We couldn’t read any text in that PDF. If it’s a scan or image, paste the text instead.' : 'Paste your resume text first.')
-      const r = await api.scoreResume({ text: body, jobDescription: jd || undefined, targetLevel: level, source, pageCount })
-      const wait = 3000 - (Date.now() - started)
-      if (wait > 0) await new Promise((res) => setTimeout(res, wait))
+      const [a] = await Promise.all([runAnalysis(loaded, picks, jd), new Promise((res) => setTimeout(res, 2800))])
       setStep(STEPS.length)
-      setReport(r)
-      store.set('pr.writer.import', r.parsed)
-    } catch (e) {
-      if (e instanceof ApiError && e.code === 'free_score_used') setBlocked(true)
-      else setErr(e instanceof Error ? e.message : 'Something went wrong. Please try again.')
+      const scan = { fileName: loaded.name, picks, report: a.report }
+      try { await api.saveLatestScan(scan) } catch { toast('Scored, but we could not save it to your account. Try again later.', 'err') }
+      setSaved({ ...scan, updatedAt: new Date().toISOString() })
+      store.set('pr.writer.import', a.report.parsed)
+      setUploading(false); setLoaded(null); setJd(''); setShowJd(false)
+    } catch {
+      setErr('Something went wrong while scoring. Please try another file.')
     } finally {
       clearInterval(t)
       setPhase('idle')
     }
-  }, [api, user, text, mode, file, jd, level, openAuth, toast])
+  }, [loaded, api, picks, jd, toast])
 
   const goWriter = () => {
-    if (report) store.set('pr.writer.import', report.parsed)
+    if (saved) store.set('pr.writer.import', saved.report.parsed)
     nav('/writer?import=1')
   }
 
-  if (!ready || !loaded) return <div className="page"><div className="skeleton" style={{ height: 320 }} /></div>
+  if (!ready) return <div className="page"><div className="skeleton" style={{ height: 320 }} /></div>
+  // Scoring happens on the home page for anyone, so a signed-out visit has nothing to do here.
+  if (!user) return <Navigate to="/" replace />
+  if (saved === undefined) return <div className="page"><div className="skeleton" style={{ height: 320 }} /></div>
 
-  const words = text.trim() ? text.trim().split(/\s+/).length : 0
-  const freeUsed = !!report && !ent.active
+  const showUpload = uploading || !saved
+  const when = saved ? new Date(saved.updatedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : ''
+  const select = (id: 'level' | 'track' | 'company', label: string, opts: { label: string }[]) => (
+    <label className="field">
+      <span className="label">{label}</span>
+      <select className="select" value={picks[id] ?? ''} onChange={(e) => setPicks({ ...picks, [id]: e.target.value || null })}>
+        {id === 'level' && <option value="">Detect from my resume</option>}
+        {opts.map((o) => <option key={o.label} value={o.label}>{o.label}</option>)}
+      </select>
+    </label>
+  )
+
   return (
     <div className="page">
       <div className="page-head">
         <div>
-          {report && !ent.active ? <span className="chip warn">Free score used</span> : <span className="chip good">{ent.active ? 'Unlimited scores' : 'Free · your first score is on us'}</span>}
+          <span className="chip good">{ent.active ? 'Pro' : 'Free · scoring is always free'}</span>
           <h1 style={{ fontSize: 'clamp(2rem,4.5vw,3.2rem)', marginTop: 10 }}>PM Resume Score</h1>
-          {!report && <p>Rated the way a PM hiring manager reads: impact, ownership, product craft, clarity and ATS safety. Your file is read in your browser.</p>}
+          {saved && !showUpload ? (
+            <p style={{ overflowWrap: 'anywhere' }}>{saved.fileName} · {[saved.picks.level, saved.picks.track].filter(Boolean).join(' · ')} · saved {when}</p>
+          ) : (
+            <p>Rated the way a PM hiring manager reads: impact, ownership, product craft, clarity and ATS safety. Your file is read in your browser.</p>
+          )}
         </div>
-        {report && ent.active && (
-          <button className="btn ghost" onClick={() => { setReport(null); setFile(null); setText('') }}>
-            <Icon name="upload" size={18} /> Score another resume
+        {saved && !showUpload && (
+          <button className="btn ghost" onClick={() => { setUploading(true); setErr('') }}>
+            <Icon name="upload" size={18} /> Upload a new resume
           </button>
         )}
       </div>
 
-      {user && latest && !report && phase === 'idle' && (
-        <div className="card" style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <div style={{ minWidth: 0 }}>
-            <span className="chip good">Saved to your account</span>
-            <p style={{ marginTop: 8, overflowWrap: 'anywhere' }}><b>{latest.fileName}</b> · <b>{latest.report.overall}/100</b> <span className="faint">· {new Date(latest.updatedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</span></p>
-          </div>
-          <button className="btn" onClick={openLatest}>View report</button>
-        </div>
-      )}
-
-      {!user ? (
-        <AuthPrompt title="Sign in to score your resume" body="It takes 10 seconds, needs no password, and your first score is free." onSignIn={() => openAuth('Create a free account to get your resume score.')} />
-      ) : phase === 'running' ? (
+      {phase === 'running' ? (
         <div className="card" aria-live="polite" style={{ padding: 'clamp(1.25rem, 4vw, 2.5rem)' }}>
           <h2 style={{ textAlign: 'center', fontSize: '1.7rem' }}>Reviewing like a hiring manager…</h2>
           <div className="scan">
@@ -148,80 +130,63 @@ export default function Score() {
             </div>
           </div>
         </div>
-      ) : report ? (
-        <>
-          {freeUsed && (
-            <div className="card flat soft row" style={{ justifyContent: 'space-between', marginBottom: 18 }}>
-              <span>
-                <b>That was your free score.</b> It’s saved here. Unlock unlimited scoring plus the Writer to fix what we found.
-              </span>
-              <button className="btn sm" onClick={() => nav('/pricing')}>See plans</button>
-            </div>
-          )}
-          <ReportView report={report} onFix={goWriter} fixLabel={ent.active ? 'Fix this in the Writer' : 'Unlock the Writer to fix this'} />
-        </>
-      ) : blocked ? (
-        <LockCard title="You’ve used your free score" body="Every account gets one free resume score. Unlock unlimited scoring, the PM Resume Writer, fresh jobs and the learning library." />
-      ) : (
+      ) : showUpload ? (
         <div className="stack">
-          <div className="seg" role="group" aria-label="Input method">
-            <button aria-pressed={mode === 'upload'} onClick={() => setMode('upload')}>Upload PDF</button>
-            <button aria-pressed={mode === 'paste'} onClick={() => setMode('paste')}>Paste text</button>
-          </div>
-          {mode === 'upload' ? (
-            <div
-              className={`drop ${over ? 'over' : ''}`}
-              role="button"
-              tabIndex={0}
-              onClick={() => input.current?.click()}
-              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && input.current?.click()}
-              onDragOver={(e) => { e.preventDefault(); setOver(true) }}
-              onDragLeave={() => setOver(false)}
-              onDrop={(e) => { e.preventDefault(); setOver(false); pick(e.dataTransfer.files[0]) }}
-            >
-              <input ref={input} type="file" accept="application/pdf,.pdf" hidden data-testid="file-input" onChange={(e) => pick(e.target.files?.[0])} />
-              <Icon name={file ? 'file' : 'upload'} size={44} />
-              <div className="big">{file ? file.name : 'Drop your resume PDF here'}</div>
-              <span className="muted">{file ? `${Math.round(file.size / 1024)} KB · click to change` : 'or click to browse · text-based PDF, up to 8 MB'}</span>
-            </div>
-          ) : (
-            <div className="field" style={{ gap: 6 }}>
-              <textarea className="textarea" style={{ minHeight: 280 }} placeholder="Paste your full resume text here…" value={text} onChange={(e) => { setText(e.target.value); setErr('') }} aria-label="Resume text" aria-describedby="wc" />
-              <span id="wc" className={words >= 60 ? 'faint' : 'muted'} style={{ fontSize: '0.85rem' }}>
-                {words === 0 ? 'Paste your whole resume: experience, education and skills.' : words >= 60 ? `${words} words` : `${words} words · paste at least 60 so we can score it properly`}
-              </span>
+          {saved && (
+            <div className="callout">
+              <Icon name="file" size={18} /> <span>Your account keeps one resume check. A new upload replaces <b>{saved.fileName}</b>.</span>
+              <button className="link-btn" onClick={() => { setUploading(false); setErr('') }}>Cancel</button>
             </div>
           )}
-          <div className="grid2">
-            <div className="field">
-              <span className="label">Scoring for which level?</span>
-              <div className="seg" role="group" aria-label="Target level">
-                {([['auto', 'Auto'], ['apm', 'APM'], ['pm', 'PM'], ['senior', 'Senior'], ['lead', 'GPM+']] as [TargetLevel, string][]).map(([v, l]) => (
-                  <button key={v} aria-pressed={level === v} onClick={() => setLevel(v)}>{l}</button>
-                ))}
-              </div>
-            </div>
-            <div className="field">
-              <span className="label">Targeting a specific job? (optional)</span>
-              <button className="btn ghost" onClick={() => setShowJd((s) => !s)}>
-                <Icon name="target" size={18} /> {showJd ? 'Hide job description' : 'Add job description for keyword match'}
-              </button>
-            </div>
+          <div
+            className={`drop ${over ? 'over' : ''}`}
+            role="button"
+            tabIndex={0}
+            aria-label="Upload your resume"
+            onClick={() => input.current?.click()}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), input.current?.click())}
+            onDragOver={(e) => { e.preventDefault(); setOver(true) }}
+            onDragLeave={() => setOver(false)}
+            onDrop={(e) => { e.preventDefault(); setOver(false); void pick(e.dataTransfer.files[0]) }}
+          >
+            <input ref={input} type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden data-testid="file-input" onChange={(e) => { void pick(e.target.files?.[0]); e.target.value = '' }} />
+            <Icon name={loaded ? 'file' : 'upload'} size={44} />
+            <div className="big">{phase === 'reading' ? 'Reading your resume…' : loaded ? loaded.name : 'Drop your resume here'}</div>
+            <span className="muted">{loaded ? `${Math.round(loaded.size / 1024)} KB${loaded.pageCount ? ` · ${loaded.pageCount} page${loaded.pageCount > 1 ? 's' : ''}` : ''} · click to change` : 'or click to browse · PDF or DOCX, up to 5 MB'}</span>
           </div>
-          {showJd && <textarea className="textarea" placeholder="Paste the job description here…" value={jd} onChange={(e) => setJd(e.target.value)} aria-label="Job description" />}
+          {loaded && (
+            <div className="grid2" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))' }}>
+              {select('level', 'Target level', LEVELS)}
+              {select('track', 'PM focus', TRACKS)}
+              {select('company', 'Company type', COMPANIES)}
+            </div>
+          )}
+          {loaded && (
+            <div className="field">
+              <button className="btn ghost" style={{ alignSelf: 'flex-start' }} onClick={() => setShowJd((s) => !s)} aria-expanded={showJd}>
+                <Icon name="target" size={18} /> {showJd ? 'Hide job description' : 'Targeting a specific job? Add its description'}
+              </button>
+              {showJd && <textarea className="textarea" placeholder="Paste the job description here for a keyword match" value={jd} onChange={(e) => setJd(e.target.value)} aria-label="Job description" />}
+            </div>
+          )}
           {err && (
             <div className="callout err" role="alert">
               <Icon name="x" size={18} /> <span>{err}</span>
             </div>
           )}
-          <button className="btn lg" onClick={run} disabled={mode === 'upload' ? !file : words < 60}>
+          <button className="btn lg" onClick={run} disabled={!loaded || phase !== 'idle'}>
             <Icon name="zap" size={20} /> Review my resume
           </button>
           <p className="faint" style={{ fontSize: '0.85rem' }}>
-            Heads up: scores here measure PM-resume quality and parse-ability. No real ATS publishes a 0–100 number, so treat any “ATS score” (ours included) as a diagnostic, not a guarantee.
+            Scores measure PM-resume quality and parse-ability. No real ATS publishes a 0–100 number, so treat this as a diagnostic, not a guarantee. We save the parsed resume and score to your account, never the file itself.
           </p>
         </div>
-      )}
+      ) : saved ? (
+        <>
+          <ReportView report={toLegacy(saved.report)} onFix={goWriter} fixLabel={ent.active ? 'Fix this in the Writer' : 'Unlock the Writer to fix this'} />
+          <Insights report={saved.report} />
+        </>
+      ) : null}
     </div>
   )
 }

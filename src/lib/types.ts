@@ -96,6 +96,7 @@ export interface Api {
   getSavedScore(): Promise<ScoreReport | null>
   getLatestScan(): Promise<LatestScan | null>
   saveLatestScan(s: Omit<LatestScan, 'updatedAt'>): Promise<void>
+  deleteLatestScan(): Promise<void>
   scoreResume(input: ScoreInput): Promise<ScoreReport>
   jobCounts(): Promise<{ US: number; IN: number; total: number }>
   listJobs(): Promise<Job[]>

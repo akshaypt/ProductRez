@@ -6,7 +6,7 @@ import { cx } from '../lib/util'
 import { renderScoreCard } from '../lib/shareCard'
 import { useApp } from '../state/app'
 
-const FLAG_LABEL: Record<BulletFlag, string> = {
+const FLAG_LABEL: Record<string, string> = {
   'no-metric': 'no metric',
   'weak-verb': 'weak opener',
   'no-verb': 'no action verb',
@@ -15,6 +15,9 @@ const FLAG_LABEL: Record<BulletFlag, string> = {
   'first-person': 'first person',
   passive: 'passive',
   buzzword: 'buzzword',
+  'no-baseline-delta': 'no before → after',
+  'missing-guardrail': 'no quality guardrail',
+  'activity-only': 'activity, not outcome',
 }
 
 const barColor = (s: number) => (s >= 80 ? 'var(--green)' : s >= 62 ? 'var(--info)' : s >= 42 ? 'var(--amber)' : 'var(--red)')
@@ -224,7 +227,7 @@ export function ReportView({ report, onFix, fixLabel = 'Fix this in the Writer' 
                   <div className="row" style={{ gap: 6, marginTop: 6 }}>
                     <Meter level={b.impact} />
                     {b.flags.map((fl) => (
-                      <span key={fl} className="chip bad">{FLAG_LABEL[fl]}</span>
+                      <span key={fl} className="chip bad">{FLAG_LABEL[fl] ?? fl}</span>
                     ))}
                   </div>
                 </div>

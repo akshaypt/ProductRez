@@ -5,7 +5,7 @@ import { Icon } from '../components/Icon'
 import { useApp } from '../state/app'
 import { ApiError, type PlanId } from '../lib/types'
 
-export function PriceCards({ onChoose, busy }: { onChoose: (id: PlanId) => void; busy: PlanId | null }) {
+export function PriceCards({ onChoose, busy, active = false, lifetime = false }: { onChoose: (id: PlanId) => void; busy: PlanId | null; active?: boolean; lifetime?: boolean }) {
   return (
     <div className="price-grid">
       {PLANS.map((p) => (
@@ -16,8 +16,8 @@ export function PriceCards({ onChoose, busy }: { onChoose: (id: PlanId) => void;
           <p className="faint" style={{ fontSize: '0.85rem', marginTop: -6 }}>{p.per}{p.perMonth ? ` · ${p.perMonth}` : ''}</p>
           <p className="muted">{p.blurb}</p>
           <div style={{ flex: 1 }} />
-          <button className={`btn lg block ${p.id === 'lifetime' ? '' : 'ghost'}`} onClick={() => onChoose(p.id)} disabled={busy !== null} data-testid={`buy-${p.id}`}>
-            {busy === p.id ? 'Opening checkout…' : `Get ${p.name}`}
+          <button className={`btn lg block ${p.id === 'lifetime' ? '' : 'ghost'}`} onClick={() => onChoose(p.id)} disabled={busy !== null || lifetime} data-testid={`buy-${p.id}`}>
+            {busy === p.id ? 'Opening checkout…' : lifetime ? 'You have lifetime access' : active ? `Extend with ${p.name}` : `Get ${p.name}`}
           </button>
         </div>
       ))}
@@ -32,13 +32,13 @@ export default function Pricing() {
 
   const choose = async (id: PlanId) => {
     if (!api) return
-    if (!user) return openAuth('Create your account first, then pick a plan. Your first resume score is free.')
+    if (!user) return openAuth('Sign in first, then pick a plan. Resume scoring is always free.')
     setBusy(id)
     try {
       await api.startCheckout(id)
       await refresh()
-      toast('Payment confirmed. Everything is unlocked.')
-      setTimeout(() => nav('/writer'), 1600)
+      toast(ent.active ? 'Payment confirmed. Your plan is extended.' : 'Payment confirmed. Everything is unlocked.')
+      setTimeout(() => nav(ent.active ? '/account' : '/writer'), 1600)
     } catch (e) {
       if (e instanceof ApiError && e.code === 'cancelled') toast('Checkout closed. No charge was made.')
       else if (e instanceof ApiError && e.code === 'payments_not_configured') toast('Payments aren’t switched on yet. Please check back soon.', 'err')
@@ -56,7 +56,7 @@ export default function Pricing() {
           <p style={{ margin: '10px auto 0' }}>Resume scoring is free. Pay only when you want the Writer, daily jobs and the learning library.{ent.active && ' You already have access, but you can extend your plan.'}</p>
         </div>
       </div>
-      <PriceCards onChoose={choose} busy={busy} />
+      <PriceCards onChoose={choose} busy={busy} active={ent.active} lifetime={ent.active && ent.plan === 'lifetime'} />
       <div className="card" style={{ marginTop: 24 }}>
         <b>Every plan includes everything</b>
         <p className="muted" style={{ marginTop: 4 }}>Plans differ only in how long they last.</p>

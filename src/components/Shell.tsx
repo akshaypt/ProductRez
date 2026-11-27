@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { NavLink, Outlet, Link, useLocation } from 'react-router-dom'
+import { NavLink, Navigate, Outlet, Link, useLocation } from 'react-router-dom'
 import { useApp } from '../state/app'
 import { Icon, type IconName } from './Icon'
 import { LogoMark } from './Logo'
@@ -8,6 +8,8 @@ import { InstallPrompt } from './InstallPrompt'
 import { Onboarding } from './Onboarding'
 import { CommandPalette } from './CommandPalette'
 import { formatDate } from '../lib/util'
+
+const TITLES: Record<string, string> = { '/pricing': 'Plans', '/account': 'Account' }
 
 const NAV: { to: string; label: string; icon: IconName; paid: boolean }[] = [
   { to: '/score', label: 'Resume Score', icon: 'score', paid: false },
@@ -32,13 +34,15 @@ function useOnline() {
 }
 
 export function Shell() {
-  const { user, ent, openAuth, api, toasts } = useApp()
+  const { user, ent, openAuth, api, toasts, ready } = useApp()
   const online = useOnline()
   const loc = useLocation()
   const [cmd, setCmd] = useState(false)
+  const pageTitle = NAV.find((n) => loc.pathname.startsWith(n.to))?.label ?? TITLES[loc.pathname] ?? 'ProductRez'
   useEffect(() => {
     window.scrollTo(0, 0)
-  }, [loc.pathname])
+    document.title = `${pageTitle} | ProductRez`
+  }, [loc.pathname, pageTitle])
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -50,13 +54,17 @@ export function Shell() {
     return () => window.removeEventListener('keydown', k)
   }, [])
   const idx = NAV.findIndex((n) => loc.pathname.startsWith(n.to))
+  // The app is for signed-in people. Scoring starts on the home page, and Plans stay public so anyone can see the price.
+  const signedOutGate = ready && !user && loc.pathname !== '/pricing'
   const planLabel = ent.active ? (ent.plan === 'lifetime' ? 'Lifetime' : `Pro until ${formatDate(ent.expiresAt)}`) : 'Free plan'
+  if (signedOutGate) return <Navigate to="/" replace />
   return (
     <>
+      <a className="skip-link" href="#main">Skip to content</a>
       {!online && <div className="offline">You’re offline. Your resume edits are saved on this device.</div>}
       <div className="shell">
         <aside className="rail" aria-label="Primary">
-          <Link to="/" className="logo" aria-label="ProductRez home"><LogoMark size={36} /></Link>
+          <Link to="/score" className="logo" aria-label="ProductRez home"><LogoMark size={36} /></Link>
           <nav className="rail-nav">
             <span className="rail-ind" style={{ ['--y' as string]: `${Math.max(idx, 0) * 48}px`, opacity: idx < 0 ? 0 : 1 }} />
             {NAV.map((n) => (
@@ -79,9 +87,9 @@ export function Shell() {
         </aside>
         <div className="shell-main">
           <header className="topbar">
-            <Link to="/" aria-label="ProductRez home"><LogoMark size={30} /></Link>
-            <b style={{ fontWeight: 500 }}>{NAV.find((n) => loc.pathname.startsWith(n.to))?.label ?? 'ProductRez'}</b>
-            {user ? <Link to="/account" className="chip">{ent.active ? 'Pro' : 'Free'}</Link> : <button className="btn sm" onClick={() => openAuth()}>Sign in</button>}
+            <Link to="/score" aria-label="ProductRez home"><LogoMark size={30} /></Link>
+            <b style={{ fontWeight: 500 }}>{pageTitle}</b>
+            {user ? <Link to="/account" className="chip" style={{ textDecoration: 'none' }}>{ent.active ? 'Pro' : 'Free'}</Link> : <button className="btn sm" onClick={() => openAuth()}>Sign in</button>}
           </header>
           <main className="main" id="main" key={loc.pathname}>
             <Outlet />

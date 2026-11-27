@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import type { LatestScan } from '../lib/types'
+import { Link, useNavigate } from 'react-router-dom'
 import { CONTACT_EMAIL } from '../data/site'
 import { useApp } from '../state/app'
 import { AuthPrompt } from '../components/Paywall'
@@ -13,6 +14,9 @@ export default function Account() {
   const [del, setDel] = useState(false)
   const [confirm, setConfirm] = useState('')
   const [busy, setBusy] = useState(false)
+  const nav = useNavigate()
+  const [scan, setScan] = useState<LatestScan | null>(null)
+  useEffect(() => { if (api && user) api.getLatestScan().then(setScan).catch(() => {}) }, [api, user])
   if (!ready) return <div className="page"><div className="skeleton" style={{ height: 240 }} /></div>
   if (!user) return <div className="page"><AuthPrompt title="You’re not signed in" body="Sign in to see your plan and settings." onSignIn={() => openAuth()} /></div>
   return (
@@ -33,15 +37,30 @@ export default function Account() {
           <div className="field"><span className="label">Theme</span><div className="seg" role="group" aria-label="Theme">{(['system', 'light', 'dark'] as const).map((t) => <button key={t} aria-pressed={prefs.theme === t} onClick={() => setPrefs({ theme: t })}>{t[0].toUpperCase() + t.slice(1)}</button>)}</div></div>
         </div>
         <div className="card stack">
+          <h3>Saved resume</h3>
+          {scan ? (
+            <>
+              <p className="muted" style={{ overflowWrap: 'anywhere' }}><b>{scan.fileName}</b> · scored {scan.report.overall}/100 · saved {new Date(scan.updatedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+              <p className="faint" style={{ fontSize: '0.88rem' }}>We keep one resume check: the parsed resume and its score, never the file. A new upload replaces it.</p>
+              <div className="row" style={{ gap: 10, flexWrap: 'wrap' }}>
+                <Link className="btn ghost" to="/score">View report</Link>
+                <button className="btn ghost" style={{ color: 'var(--red)', borderColor: 'var(--red)' }} onClick={async () => { try { await api?.deleteLatestScan(); setScan(null); toast('Saved resume deleted') } catch { toast('Could not delete it. Try again.', 'err') } }}>Delete saved resume</button>
+              </div>
+            </>
+          ) : (
+            <p className="muted">Nothing saved yet. Your latest resume check appears here once you score a resume.</p>
+          )}
+        </div>
+        <div className="card stack">
           <h3>Install the app</h3>
           {installed ? <p className="muted">ProductRez is installed on this device.</p> : canInstall ? <button className="btn" onClick={install}><Icon name="download" size={18} /> Install ProductRez</button> : ios ? <p className="muted">On iPhone or iPad: tap the Share icon, then <b>Add to Home Screen</b>.</p> : <p className="muted">Use your browser’s menu → “Install app” to add ProductRez to your device.</p>}
         </div>
         <div className="card stack">
           <h3>Help &amp; legal</h3>
-          <p className="muted">Questions or something broken? Email <a href={`mailto:${CONTACT_EMAIL}`}><b>{CONTACT_EMAIL}</b></a>.</p>
-          <div className="row" style={{ gap: 16, flexWrap: 'wrap' }}><Link to="/methodology">How scoring works</Link><Link to="/privacy">Privacy</Link><Link to="/terms">Terms</Link></div>
+          <p className="muted">Questions or something broken? Email <a href={`mailto:${CONTACT_EMAIL}`} style={{ display: 'inline-flex', minHeight: 40, alignItems: 'center' }}><b>{CONTACT_EMAIL}</b></a>.</p>
+          <div className="row" style={{ gap: 4, flexWrap: 'wrap' }}>{[['/methodology', 'How scoring works'], ['/privacy', 'Privacy'], ['/terms', 'Terms']].map(([to, t]) => <Link key={to} to={to} style={{ display: 'inline-flex', alignItems: 'center', minHeight: 40, padding: '0 10px 0 0' }}>{t}</Link>)}</div>
         </div>
-        <button className="btn ghost" onClick={async () => { await api?.signOut(); toast('Signed out') }}>Sign out</button>
+        <button className="btn ghost" onClick={async () => { await api?.signOut(); toast('Signed out'); nav('/') }}>Sign out</button>
         <div className="card stack">
           <h3>Delete account</h3>
           <p className="muted">Permanently removes your account, saved resumes, scores and progress. {ent.active && 'Your paid plan is lost and cannot be restored. '}This cannot be undone.</p>

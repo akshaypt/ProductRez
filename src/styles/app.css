@@ -618,3 +618,24 @@ button { font: inherit; color: inherit; }
 @media (max-width: 700px) { .tm-sep { display: none; } .tmodal-nav { display: flex; gap: 6px; overflow-x: auto; padding: 0.6rem 0.8rem; } .tmodal-nav button { white-space: nowrap; flex: none; } }
 
 }
+@layer app {
+.skip-link { position: absolute; left: 12px; top: -48px; z-index: 100; background: var(--ink); color: var(--ink-fg); padding: 10px 16px; border-radius: 10px; font-weight: 600; text-decoration: none; transition: top .15s; }
+.skip-link:focus { top: 12px; }
+}
+@layer app {
+/* Brand: the landing page's orange, with dark text on it (white on this orange is only 2.6:1; dark is about 8:1). */
+:root { --orange: #fc8019; --orange-dark: #e26d0b; --orange-ink: #1a0f05; --orange-soft: #fff1e3; --orange-text: #b45309;
+  --font: 'Inter Variable', 'Geist Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; --ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--orange); }
+:root[data-theme='dark'] { --orange-soft: rgba(252, 128, 25, 0.16); --orange-text: #ffb066; --ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--orange); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) { --orange-soft: rgba(252, 128, 25, 0.16); --orange-text: #ffb066; --ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--orange); } }
+.btn:not(.ghost) { background: var(--orange); border-color: var(--orange); color: var(--orange-ink); }
+.btn:not(.ghost):hover { background: var(--orange-dark); border-color: var(--orange-dark); box-shadow: 0 10px 30px -12px rgba(252, 128, 25, 0.6); }
+.btn.ghost:hover { border-color: var(--orange); }
+.link-btn:hover { color: var(--orange-text); }
+.rail-ind { background: rgba(252, 128, 25, 0.2); box-shadow: inset 0 0 0 1px rgba(252, 128, 25, 0.35); }
+.nav-link.active { color: var(--orange); }
+.nav-link.up { color: var(--orange); }
+.tabbar a.active { color: var(--orange-text); background: var(--orange-soft); }
+.seg button[aria-pressed='true'] { box-shadow: 0 0 0 1.5px var(--orange); }
+.chip.accent { background: var(--orange-soft); color: var(--orange-text); }
+}

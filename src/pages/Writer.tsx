@@ -4,7 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { buildPlainText, TEMPLATES, templateById } from '@latex'
 import { reviewBullet, scoreResume, type ResumeData } from '@scoring'
 import { useApp } from '../state/app'
-import { ApiError, type BuildOpts, type StoredResume } from '../lib/types'
+import { ApiError, type BuildOpts, type LatestScan, type StoredResume } from '../lib/types'
 import { Icon } from '../components/Icon'
 import { ResumePreview } from '../components/ResumePreview'
 import { useFocusTrap } from '../lib/useFocusTrap'
@@ -181,6 +181,7 @@ export default function Writer() {
   const [tab, setTab] = useState<Tab>('experience')
   const [tplOpen, setTplOpen] = useState(false)
   const [jd, setJd] = useState('')
+  const [savedScan, setSavedScan] = useState<LatestScan | null>(null)
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   const level = prefs.stage === 'senior' ? 'senior' : prefs.stage === 'aspiring' ? 'apm' : 'pm'
 
@@ -189,6 +190,7 @@ export default function Writer() {
       setLoaded(true)
       return
     }
+    api.getLatestScan().then(setSavedScan).catch(() => {})
     api.listResumes().then((rs) => {
       const imported = params.get('import') ? store.get<ResumeData | null>('pr.writer.import', null) : null
       if (imported) {
@@ -273,6 +275,13 @@ export default function Writer() {
         <div className="page-head"><div><h1 style={{ fontSize: 'clamp(2rem,4.5vw,3.2rem)' }}>PM Resume Writer</h1><p>Start fresh, or import the resume you just scored.</p></div></div>
         <div className="grid2">
           <div className="card stack"><h3>Start from a blank page</h3><p className="muted">We’ll scaffold the sections PM recruiters expect.</p><button className="btn" onClick={() => setCur(newResume(emptyResume()))}><Icon name="plus" size={18} /> New resume</button></div>
+          {savedScan && (
+            <div className="card stack" style={{ borderColor: 'var(--accent-line)' }}>
+              <h3>Start from your saved resume</h3>
+              <p className="muted" style={{ overflowWrap: 'anywhere' }}>{savedScan.fileName} · scored {savedScan.report.overall}/100. We turn what we parsed into an editable resume.</p>
+              <button className="btn" onClick={() => { const r = newResume(withIds(savedScan.report.parsed as unknown as ResumeData), 'My resume'); setList((l) => [r, ...l]); setCur(r); toast('Loaded your saved resume. Review each section, parsing isn’t perfect.') }}>Use my saved resume</button>
+            </div>
+          )}
           <div className="card stack"><h3>See it with a sample</h3><p className="muted">Load a realistic Senior PM resume to explore templates.</p><button className="btn ghost" onClick={() => setCur(newResume(sampleResume(), 'Sample PM resume'))}><Icon name="eye" size={18} /> Load sample</button></div>
         </div>
       </div>
