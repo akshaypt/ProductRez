@@ -5,6 +5,7 @@ import { GAuth, GScan, GToast } from './shared'
 import { COMPANIES, CURR, LEVELS, SAMPLE_JOBS, TRACKS } from '../../lib/g/data'
 import { useLanding, type Theme } from '../../lib/g/useLanding'
 import { analysisStore } from '../../lib/g/store'
+import { saveHandoffFromAnalysis } from '../../lib/g/handoff'
 import { ReportView } from './ReportView'
 
 const ARC = 220
@@ -30,7 +31,7 @@ export function LandingMobile({ theme, toggleTheme, view }: { theme: Theme; togg
 
   const score = Math.min(100, 85 + fixes.reduce((a, b) => a + b, 0))
   const C = CURR[cur]
-  const openAuthFromNav = () => (L.user ? L.go('/score') : setAuthOpen(true))
+  const openAuthFromNav = () => { if (L.user) return L.go('/score'); saveHandoffFromAnalysis(); setAuthOpen(true) }
   const toTop = (e: React.MouseEvent) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(L.nudgeOnly, 300) }
 
   const pill = (id: 'level' | 'track' | 'company', placeholder: string) => (
@@ -51,7 +52,7 @@ export function LandingMobile({ theme, toggleTheme, view }: { theme: Theme; togg
       </header>
 
       {view === 'report' && analysis ? (
-        <ReportView v="m" a={analysis} signedIn={!!L.user} onSignIn={() => setAuthOpen(true)} onBack={() => L.go('/')} go={L.go} />
+        <ReportView v="m" a={analysis} signedIn={!!L.user} onSignIn={() => { saveHandoffFromAnalysis(); setAuthOpen(true) }} onBack={() => L.go('/')} go={L.go} />
       ) : (
         <>
           <section className="m-hero" id="top">

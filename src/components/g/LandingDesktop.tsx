@@ -5,6 +5,7 @@ import { GAuth, GScan, GToast } from './shared'
 import { COMPANIES, CURR, LEVELS, REWRITE_STEPS, SAMPLE_JOBS, TRACKS } from '../../lib/g/data'
 import { useLanding, type Theme } from '../../lib/g/useLanding'
 import { analysisStore } from '../../lib/g/store'
+import { saveHandoffFromAnalysis } from '../../lib/g/handoff'
 import { ReportView } from './ReportView'
 
 const ARC = 314
@@ -30,7 +31,7 @@ export function LandingDesktop({ theme, toggleTheme, view }: { theme: Theme; tog
   const score = Math.min(100, 85 + fixes.reduce((a, b) => a + b, 0))
   const C = CURR[cur]
   const toDrop = (e: React.MouseEvent) => { e.preventDefault(); document.getElementById('drop')?.scrollIntoView({ behavior: 'smooth' }); setTimeout(L.nudgeOnly, 250) }
-  const openAuthFromNav = () => (L.user ? L.go('/score') : setAuthOpen(true))
+  const openAuthFromNav = () => { if (L.user) return L.go('/score'); saveHandoffFromAnalysis(); setAuthOpen(true) }
 
   const pill = (id: 'level' | 'track' | 'company', placeholder: string, opts: { label: string }[]) => {
     const val = L.picks[id]
@@ -70,7 +71,7 @@ export function LandingDesktop({ theme, toggleTheme, view }: { theme: Theme; tog
       </nav>
 
       {view === 'report' && analysis ? (
-        <ReportView v="d" a={analysis} signedIn={!!L.user} onSignIn={() => setAuthOpen(true)} onBack={() => L.go('/')} go={L.go} />
+        <ReportView v="d" a={analysis} signedIn={!!L.user} onSignIn={() => { saveHandoffFromAnalysis(); setAuthOpen(true) }} onBack={() => L.go('/')} go={L.go} />
       ) : (
       <>
       <section className="g-hero" id="drop">

@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { getApi } from '../lib/api'
 import type { Api, AppUser, Entitlement } from '../lib/types'
 import { guessRegion, store } from '../lib/util'
+import { regionFor, stageFor, takeHandoff } from '../lib/g/handoff'
 
 export interface Prefs {
   region: 'US' | 'IN'
@@ -54,6 +55,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     else root.setAttribute('data-theme', prefs.theme)
   }, [prefs.theme])
 
+  // Someone who was scored on the landing page and then signs in has already told us their level, focus and market,
+  // and we have their resume. Complete setup for them instead of asking again. Returning users keep what they have.
+  const applyHandoff = useCallback(() => {
+    const h = takeHandoff()
+    if (!h) return
+    const saved = store.get<Prefs | null>('pr.prefs', null)
+    if (saved?.onboarded) return
+    setPrefs({ stage: stageFor(h.level), region: regionFor(h.market), onboarded: true })
+    store.set('pr.target', { level: h.level, track: h.track, company: h.company })
+    import('@scoring').then(({ parseResume }) => store.set('pr.writer.import', parseResume(h.text).data)).catch(() => {})
+  }, [setPrefs])
+
   const loadEnt = useCallback(async (a: Api, u: AppUser | null) => {
     setEnt(u ? await a.getEntitlement().catch(() => NONE) : NONE)
   }, [])
@@ -65,10 +78,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!alive) return
       setApi(a)
       const u = await a.getUser()
+      if (u) applyHandoff()
       setUser(u)
       await loadEnt(a, u)
       setReady(true)
       off = a.onAuthChange(async (nu) => {
+        if (nu) applyHandoff()
         setUser(nu)
         await loadEnt(a, nu)
       })
@@ -77,7 +92,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       alive = false
       off()
     }
-  }, [loadEnt])
+  }, [loadEnt, applyHandoff])
 
   const refresh = useCallback(async () => {
     if (api) await loadEnt(api, await api.getUser())
