@@ -103,12 +103,12 @@ export function GAuth({ open, title, onClose, onDone }: { open: boolean; title: 
             )}
             <input ref={first} type="email" className="auth-input" placeholder="you@company.com" aria-label="Email" autoComplete="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             {err && <p className="drop-err" role="alert" style={{ marginTop: 0, marginBottom: 10 }}>{err}</p>}
-            <button type="submit" className="g-btn btn-primary btn-main" style={{ width: '100%', padding: 11 }} disabled={busy}>{busy ? 'One sec…' : demo ? 'Continue' : 'Send 6-Digit Code'}</button>
+            <button type="submit" className="g-btn btn-primary btn-main" style={{ width: '100%', padding: 11 }} disabled={busy}>{busy ? 'One sec…' : demo ? 'Continue' : 'Continue with email'}</button>
             {demo && <div className="auth-foot">Demo mode: no email is sent and everything stays in this browser.</div>}
           </form>
         ) : (
           <form onSubmit={verify}>
-            <p className="auth-foot" style={{ marginTop: 0, marginBottom: 10, textAlign: 'left' }}>Enter the 6-digit code from the email. If the email has a sign-in link instead, click it and this window closes by itself.</p>
+            <p className="auth-foot" style={{ marginTop: 0, marginBottom: 10, textAlign: 'left' }}>Click the sign-in link in the email and this window closes by itself. If the email shows a code instead, type it here.</p>
             <input ref={first} className="auth-input" inputMode="numeric" autoComplete="one-time-code" maxLength={8} placeholder="Enter 6-digit code" aria-label="Sign-in code" style={{ textAlign: 'center', letterSpacing: '0.2em', fontWeight: 800 }} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} />
             {err && <p className="drop-err" role="alert" style={{ marginTop: 0, marginBottom: 10 }}>{err}</p>}
             <button type="submit" className="g-btn btn-primary btn-main" style={{ width: '100%', padding: 11 }} disabled={busy || code.length < 6}>{busy ? 'Verifying…' : 'Verify & Continue'}</button>
