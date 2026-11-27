@@ -11,7 +11,9 @@ export function GToast({ msg }: { msg: string }) {
   )
 }
 
-const friendly = (m: string | undefined, fallback: string) => (!m || /fetch|network|load failed|timeout/i.test(m) ? 'We could not reach the sign-in service. Please try again in a moment.' : m || fallback)
+// Google sign-in is shown only once the provider is enabled in Supabase and VITE_GOOGLE_AUTH=true is set in the host's env.
+const GOOGLE_ON = import.meta.env.VITE_GOOGLE_AUTH === 'true'
+const friendly = (m: string | undefined, fallback: string) => (/provider is not enabled|unsupported provider/i.test(m ?? '') ? 'Google sign-in is not available yet. Use your email instead.' : !m || /fetch|network|load failed|timeout/i.test(m) ? 'We could not reach the sign-in service. Please try again in a moment.' : m || fallback)
 
 const STEPS = ['Reading resume structure & role timeline', 'Auditing bullet impact & PM craft', 'Benchmarking market standing & salary fit']
 
@@ -95,7 +97,7 @@ export function GAuth({ open, title, onClose, onDone }: { open: boolean; title: 
         </div>
         {step === 'email' ? (
           <form onSubmit={sendEmail}>
-            {!demo && (
+            {!demo && GOOGLE_ON && (
               <>
                 <button type="button" className="google-btn" onClick={() => api?.signInWithGoogle().catch((e) => setErr(friendly(e.message, 'Google sign-in is not available right now.')))}><GoogleG /> Continue with Google</button>
                 <div className="auth-div">or continue with email</div>
