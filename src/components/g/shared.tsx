@@ -11,6 +11,8 @@ export function GToast({ msg }: { msg: string }) {
   )
 }
 
+const friendly = (m: string | undefined, fallback: string) => (!m || /fetch|network|load failed|timeout/i.test(m) ? 'We could not reach the sign-in service. Please try again in a moment.' : m || fallback)
+
 const STEPS = ['Reading resume structure & role timeline', 'Auditing bullet impact & PM craft', 'Benchmarking market standing & salary fit']
 
 export function GScan({ open, step, sub }: { open: boolean; step: number; sub: string }) {
@@ -40,18 +42,19 @@ export function GScan({ open, step, sub }: { open: boolean; step: number; sub: s
 
 /** Sign-in dialog in the marketing design. Uses the real auth API (email code or link, and Google). */
 export function GAuth({ open, title, onClose, onDone }: { open: boolean; title: string; onClose: () => void; onDone: () => void }) {
-  const { api, user, toast } = useApp()
+  const { api, user } = useApp()
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [step, setStep] = useState<'email' | 'code'>('email')
   const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
   const first = useRef<HTMLInputElement>(null)
   const demo = api?.mode === 'demo'
   const done = useRef(onDone)
   done.current = onDone
 
   useEffect(() => {
-    if (open) { setStep('email'); setCode(''); setTimeout(() => first.current?.focus(), 60) }
+    if (open) { setStep('email'); setCode(''); setErr(''); setTimeout(() => first.current?.focus(), 60) }
   }, [open])
   useEffect(() => {
     if (!open) return
@@ -65,18 +68,20 @@ export function GAuth({ open, title, onClose, onDone }: { open: boolean; title: 
 
   const sendEmail = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!/^\S+@\S+\.\S+$/.test(email)) return toast('Enter a valid email address', 'err')
+    setErr('')
+    if (!/^\S+@\S+\.\S+$/.test(email)) return setErr('Enter a valid email address.')
     if (!api) return
     setBusy(true)
     try {
       if (demo) { await api.verifyCode(email, '000000'); onDone() } else { await api.sendCode(email); setStep('code') }
-    } catch (err) { toast((err as Error).message || 'Could not send the code', 'err') } finally { setBusy(false) }
+    } catch (e) { setErr(friendly((e as Error).message, 'We could not send the code.')) } finally { setBusy(false) }
   }
   const verify = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!api) return
+    setErr('')
     setBusy(true)
-    try { await api.verifyCode(email, code.trim()); onDone() } catch (err) { toast((err as Error).message || 'That code did not work', 'err') } finally { setBusy(false) }
+    try { await api.verifyCode(email, code.trim()); onDone() } catch (e) { setErr(friendly((e as Error).message, 'That code did not work. Check it and try again.')) } finally { setBusy(false) }
   }
 
   return (
@@ -92,11 +97,12 @@ export function GAuth({ open, title, onClose, onDone }: { open: boolean; title: 
           <form onSubmit={sendEmail}>
             {!demo && (
               <>
-                <button type="button" className="google-btn" onClick={() => api?.signInWithGoogle().catch((e) => toast(e.message, 'err'))}><GoogleG /> Continue with Google</button>
+                <button type="button" className="google-btn" onClick={() => api?.signInWithGoogle().catch((e) => setErr(friendly(e.message, 'Google sign-in is not available right now.')))}><GoogleG /> Continue with Google</button>
                 <div className="auth-div">or continue with email</div>
               </>
             )}
             <input ref={first} type="email" className="auth-input" placeholder="you@company.com" aria-label="Email" autoComplete="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            {err && <p className="drop-err" role="alert" style={{ marginTop: 0, marginBottom: 10 }}>{err}</p>}
             <button type="submit" className="g-btn btn-primary btn-main" style={{ width: '100%', padding: 11 }} disabled={busy}>{busy ? 'One sec…' : demo ? 'Continue' : 'Send 6-Digit Code'}</button>
             {demo && <div className="auth-foot">Demo mode: no email is sent and everything stays in this browser.</div>}
           </form>
@@ -104,6 +110,7 @@ export function GAuth({ open, title, onClose, onDone }: { open: boolean; title: 
           <form onSubmit={verify}>
             <p className="auth-foot" style={{ marginTop: 0, marginBottom: 10, textAlign: 'left' }}>Enter the 6-digit code from the email. If the email has a sign-in link instead, click it and this window closes by itself.</p>
             <input ref={first} className="auth-input" inputMode="numeric" autoComplete="one-time-code" maxLength={8} placeholder="Enter 6-digit code" aria-label="Sign-in code" style={{ textAlign: 'center', letterSpacing: '0.2em', fontWeight: 800 }} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} />
+            {err && <p className="drop-err" role="alert" style={{ marginTop: 0, marginBottom: 10 }}>{err}</p>}
             <button type="submit" className="g-btn btn-primary btn-main" style={{ width: '100%', padding: 11 }} disabled={busy || code.length < 6}>{busy ? 'Verifying…' : 'Verify & Continue'}</button>
             <button type="button" className="auth-foot" style={{ background: 'none', border: 0, cursor: 'pointer', width: '100%', textDecoration: 'underline' }} onClick={() => setStep('email')}>Use a different email</button>
           </form>
