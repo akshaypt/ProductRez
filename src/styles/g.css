@@ -1,0 +1,20 @@
+/* Shared additions for the marketing pages.
+   app.css and mk.css live in `@layer app`, so everything here and in gd.css / gm.css wins on conflicts.
+   The reset below stops the app's bare element styles (h1 colour, p margins, button look) leaking into the landing design. */
+.gd :where(h1, h2, h3, h4, h5, h6, p, a, button, input, textarea, select, label, ul, ol, li, small, strong, span, b, em, details, summary, section, nav, footer, header, main),
+.gm :where(h1, h2, h3, h4, h5, h6, p, a, button, input, textarea, select, label, ul, ol, li, small, strong, span, b, em, details, summary, section, nav, footer, header, main) { all: revert; }
+.gd, .gd *, .gm, .gm * { box-sizing: border-box; margin: 0; padding: 0; }
+.gd ul, .gd ol, .gm ul, .gm ol { list-style: none; }
+.gd, .gm { font-family: 'Inter Variable', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+.gd a, .gm a { color: inherit; }
+.gd button, .gm button { font-family: inherit; }
+.gd :focus-visible, .gm :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.gd .sr, .gm .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.gd .drop-err, .gm .drop-err { margin-top: 8px; font-size: 12.5px; font-weight: 600; color: var(--rose); }
+.gd .drop-stage.reading, .gm .drop-stage.reading { opacity: .8; }
+.gd .sample-note, .gm .sample-note { font-size: 12px; color: var(--muted); margin-top: 10px; }
+.gd .g-ticket { text-align: left; }
+.gd button.g-ticket, .gm button.m-ticket { font: inherit; border: 0; cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .gd *, .gm * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+/* Report cards hold variable-length real content: stack from the top instead of spreading */
+.gd .locked-grid .bento-card { justify-content: flex-start; align-self: start; }

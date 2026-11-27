@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppProvider } from './state/app'
 import { Shell } from './components/Shell'
-import Landing from './pages/Landing'
+import Landing, { Report } from './pages/Landing'
 import { installPointerFx } from './lib/motion'
 import { Methodology, Privacy, Terms } from './pages/Legal'
 
@@ -23,6 +23,7 @@ export default function App() {
         <Suspense fallback={<Fallback />}>
           <Routes>
             <Route path="/" element={<Landing />} />
+            <Route path="/report" element={<Report />} />
             <Route path="/methodology" element={<Methodology />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />

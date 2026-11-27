@@ -1,3 +1,4 @@
+@layer app {
 /* Marketing site: monochrome. Black and white sections alternate; each section scopes its own tokens so any component inside adapts. */
 .rz { background: #000; color: #b0b0b0; font-size: 1.06rem; }
 .rz-nav, .rz-sec.dark {
@@ -286,3 +287,5 @@ html, body { overflow-x: clip; }
   .ats-body .seg2, .ats-head button { white-space: nowrap; font-size: 0.82rem; padding: 0.45rem 0.8rem; }
 }
 @media (max-width: 560px) { .phones { height: 380px !important; overflow: hidden; } }
+
+}

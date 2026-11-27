@@ -1,3 +1,4 @@
+@layer app {
 /* ProductRez design system v3: restrained, editorial, precise.
    Geist for the interface, Newsreader for display. Hairlines over shadows. Colour only where it carries meaning. */
 @font-face { font-family: 'Geist Variable'; font-style: normal; font-display: swap; font-weight: 100 900; src: url('../../node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2') format('woff2-variations'); }
@@ -615,3 +616,5 @@ button { font: inherit; color: inherit; }
 @media (max-width: 900px) { .toasts { bottom: auto; top: calc(4.2rem + env(safe-area-inset-top, 0px)); } }
 .tmodal-grid { grid-auto-rows: max-content; } .tm-card { min-height: max-content; }
 @media (max-width: 700px) { .tm-sep { display: none; } .tmodal-nav { display: flex; gap: 6px; overflow-x: auto; padding: 0.6rem 0.8rem; } .tmodal-nav button { white-space: nowrap; flex: none; } }
+
+}

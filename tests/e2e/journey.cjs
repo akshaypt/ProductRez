@@ -14,10 +14,10 @@ const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) failed 
   const errs = []
   p.on('pageerror', (e) => errs.push(e.message))
 
-  // landing: live bullet X-ray works without an account
+  // landing: marketing page renders with the resume drop zone, no account needed
   await p.goto(BASE + '/')
-  await p.fill('[data-testid=xray] textarea', 'Launched pricing for 12,000 accounts, cutting churn from 5.1% to 3.8% in two quarters')
-  ok((await p.textContent('[data-testid=xray] p[aria-live]')).includes('Impact 3/3'), 'landing X-ray rates a strong bullet 3/3')
+  ok(await p.locator('h1:has-text("Stop Getting Ghosted")').count() === 1, 'landing renders the new hero')
+  ok(await p.locator('input[type=file]').count() === 1, 'landing has the resume drop zone')
 
   // sign up, onboard, score
   await p.goto(BASE + '/score')

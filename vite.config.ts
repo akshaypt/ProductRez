@@ -49,6 +49,7 @@ export default defineConfig(({ mode }) => {
   resolve: {
     alias: {
       '@scoring': fileURLToPath(new URL('./supabase/functions/_shared/scoring/index.ts', import.meta.url)),
+      '@ats': fileURLToPath(new URL('./packages/ats-engine-v2/src/index.ts', import.meta.url)),
       '@latex': fileURLToPath(new URL('./supabase/functions/_shared/latex/index.ts', import.meta.url)),
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },

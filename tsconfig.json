@@ -13,7 +13,7 @@
     "isolatedModules": true,
     "resolveJsonModule": true,
     "types": ["vite/client", "vite-plugin-pwa/client", "node"],
-    "paths": { "@/*": ["./src/*"], "@scoring": ["./supabase/functions/_shared/scoring/index.ts"], "@latex": ["./supabase/functions/_shared/latex/index.ts"] }
+    "paths": { "@/*": ["./src/*"], "@scoring": ["./supabase/functions/_shared/scoring/index.ts"], "@latex": ["./supabase/functions/_shared/latex/index.ts"], "@ats": ["./packages/ats-engine-v2/src/index.ts"] }
   },
-  "include": ["src", "src/env.d.ts", "tests", "scripts", "supabase/functions/_shared", "vite.config.ts"]
+  "include": ["src", "src/env.d.ts", "tests", "scripts", "supabase/functions/_shared", "packages/ats-engine-v2/src", "vite.config.ts"]
 }
