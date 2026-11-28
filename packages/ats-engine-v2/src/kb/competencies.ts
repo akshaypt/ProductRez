@@ -92,8 +92,24 @@ export const METRIC_PATTERNS: RegExp[] = [
   /\b(#\s?1|top\s?\d+|99\.\d+%|p95|p99)\b/i,
 ]
 
+/**
+ * A change measured against a starting point: "from X to Y", "by 15%", "cut cost from", year-over-year. Lookarounds, not \b, because a
+ * number often ends in "%" and \b never matches between "%" and a space.
+ */
 export const BASELINE_DELTA_PATTERN =
-  /\b(from\s+[^,;]{1,28}\s+to\s+[^,;]{1,28}|by\s+\d[\d,.]*\s?%|vs\.?\s+(?:prior|last|baseline|control)|year[- ]over[- ]year|yoy|qoq|mom|\+\d[\d,.]*%|\-\d[\d,.]*%|cut\s+.{1,30}\s+from|lift(?:ed)?\s+.{1,30}\s+from|reduc(?:ed|ing)\s+.{1,30}\s+by|increas(?:ed|ing)\s+.{1,30}\s+by)\b/i
+  /(?<![\w])(from\s+[^,;]{1,28}\s+to\s+[^,;]{1,28}|by\s+[$₹€£]?\d[\d,.]*\s?(?:%|x|×|k|m|mn|bn|cr|crore|lakhs?|million|billion)?|vs\.?\s+(?:prior|last|baseline|control)|year[- ]over[- ]year|yoy|qoq|mom|\+\d[\d,.]*\s?%|-\d[\d,.]*\s?%|cut\s+.{1,30}\s+from|lift(?:ed)?\s+.{1,30}\s+from|reduc(?:ed|ing)\s+.{1,30}\s+by|increas(?:ed|ing)\s+.{1,30}\s+by)(?![\w])/i
+
+/** The bullet already carries its baseline: a percentage, a multiple, "doubled", "from X to Y" or a timeframe, so no extra before/after is needed. */
+export const RELATIVE_CHANGE_PATTERN =
+  /\d\s?%|\d\s?(?:x|×)(?![\w])|\b(?:doubled|tripled|quadrupled|halved)\b|\bfrom\s+[^,;]{1,28}\s+to\s+[^,;]{1,28}|\b(?:in|within|over)\s+(?:its\s+|the\s+)?(?:first\s+|last\s+|past\s+)?\d+\s*(?:days?|weeks?|months?|quarters?|years?)\b|\bQ[1-4]\b|\bFY\d{2}/i
+
+/** Words that claim an effect. A bullet that says it improved something should say by how much; one that only describes work should not be forced to. */
+export const IMPACT_CLAIM_PATTERN =
+  /\b(?:(?:increas|improv|reduc|accelerat|decreas|elevat|eliminat|shorten|expand)(?:e|ed|es|ing)|(?:boost|lift|grow|cut|lower|save|streamline|maximi[sz]e|minimi[sz]e|optimi[sz]e|enhance|generate|scale|double|triple)(?:s|d|ed|ing)?|grew|drove|saving|savings|speed(?:ed|ing)?\s+up|significantly|substantially|dramatically|greatly)\b|\bdriving\s+\w+\s+(?:growth|adoption|conversion|retention|revenue|engagement|savings)\b/i
+
+/** Describes what was built, designed, owned or led. These bullets show scope and ownership; a metric helps but is not what makes them good. */
+export const BUILD_OR_LEAD_PATTERN =
+  /\b(?:architect|design|built|build|develop|implement|engineer|creat|set\s+up|establish|integrat|migrat|instrument|defin|author|own|led|lead|manag|launch|ship|deliver|run|partner|collaborat|spearhead|orchestrat|introduc|rolled\s+out|stood\s+up)\w*\b.{0,120}\b(?:platform|pipeline|system|service|api|apis|architecture|infrastructure|framework|workflow|workflows|engine|tooling|toolchain|integration|schema|microservices?|sdk|dashboard|portal|roadmap|vision|strategy|process|playbook|program|programme|initiative|team|squad|organi[sz]ation|stakeholders|model|agent|agents|data\s+model|access\s+control|rbac|ledger|backend|front-end|frontend|stack|automation|engine)\b/i
 
 export const CHANGE_WORDS =
   /\b(increase[ds]?|decrease[ds]?|reduce[ds]?|improve[ds]?|grew|grow(?:th|n|ing)?|boost(?:ed)?|lift(?:ed)?|cut|save[ds]?|drove|drive|raise[ds]?|lower(?:ed)?|accelerate[ds]?|generate[ds]?|achiev(?:ed|ing)|exceed(?:ed|ing)|surpass(?:ed|ing)|deflect(?:ed|ing)?|recover(?:ed|ing)?|up|down|by|from)\b/i

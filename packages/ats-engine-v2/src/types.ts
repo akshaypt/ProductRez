@@ -183,7 +183,16 @@ export interface BulletReview {
   section: 'experience' | 'projects' | 'other'
   context: string
   roleIndex: number
-  /** 0 = weak activity, 1 = partial outcome, 2 = quantified, 3 = outcome + baseline/timeframe (+ guardrail bonus) */
+  /** Position inside its role or project, counting from 1, so a finding can point at "bullet 3 under Acme". */
+  index: number
+  /** Human-readable pointer to this bullet, e.g. "Senior PM · Acme · bullet 3". */
+  ref: string
+  /**
+   * True when the bullet claims a result ("improved", "reduced", "grew") without a number to back it. Bullets that only describe what was
+   * built, designed or led are not expected to carry a metric, so this is false for them.
+   */
+  needsMetric: boolean
+  /** 0 = weak activity, 1 = partial outcome or scope only, 2 = quantified, 3 = outcome + baseline/timeframe (+ guardrail bonus) */
   impact: 0 | 1 | 2 | 3
   words: number
   hasMetric: boolean
@@ -203,6 +212,12 @@ export interface Finding {
   why: string
   fix: string
   evidence: string[]
+  /** The bullets behind `evidence`, with their position, so the reader knows which line is meant. */
+  evidenceBullets?: { ref: string; text: string }[]
+  /**
+   * Estimated change to the overall 0-100 score if this is fixed. Converted from the finding's dimension-level size using the
+   * dimension's weight and the headroom left in it, so it is never larger than what the score can actually move.
+   */
   gain: number
   kbRuleId?: string
 }

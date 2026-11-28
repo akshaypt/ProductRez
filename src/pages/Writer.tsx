@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useSearchParams } from 'react-router-dom'
 import { buildPlainText, TEMPLATES, templateById } from '@latex'
-import { reviewBullet, scoreResume, type ResumeData } from '@scoring'
+import { scoreResume, type ResumeData } from '@scoring'
+import { reviewBullet as reviewBulletV2 } from '@ats'
 import { useApp } from '../state/app'
 import { ApiError, type BuildOpts, type LatestScan, type StoredResume } from '../lib/types'
 import { Icon } from '../components/Icon'
@@ -13,7 +14,7 @@ import { AuthPrompt, LockCard } from '../components/Paywall'
 import { download, guessPaper, slug, store, uid } from '../lib/util'
 import { emptyResume, placeholderCount, sampleResume, withIds } from '../lib/resume'
 
-const FLAGS: Record<string, string> = { 'no-metric': 'add a metric', 'weak-verb': 'weak opener', 'no-verb': 'start with a verb', 'too-long': 'too long', 'too-short': 'too short', 'first-person': 'drop I/we', passive: 'passive', buzzword: 'buzzword' }
+const FLAGS: Record<string, string> = { 'no-metric': 'claims a result, add the number', 'no-baseline-delta': 'add a starting point', 'missing-guardrail': 'add a guardrail', 'activity-only': 'activity, not outcome', 'no-verb': 'start with a verb', 'weak-verb': 'weak opener', 'too-long': 'too long', 'too-short': 'too short', 'first-person': 'drop I/we', passive: 'passive', buzzword: 'buzzword' }
 const METRIC_CHIPS = ['[X%] lift', 'from [A] to [B]', 'for [N] users', 'in [N] weeks', 'saving $[X]']
 
 const newResume = (data: ResumeData, title = 'My PM resume'): StoredResume => ({
@@ -34,7 +35,7 @@ function BulletEditor({ value, role, level, onChange, onRemove, onMove, first, l
   const [coach, setCoach] = useState(false)
   const [opts, setOpts] = useState<string[] | null>(null)
   const [busy, setBusy] = useState(false)
-  const rev = useMemo(() => (value.trim().length > 3 ? reviewBullet(value, 'experience', role, true) : null), [value, role])
+  const rev = useMemo(() => (value.trim().length > 3 ? reviewBulletV2(value, 'experience', role, 0, true) : null), [value, role])
   const ref = useRef<HTMLTextAreaElement>(null)
   useEffect(() => {
     const el = ref.current

@@ -2,6 +2,7 @@ import {
   AI_CLAIM_PATTERN,
   ARCHETYPE_KB,
   ATS_PLATFORM_KB,
+  BUSINESS_METRIC_WORDS,
   BUZZWORDS,
   COMPETENCIES,
   LEVEL_SIGNALS,
@@ -191,16 +192,16 @@ export function scoreResume(input: ScoreInput, now = new Date()): ScoreReport {
   data.experience.forEach((x, i) => {
     const ctxLabel = [x.title, x.company].filter(Boolean).join(' · ') || 'Experience'
     const current = i === 0 || /present|current/i.test(x.end)
-    x.bullets.forEach((b) => bullets.push(reviewBullet(b, 'experience', ctxLabel, i, current, track)))
+    x.bullets.forEach((b, j) => bullets.push(reviewBullet(b, 'experience', ctxLabel, i, current, track, j + 1)))
   })
   data.projects.forEach((p, i) => {
-    p.bullets.forEach((b) => bullets.push(reviewBullet(b, 'projects', p.name || 'Project', i, false, track)))
+    p.bullets.forEach((b, j) => bullets.push(reviewBullet(b, 'projects', p.name || 'Project', i, false, track, j + 1)))
   })
   if (bullets.length === 0) {
     parsed.lines
       .filter((l) => l.length > 50 && /[a-z]/.test(l))
       .slice(0, 24)
-      .forEach((l) => bullets.push(reviewBullet(l, 'other', 'Resume', 0, false, track)))
+      .forEach((l, j) => bullets.push(reviewBullet(l, 'other', 'Resume', 0, false, track, j + 1)))
   }
 
   const nb = bullets.length
@@ -218,11 +219,16 @@ export function scoreResume(input: ScoreInput, now = new Date()): ScoreReport {
     totalWeightedBullets === 0 ? 0 : bullets.filter(pred).reduce((s, b) => s + roleWeight(b), 0) / totalWeightedBullets
 
   // ---- 1. Impact & Outcomes ------------------------------------------------
+  // Not every bullet should carry a number: lines about a system you built or a team you led can stand without one. So the resume as a
+  // whole is asked for roughly half of its bullets to be quantified (METRIC_TARGET), not all of them, and a bullet is only tagged
+  // "no metric" when it claims a result without proving it (see reviewBullet).
+  const METRIC_TARGET = 0.55
   const metricShare = wPct((b) => b.hasMetric)
   const strongImpact = wPct((b) => b.impact >= 2)
   const richImpact = wPct((b) => b.impact === 3)
   const trackKpiShare = wPct((b) => b.hasTrackKpi)
   const heroBullets = data.experience.flatMap((x) => x.bullets.slice(0, 2)).filter(Boolean)
+  const heroReviews = bullets.filter((b) => b.section === 'experience' && b.index > 0 && b.index <= 2)
   const heroMetricShare = pct(heroBullets.filter(hasMetric).length, heroBullets.length)
   const missingGuardrails = bullets.filter((b) => b.flags.includes('missing-guardrail'))
 
@@ -230,51 +236,70 @@ export function scoreResume(input: ScoreInput, now = new Date()): ScoreReport {
     nb === 0
       ? 5
       : 100 *
-        (0.42 * Math.min(1, strongImpact / 0.7) +
-          0.22 * Math.min(1, richImpact / 0.35) +
-          0.14 * Math.min(1, metricShare / 0.8) +
+        (0.42 * Math.min(1, strongImpact / METRIC_TARGET) +
+          0.22 * Math.min(1, richImpact / 0.3) +
+          0.14 * Math.min(1, metricShare / METRIC_TARGET) +
           0.12 * heroMetricShare +
           0.10 * Math.min(1, trackKpiShare / 0.35))
   if (missingGuardrails.length >= 2) impact -= 6
   impact = clamp(impact)
 
-  if (nb > 0 && metricShare < 0.5) {
-    const missing = bullets.filter((b) => b.flags.includes('no-metric'))
+  const missingMetric = bullets.filter((b) => b.flags.includes('no-metric'))
+  if (nb > 0 && metricShare < METRIC_TARGET * 0.75) {
+    // Too few numbers overall. Point at the bullets where a number would help most: claims first, then lines that name an outcome area.
+    const candidates = [
+      ...missingMetric,
+      ...bullets.filter((b) => !b.hasMetric && !b.needsMetric && BUSINESS_METRIC_WORDS.test(b.text)),
+      ...bullets.filter((b) => !b.hasMetric && !b.needsMetric && !BUSINESS_METRIC_WORDS.test(b.text)),
+    ].filter((b, i, all) => all.indexOf(b) === i)
     ctx.push({
-      priority: metricShare < 0.3 ? 'P0' : 'P1',
+      priority: metricShare < METRIC_TARGET * 0.4 ? 'P0' : 'P1',
       dimension: 'impact',
-      title: `${missing.length} of ${nb} bullets lack a quantified outcome`,
-      why: 'PM hiring managers skim for the business or user metric moved. Unquantified bullets read like project tasks.',
-      fix: 'Rewrite using: Action Verb + Product Mechanism + Metric Change (before → after) + Guardrail/Scale.',
-      evidence: missing.slice(0, 3).map((b) => trim(b.text)),
-      gain: round(Math.min(18, (0.7 - metricShare) * 26)),
+      title: `Only ${withMetrics} of ${nb} bullets carry a number`,
+      why: 'Not every bullet needs a metric. Lines about a system you built or a team you led can stand without one. But a resume with few numbers reads as a list of activity rather than results, and PM screeners look for the business or user metric you moved. About half your bullets should be quantified.',
+      fix: 'Add a figure to the bullets below, starting with ones that already claim a result: Action Verb + What You Changed + Metric Change (before → after) + Scale or Guardrail.',
+      evidence: candidates.slice(0, 3).map((b) => trim(b.text)),
+      gain: round(Math.min(18, (METRIC_TARGET - metricShare) * 30)),
       kbRuleId: 'metric_density',
+    })
+  } else if (nb > 0 && missingMetric.length >= 2) {
+    ctx.push({
+      priority: 'P2',
+      dimension: 'impact',
+      title: `${missingMetric.length} bullets claim a result without a number`,
+      why: 'These bullets say something improved, grew or got cut, but not by how much, so a reader cannot tell if it was 2% or 200%. Bullets that only describe what you built or led are not counted here.',
+      fix: 'Add the figure that backs each claim, or reword it to describe the work if you do not have the number.',
+      evidence: missingMetric.slice(0, 3).map((b) => trim(b.text)),
+      gain: round(Math.min(6, missingMetric.length * 1.5)),
+      kbRuleId: 'unproven_claims',
     })
   } else if (nb > 0) {
     strengths.push(`${round(pct(withMetrics, nb) * 100)}% of your bullets carry quantified metrics.`)
   }
 
-  if (nb > 0 && heroBullets.length >= 2 && heroMetricShare < 0.5) {
+  const heroMisses = [...heroReviews.filter((b) => !b.hasMetric)].sort((a, b) => Number(b.needsMetric) - Number(a.needsMetric))
+  if (nb > 0 && heroReviews.length >= 2 && heroMetricShare < 0.4 && heroMisses.length > 0) {
     ctx.push({
       priority: 'P1',
       dimension: 'impact',
-      title: 'Top bullets under each role do not lead with metrics',
+      title: 'The first bullets under your roles do not lead with a number',
       why: 'Screeners often read only the first 1–2 bullets of your recent roles before deciding yes/no.',
-      fix: 'Move your strongest metric-backed win to bullet #1 of each role.',
-      evidence: heroBullets.filter((b) => !hasMetric(b)).slice(0, 2).map((b) => trim(b)),
+      fix: 'Put your strongest metric-backed win first under each role, or add the number to these.',
+      evidence: heroMisses.slice(0, 2).map((b) => trim(b.text)),
       gain: 4,
       kbRuleId: 'hero_bullets',
     })
   }
 
-  if (nb > 0 && richImpact < 0.15 && metricShare >= 0.4) {
+  const missingDelta = bullets.filter((b) => b.flags.includes('no-baseline-delta'))
+  if (nb > 0 && richImpact < 0.15 && metricShare >= 0.4 && missingDelta.length >= 2) {
     ctx.push({
       priority: 'P2',
       dimension: 'impact',
-      title: 'Metrics rarely show a before → after baseline or timeframe',
-      why: 'Saying "launched to 500 users" is output. Saying "cut churn from 5.2% to 3.6% in Q3" proves outcome.',
-      fix: 'Add before → after deltas or timeframes to your top 3 bullets.',
-      evidence: bullets.filter((b) => b.impact === 2).slice(0, 2).map((b) => trim(b.text)),
+      title: `${missingDelta.length} bullets give a result as a bare number, with no before → after`,
+      why: 'Saying "launched to 500 users" is output. Saying "cut churn from 5.2% to 3.6% in Q3" proves outcome. Bullets that already state a percentage change are not counted here.',
+      fix: 'Add the starting point or timeframe to these bullets.',
+      evidence: missingDelta.slice(0, 3).map((b) => trim(b.text)),
       gain: 3,
       kbRuleId: 'baseline_delta',
     })
@@ -966,6 +991,38 @@ export function scoreResume(input: ScoreInput, now = new Date()): ScoreReport {
   // Normalize weights to exact sum = 1
   const weightSum = dimensions.reduce((s, d) => s + d.weight, 0)
   if (weightSum > 0) dimensions.forEach((d) => (d.weight = d.weight / weightSum))
+
+  // Findings are authored with a rough size in points of their own dimension, which is not what the reader cares about. The overall score
+  // is a weighted blend of dimensions, so the honest question is how far the overall score can move. For each dimension: only part of
+  // what is missing (REALISM) can fairly be promised, it is shared between that dimension's findings in proportion to their authored
+  // size, no finding may claim more than a few times its own size, and the result is scaled by the dimension's weight. A resume at 91
+  // therefore never sees a +7, and the sum of all findings can never exceed what the score has left.
+  const REALISM = 0.6
+  const SIZE_CAP = 2.5
+  const byDimension = new Map<string, Finding[]>()
+  findings.forEach((f) => byDimension.set(f.dimension, [...(byDimension.get(f.dimension) ?? []), f]))
+  byDimension.forEach((list, id) => {
+    const dim = dimensions.find((d) => d.id === id)
+    if (!dim) { list.forEach((f) => (f.gain = 0)); return }
+    const promisable = Math.max(0, 100 - dim.score) * REALISM
+    const sizeSum = list.reduce((a, f) => a + Math.max(0, f.gain), 0)
+    list.forEach((f) => {
+      const share = sizeSum > 0 ? (promisable * Math.max(0, f.gain)) / sizeSum : 0
+      f.gain = Math.round(Math.min(share, f.gain * SIZE_CAP) * dim.weight * 10) / 10
+    })
+  })
+
+  // Point each finding's examples at the exact bullet: which role, and which bullet under it.
+  for (const f of findings) {
+    const found = f.evidence
+      .map((e) => {
+        const probe = e.replace(/…$/, '')
+        const b = bullets.find((x) => x.text === e || trim(x.text) === e || (probe.length > 20 && x.text.startsWith(probe)))
+        return b ? { ref: b.ref, text: b.text } : null
+      })
+      .filter((x): x is { ref: string; text: string } => x !== null)
+    if (found.length > 0) f.evidenceBullets = found
+  }
 
   const overall = round(dimensions.reduce((s, d) => s + d.score * d.weight, 0))
   const grade = overall >= 85 ? 'ship' : overall >= 68 ? 'beta' : overall >= 48 ? 'alpha' : 'prototype'

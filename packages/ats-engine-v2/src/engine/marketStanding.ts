@@ -173,11 +173,11 @@ function ordinal(n: number): string {
 
   const topFindings = findings.slice(0, 2)
   const topGain = topFindings.reduce((sum, f) => sum + f.gain, 0)
-  const targetPercentile = Math.min(99, percentile + Math.max(4, Math.round(topGain * 0.7)))
+  const targetPercentile = Math.min(99, percentile + Math.max(1, Math.round(topGain * 1.5)))
   const nextBracketLever =
     topFindings.length === 0
       ? 'You are already in the top tier — tailor keywords per JD to maximize shortlist rate.'
-      : `Fixing "${topFindings.map((f) => f.title).join('" + "')}" (+${topGain} est. pts) can push you toward the ${ordinal(targetPercentile)} percentile.`
+      : `Fixing "${topFindings.map((f) => f.title).join('" + "')}" (about ${topGain < 0.5 ? 'under 1' : `+${Math.max(1, Math.round(topGain))}`} point${topGain >= 1.5 ? 's' : ''} on your overall score) can move you toward the ${ordinal(targetPercentile)} percentile.`
 
   return {
     percentile,

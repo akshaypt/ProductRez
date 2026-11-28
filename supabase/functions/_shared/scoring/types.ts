@@ -87,6 +87,8 @@ export interface Finding {
   why: string
   fix: string
   evidence: string[]
+  /** the bullets behind `evidence`, with their position (v2 engine only) */
+  evidenceBullets?: { ref: string; text: string }[]
   /** rough overall-score points this is worth */
   gain: number
 }
@@ -95,6 +97,8 @@ export interface BulletReview {
   text: string
   section: 'experience' | 'projects' | 'other'
   context: string
+  /** position pointer such as "Senior PM · Acme · bullet 3" (v2 engine only) */
+  ref?: string
   /** 0 weak … 3 strong */
   impact: 0 | 1 | 2 | 3
   words: number

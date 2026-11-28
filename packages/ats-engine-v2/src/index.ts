@@ -1,7 +1,7 @@
 export * from './types.ts'
 export * from './kb/index.ts'
 export { parseResume, logicalLines, normalizeText, DATE_RANGE } from './parser/parse.ts'
-export { reviewBullet, hasMetric, isWeakOpening, firstWord } from './engine/bullets.ts'
+export { reviewBullet, hasMetric, isWeakOpening, isWeakBullet, firstWord } from './engine/bullets.ts'
 export { matchJobDescription } from './engine/jdMatch.ts'
 export { scoreResume, estimateYears } from './engine/score.ts'
 export { analyzeCareer } from './engine/careerAnalysis.ts'

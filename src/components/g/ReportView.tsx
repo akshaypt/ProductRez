@@ -3,6 +3,7 @@ import type { ScoreReport } from '@ats'
 import { analysisStore } from '../../lib/g/store'
 import type { Analysis } from '../../lib/g/analyze'
 import { Ico } from './icons'
+import { fmtGain, isWeakBullet } from '../../lib/bullets'
 
 type V = 'd' | 'm'
 
@@ -19,7 +20,7 @@ function Card({ v, title, badge, children, cls = '' }: { v: V; title: string; ba
 const tone = (n: number) => (n >= 85 ? 't-ok' : n >= 65 ? 't-warn' : 't-bad')
 const fmt = (c: 'INR' | 'USD', n: number) => (c === 'INR' ? `₹${n}L` : `$${n}k`)
 const FLAG: Record<string, string> = {
-  'no-metric': 'No metric', 'no-baseline-delta': 'No before/after', 'weak-verb': 'Weak verb', 'no-verb': 'No action verb', 'too-long': 'Too long', 'too-short': 'Too short',
+  'no-metric': 'Claims a result, no number', 'no-baseline-delta': 'Number has no baseline', 'weak-verb': 'Weak verb', 'no-verb': 'No action verb', 'too-long': 'Too long', 'too-short': 'Too short',
   'first-person': 'First person', passive: 'Passive voice', buzzword: 'Buzzword', 'missing-guardrail': 'No quality guardrail', 'activity-only': 'Activity only',
 }
 
@@ -50,7 +51,8 @@ function Unlocked({ v, a, go }: { v: V; a: Analysis; go: (p: string) => void }) 
     setCmp(eng.compareSalaryExpectations(r, { currentSalary: n(c), expectedSalary: n(e) }))
   }
   const C = cmp ?? r.compensation
-  const weak = r.bullets.filter((b) => b.impact <= 1).slice(0, 3)
+  const weakAll = r.bullets.filter(isWeakBullet).sort((x, y) => x.impact - y.impact)
+  const weak = weakAll.slice(0, 3)
   const s = r.marketStanding
   const unit = C.currency === 'INR' ? 'L' : 'k'
   const pos = r.careerAnalysis.positives[0], neg = r.careerAnalysis.negatives[0]
@@ -61,19 +63,24 @@ function Unlocked({ v, a, go }: { v: V; a: Analysis; go: (p: string) => void }) 
         <div style={{ display: 'grid', gap: 10 }}>
           {r.findings.slice(0, 6).map((f) => (
             <div key={f.id} style={{ border: '1px solid var(--border)', borderRadius: 10, padding: 10, background: 'var(--surface-soft)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 13, fontWeight: 700 }}><span><span className={'g-tag ' + (f.priority === 'P0' ? 't-bad' : f.priority === 'P1' ? 't-warn' : 't-acc')}>{f.priority}</span> {f.title}</span><span style={{ color: 'var(--emerald)' }}>+{f.gain}</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 13, fontWeight: 700 }}><span><span className={'g-tag ' + (f.priority === 'P0' ? 't-bad' : f.priority === 'P1' ? 't-warn' : 't-acc')}>{f.priority}</span> {f.title}</span><span style={{ color: 'var(--emerald)', whiteSpace: 'nowrap' }} title="Estimated change to your overall score">{fmtGain(f.gain)} pts</span></div>
               <p style={{ fontSize: 12.5, color: 'var(--ink-2)', marginTop: 6 }}>{f.fix}</p>
+              {(f.evidenceBullets ?? []).slice(0, 2).map((e, i) => (
+                <div key={i} style={{ marginTop: 6, paddingLeft: 8, borderLeft: '2px solid var(--border-strong)', fontSize: 12, color: 'var(--ink-2)' }}>
+                  <div style={{ fontWeight: 700, color: 'var(--muted)', fontSize: 11 }}>{e.ref}</div>“{e.text.length > 150 ? e.text.slice(0, 149) + '…' : e.text}”
+                </div>
+              ))}
             </div>
           ))}
         </div>
       </Card>
 
-      <Card v={v} title="Line-by-Line Bullet X-Ray" badge={<span className="g-tag t-warn">{r.bullets.filter((b) => b.impact <= 1).length} weak of {r.bullets.length}</span>}>
-        {weak.length === 0 && <p style={{ fontSize: 13, color: 'var(--ink-2)' }}>Every bullet shows a quantified outcome. Strong.</p>}
+      <Card v={v} title="Line-by-Line Bullet X-Ray" badge={<span className="g-tag t-warn">{weakAll.length} to fix of {r.bullets.length}</span>}>
+        {weak.length === 0 && <p style={{ fontSize: 13, color: 'var(--ink-2)' }}>No bullet needs fixing. Bullets that describe what you built or led are not marked down for lacking a number.</p>}
         <div style={{ display: 'grid', gap: 10 }}>
           {weak.map((b, i) => (
             <div key={i} className="diff-box before" style={v === 'm' ? { background: 'var(--surface-soft)', border: '1px solid var(--border)', borderRadius: 10, padding: 10 } : undefined}>
-              <div className="diff-label"><span style={{ color: 'var(--rose)' }}>{b.context}</span><span className="g-tag t-bad">Impact {b.impact}/3</span></div>
+              <div className="diff-label"><span style={{ color: 'var(--rose)' }}>{b.ref ?? b.context}</span><span className="g-tag t-bad">Impact {b.impact}/3</span></div>
               <p>"{b.text}"</p>
               <div className="pill-row">{b.flags.map((f) => <span key={f} className="g-tag t-warn">{FLAG[f] ?? f}</span>)}</div>
             </div>
@@ -125,7 +132,7 @@ export function ReportView({ v, a, signedIn, onSignIn, onBack, go }: { v: V; a: 
   const tag = [a.picks.level, a.picks.track, a.picks.company].filter(Boolean).join(' · ')
   const ready = r.grade === 'ship'
   const teaser = [
-    { t: 'Line-by-Line Bullet X-Ray', b: <span className="g-tag t-warn">{r.bullets.filter((x) => x.impact <= 1).length} weak bullets</span>, p: `Detailed audit of all ${r.bullets.length} bullets, missing quality guardrails, repeated verbs, and modern PM skill proof.` },
+    { t: 'Line-by-Line Bullet X-Ray', b: <span className="g-tag t-warn">{r.bullets.filter(isWeakBullet).length} to fix</span>, p: `Detailed audit of all ${r.bullets.length} bullets, missing quality guardrails, repeated verbs, and modern PM skill proof.` },
     { t: 'Market Standing & Career Story', b: <span className={'g-tag ' + tone(r.marketStanding.percentile)}>{r.marketStanding.percentile}th percentile</span>, p: `Where you rank across PM tracks plus career strengths & risks. ${r.careerAnalysis.positives.length} strengths and ${r.careerAnalysis.negatives.length} risks found.` },
     { t: 'Salary & Expectation Check', b: <span className="g-tag t-acc">Interactive</span>, p: `Your market pay band (${fmt(r.compensation.currency, r.compensation.marketBand.min)}–${fmt(r.compensation.currency, r.compensation.marketBand.max)}) and an instant check on whether your expected salary is calibrated.` },
     { t: 'Early Access PM Jobs (≤72h)', b: <span className="g-tag t-ok">Matched to you</span>, p: 'Fresh PM roles from company career boards, ranked against your skills, track and pay band.' },

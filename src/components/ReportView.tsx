@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { fmtGain, isWeakBullet } from '../lib/bullets'
 import type { BulletFlag, ScoreReport } from '@scoring'
 import { Icon } from './Icon'
 import { SemiGauge } from './SemiGauge'
@@ -7,7 +8,7 @@ import { renderScoreCard } from '../lib/shareCard'
 import { useApp } from '../state/app'
 
 const FLAG_LABEL: Record<string, string> = {
-  'no-metric': 'no metric',
+  'no-metric': 'claims a result, no number',
   'weak-verb': 'weak opener',
   'no-verb': 'no action verb',
   'too-long': 'too long',
@@ -15,7 +16,7 @@ const FLAG_LABEL: Record<string, string> = {
   'first-person': 'first person',
   passive: 'passive',
   buzzword: 'buzzword',
-  'no-baseline-delta': 'no before → after',
+  'no-baseline-delta': 'number has no baseline',
   'missing-guardrail': 'no quality guardrail',
   'activity-only': 'activity, not outcome',
 }
@@ -96,10 +97,11 @@ export function ReportView({ report, onFix, fixLabel = 'Fix this in the Writer' 
       if ((e as Error).name !== 'AbortError') toast('Could not create the card', 'err')
     }
   }
-  const potential = Math.min(100 - report.overall, Math.round(report.findings.reduce((s, f) => s + f.gain, 0)))
+  const potentialRaw = Math.min(100 - report.overall, report.findings.reduce((s, f) => s + f.gain, 0))
+  const potential = Math.round(potentialRaw)
   const counts = { P0: 0, P1: 0, P2: 0 }
   report.findings.forEach((f) => counts[f.priority]++)
-  const weakest = [...report.bullets].filter((b) => b.impact <= 1)
+  const weakest = [...report.bullets].filter(isWeakBullet)
 
   return (
     <div className="report" data-testid="report">
@@ -151,7 +153,7 @@ export function ReportView({ report, onFix, fixLabel = 'Fix this in the Writer' 
             <span className="chip p1">{counts.P1} P1</span>
             <span className="chip p2">{counts.P2} P2</span>
           </div>
-          {potential > 0 && <span className="gain">Up to +{potential} points available</span>}
+          {potentialRaw >= 0.5 && <span className="gain" title="An estimate of how far the overall score can move if you fix everything listed. It is a ceiling, not a promise.">About {fmtGain(potentialRaw)} points possible</span>}
         </div>
         <div className="tabs" role="tablist" aria-label="Report sections">
           {(
@@ -181,7 +183,7 @@ export function ReportView({ report, onFix, fixLabel = 'Fix this in the Writer' 
                     <button aria-expanded={open === f.id} onClick={() => setOpen(open === f.id ? null : f.id)}>
                       <span className={`chip ${f.priority.toLowerCase()}`}>{f.id.toUpperCase()}</span>
                       <span className="t">{f.title}</span>
-                      <span className="gain">+{f.gain}</span>
+                      <span className="gain" title="Estimated change to your overall score">{fmtGain(f.gain)}</span>
                       <Icon name="chev" size={14} style={{ transform: open === f.id ? 'rotate(90deg)' : 'none', transition: 'transform .2s', color: 'var(--text-3)' }} />
                     </button>
                     {open === f.id && (
@@ -198,8 +200,11 @@ export function ReportView({ report, onFix, fixLabel = 'Fix this in the Writer' 
                           <div>
                             <h4>From your resume</h4>
                             <div style={{ display: 'grid', gap: 6 }}>
-                              {f.evidence.map((e, i) => (
-                                <div className="ev" key={i}>“{e}”</div>
+                              {(f.evidenceBullets?.length ? f.evidenceBullets : f.evidence.map((e) => ({ ref: '', text: e }))).map((e, i) => (
+                                <div className="ev" key={i}>
+                                  {e.ref && <div className="faint" style={{ fontSize: '0.78rem', fontWeight: 600, marginBottom: 2 }}>{e.ref}</div>}
+                                  “{e.text}”
+                                </div>
                               ))}
                             </div>
                           </div>
@@ -216,13 +221,13 @@ export function ReportView({ report, onFix, fixLabel = 'Fix this in the Writer' 
         {tab === 'bullets' && (
           <div role="tabpanel" className="card">
             <p className="muted" style={{ marginBottom: 6, fontSize: '0.9rem' }}>
-              Each bullet rated for impact: <b>3</b> number + outcome + change, <b>2</b> has a number, <b>1</b> mentions an outcome, <b>0</b> activity only. {weakest.length > 0 && `${weakest.length} need work.`}
+              Each bullet rated for impact: <b>3</b> number + outcome + change, <b>2</b> has a number, <b>1</b> describes scope or an outcome, <b>0</b> activity only. Not every bullet needs a number, and bullets about what you built or led are not marked down for lacking one. {weakest.length > 0 ? `${weakest.length} ${weakest.length === 1 ? 'needs' : 'need'} work.` : 'None need work.'}
             </p>
             {report.bullets.map((b, i) => (
               <div key={i} className="bul">
                 <span className={`imp l${b.impact}`} title={`Impact ${b.impact} of 3`}>{b.impact}</span>
                 <div>
-                  <div className="ctx">{b.context}</div>
+                  <div className="ctx">{b.ref ?? b.context}</div>
                   <div>{b.text}</div>
                   <div className="row" style={{ gap: 6, marginTop: 6 }}>
                     <Meter level={b.impact} />

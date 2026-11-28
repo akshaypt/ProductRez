@@ -17,9 +17,9 @@ export function toLegacy(r: V2): Legacy {
     gradeLabel: r.gradeLabel,
     headline: r.headline,
     dimensions: r.dimensions.map((d) => ({ id: d.id as never, label: d.label, score: d.score, weight: d.weight, verdict: d.verdict })),
-    findings: r.findings.map((f) => ({ id: f.id, priority: f.priority, dimension: f.dimension as never, title: f.title, why: f.why, fix: f.fix, evidence: f.evidence, gain: f.gain })),
+    findings: r.findings.map((f) => ({ id: f.id, priority: f.priority, dimension: f.dimension as never, title: f.title, why: f.why, fix: f.fix, evidence: f.evidence, evidenceBullets: f.evidenceBullets, gain: f.gain })),
     strengths: r.strengths,
-    bullets: r.bullets.map((b) => ({ text: b.text, section: b.section, context: b.context, impact: b.impact, words: b.words, flags: b.flags as never, competencies: b.competencies })),
+    bullets: r.bullets.map((b) => ({ text: b.text, section: b.section, context: b.context, ref: b.ref, impact: b.impact, words: b.words, flags: b.flags as never, competencies: b.competencies })),
     competencies: r.competencies.map((k) => ({ id: k.id, label: k.label, hits: k.hits, covered: k.proven })),
     level: {
       detected: c.detectedLevel,

@@ -1,13 +1,16 @@
 import {
   AUTOMATION_EFFICIENCY_PATTERN,
   BASELINE_DELTA_PATTERN,
+  BUILD_OR_LEAD_PATTERN,
   BUSINESS_METRIC_WORDS,
   BUZZWORDS,
   CHANGE_WORDS,
   COMPETENCIES,
   FIRST_PERSON,
   GUARDRAIL_PATTERN,
+  IMPACT_CLAIM_PATTERN,
   METRIC_PATTERNS,
+  RELATIVE_CHANGE_PATTERN,
   STRONG_VERBS,
   TRACK_KB,
   TRENDING_SKILLS_2026,
@@ -42,6 +45,7 @@ export function reviewBullet(
   roleIndex: number,
   isCurrentRole: boolean,
   track: PmTrack = 'generalist',
+  index = 0,
 ): BulletReview {
   const flags: BulletFlag[] = []
   const w = wordsOf(text)
@@ -55,13 +59,20 @@ export function reviewBullet(
   const hasTrackKpi = trackKb.coreKpisPattern.test(text)
   const lead = firstWord(text)
 
+  // A bullet is only asked for a number when it claims a result. "Architected the workflow engine behind loan approvals" describes
+  // scope and needs none; "Improved onboarding" claims an effect and should say by how much.
+  const claims = IMPACT_CLAIM_PATTERN.test(text)
+  const scope = BUILD_OR_LEAD_PATTERN.test(text)
+  const needsMetric = claims && !metric
+
   let impact: 0 | 1 | 2 | 3 = 0
   if (metric && outcome && (change || baselineDelta)) impact = 3
   else if (metric) impact = 2
-  else if (outcome && change) impact = 1
+  else if ((outcome && change) || (scope && !needsMetric)) impact = 1
 
-  if (!metric) flags.push('no-metric')
-  else if (!baselineDelta && impact === 2) flags.push('no-baseline-delta')
+  if (needsMetric) flags.push('no-metric')
+  // Only ask for a before/after when a claim is backed by a bare count or amount. A percentage, a multiple or "from X to Y" is already one.
+  else if (metric && claims && !baselineDelta && !RELATIVE_CHANGE_PATTERN.test(text)) flags.push('no-baseline-delta')
 
   if (isWeakOpening(text)) {
     flags.push('weak-verb')
@@ -74,7 +85,7 @@ export function reviewBullet(
   if (AUTOMATION_EFFICIENCY_PATTERN.test(text) && metric && !guardrail) {
     flags.push('missing-guardrail')
   }
-  if (!metric && !outcome) flags.push('activity-only')
+  if (!metric && !outcome && !scope && !claims) flags.push('activity-only')
   if (n > 38) flags.push('too-long')
   if (n < 8) flags.push('too-short')
   if (FIRST_PERSON.test(text)) flags.push('first-person')
@@ -94,6 +105,9 @@ export function reviewBullet(
     section,
     context,
     roleIndex,
+    index,
+    ref: index > 0 ? `${context} · bullet ${index}` : context,
+    needsMetric,
     impact,
     words: n,
     hasMetric: metric,
@@ -105,3 +119,7 @@ export function reviewBullet(
     trendingSignals,
   }
 }
+
+/** Flags that mean a bullet has a real problem to fix. Scope-only bullets without a number and bullets that merely lack a before/after are fine. */
+const PROBLEM_FLAGS: BulletFlag[] = ['no-metric', 'weak-verb', 'no-verb', 'activity-only', 'passive', 'missing-guardrail', 'first-person']
+export const isWeakBullet = (b: BulletReview): boolean => b.flags.some((f) => PROBLEM_FLAGS.includes(f))
