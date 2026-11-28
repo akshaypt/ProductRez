@@ -10,6 +10,14 @@ type Status = 'idle' | 'saving' | 'saved' | 'error'
 type Lvl = 'apm' | 'pm' | 'senior' | 'lead'
 
 const LEVELS: [Lvl, string, string][] = [['apm', 'APM', 'Entry level'], ['pm', 'PM', 'Product Manager'], ['senior', 'Senior', 'Senior PM'], ['lead', 'Lead', 'Lead / Group PM']]
+/** What each level usually asks for, so exploring a higher level is shown for what it is: a look ahead, not a claim about the resume. */
+const EXPECT: Record<Lvl, string> = { apm: '0 to 2 years', pm: '2 to 5 years', senior: '5 to 8 years', lead: '8 or more years' }
+const pmYearsOf = (r: ScoreReport): number => {
+  const months = r.parsed.experience.filter((x) => /\b(product (manager|owner|lead|head)|apm|gpm|cpo|founder)\b|\bpm\b/i.test(x.title) && !/\b(project|program|programme|portfolio)\b/i.test(x.title)).reduce((s, x) => s + (x.months ?? 0), 0)
+  return Math.round((months / 12) * 10) / 10
+}
+/** How each level reads inside a sentence. */
+const LVL_NAME: Record<Lvl, string> = { apm: 'entry-level PM', pm: 'PM', senior: 'Senior PM', lead: 'Lead / Group PM' }
 const CUR_TONE: Record<string, string> = { significantly_underpaid: 'bad', underpaid: 'warn', decent: 'info', good: 'good', top_of_band: 'good' }
 const EXP_TONE: Record<string, string> = { easy: 'info', achievable: 'good', stretch: 'warn', inflated: 'bad' }
 /** The engine's labels ("Inflated for Selected Cohort") are for people already in PM. Someone asking about a move into product gets plainer words. */
@@ -34,6 +42,8 @@ export function PayCard({ report, api, signedIn }: { report: ScoreReport; api: A
   const startLvl: Lvl = isPm ? (ctx.level as Lvl) : 'apm'
   const cur$ = report.compensation.currency
   const [lvl, setLvl] = useState<Lvl>(startLvl)
+  // Looking at a level other than the one this resume was scored for is a what-if, so no claim is made that the resume supports that pay.
+  const exploring = lvl !== startLvl
   const [cur, setCur] = useState('')
   const [exp, setExp] = useState('')
   const [dirty, setDirty] = useState(false)
@@ -85,13 +95,14 @@ export function PayCard({ report, api, signedIn }: { report: ScoreReport; api: A
   const comp = cmp ?? report.compensation
   const c = comp.comparison?.currentSalary
   const e = comp.comparison?.expectedSalary
-  const fit = comp.resumeCalibratedBand
+  const fit = exploring ? null : comp.resumeCalibratedBand
   const band = comp.marketBand
   const cohort = useMemo(() => comp.cohortLabel.split('·').map((x) => x.trim()), [comp.cohortLabel])
   const label = cur$ === 'INR' ? 'CTC' : 'pay'
   const unit = unitName(cur$)
-  const lvlName = LEVELS.find((l) => l[0] === lvl)?.[2] ?? ''
+  const lvlName = LVL_NAME[lvl]
   const entry = c && !isPm ? entryVerdict(c.percentileInBand) : null
+  const pmYears = useMemo(() => pmYearsOf(report), [report])
   // Past either end of the band the ring can only say 1 or 99, so say how far outside it the amount is.
   const outside = (amount: number) =>
     amount > band.max ? `${money(cur$, amount - band.max)} over the top of the band` : amount < band.min ? `${money(cur$, band.min - amount)} under the bottom of the band` : ''
@@ -118,27 +129,38 @@ export function PayCard({ report, api, signedIn }: { report: ScoreReport; api: A
         <span className="sd-chip">{cohort[3] ?? ''}</span>
       </header>
 
-      <div className="sd-seg sd-lvl" role="group" aria-label="Pay for which level">
-        {LEVELS.map(([v, short, long]) => (
-          <button key={v} type="button" aria-pressed={lvl === v} title={long} onClick={() => setLvl(v)}>{short}</button>
-        ))}
+      <div className="sd-lvl-row">
+        <span>Compare pay by level</span>
+        <div className="sd-seg sd-lvl" role="group" aria-label="Pay for which level">
+          {LEVELS.map(([v, short, long]) => (
+            <button key={v} type="button" aria-pressed={lvl === v} title={v === startLvl ? `${long}: the level your resume is scored for` : long} onClick={() => setLvl(v)}>{short}{v === startLvl && <i className="sd-you">you</i>}</button>
+          ))}
+        </div>
       </div>
 
-      {!isPm && (
+      {exploring && (
         <p className="sd-notice" role="note">
           <Icon name="info" size={15} />
           <span>
-            {lvl === 'apm'
-              ? <>Your resume does not show product experience yet, so this is what <b>entry-level PM</b> roles pay. It is not a benchmark for your current job.</>
-              : <>You are looking at <b>{lvlName}</b> pay. With no product experience, most people start at entry level.</>}
+            You are looking ahead at <b>{lvlName}</b> pay. It is what people at that level typically earn, not a range your resume supports today. {lvlName} roles usually ask for {EXPECT[lvl]} in product, and your resume shows {pmYears > 0 ? `about ${pmYears}` : 'none yet'}.
+          </span>
+        </p>
+      )}
+
+      {!isPm && !exploring && (
+        <p className="sd-notice" role="note">
+          <Icon name="info" size={15} />
+          <span>
+            Your resume does not show product experience yet, so this is what <b>entry-level PM</b> roles pay. It is not a benchmark for your current job.
           </span>
         </p>
       )}
 
       <div className="sd-pay-top">
         <div>
-          <small>Range your resume supports</small>
-          <div className="sd-big">{money(cur$, fit.low)} <span>to</span> {money(cur$, fit.high)}</div>
+          <small>{fit ? 'Pay range for a resume like yours' : `Typical ${lvlName} pay`}</small>
+          <div className="sd-big">{fit ? money(cur$, fit.low) : money(cur$, band.p25)} <span>to</span> {fit ? money(cur$, fit.high) : money(cur$, band.p75)}</div>
+          <p className="sd-sub sd-big-note">{fit ? `This is the ${lvlName} range, placed by how strong your resume is. Stronger bullets move you up it.` : 'The middle half of what people at this level earn.'}</p>
         </div>
         <div className="sd-pay-med">
           <small>Market median</small>
@@ -158,7 +180,7 @@ export function PayCard({ report, api, signedIn }: { report: ScoreReport; api: A
           : status === 'saving' ? <span>Saving…</span>
           : status === 'saved' ? <span className="ok"><Icon name="check" size={13} strokeWidth={3} /> Saved to your account</span>
           : status === 'error' ? <span className="err">Could not save. Check your connection and try again.</span>
-          : <span><Icon name="lock" size={13} /> Saved to your account. Only you can see it, and it never changes your score.</span>}
+          : null}
       </div>
       {otherCur && curN === null && expN === null && <p className="sd-note">You saved pay in {cur$ === 'INR' ? 'dollars' : 'rupees'} before. This report is in {cur$ === 'INR' ? 'rupees' : 'dollars'}, so enter amounts in {unit}.</p>}
 

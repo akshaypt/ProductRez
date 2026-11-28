@@ -2,7 +2,8 @@ import { alignAt, clusters, edgeOf, money, posOf, scaleFor, type Band, type Cur 
 
 interface Props {
   band: Band
-  fit: { low: number; high: number }
+  /** The range this resume supports at the level shown. Null when the level is only being explored, where no such claim is made. */
+  fit: { low: number; high: number } | null
   currency: Cur
   current: number | null
   expected: number | null
@@ -23,7 +24,7 @@ export function PayChart({ band, fit, currency, current, expected }: Props) {
   const together = clusters(pc, pe)
   const ec = current === null ? null : edgeOf(current, s)
   const ee = expected === null ? null : edgeOf(expected, s)
-  const aria = [`Market range ${money(currency, band.min)} to ${money(currency, band.max)}, median ${money(currency, band.median)}.`, `Your resume supports ${money(currency, fit.low)} to ${money(currency, fit.high)}.`, current !== null ? `You now: ${money(currency, current)}.` : '', expected !== null ? `You want: ${money(currency, expected)}.` : ''].filter(Boolean).join(' ')
+  const aria = [`Market range ${money(currency, band.min)} to ${money(currency, band.max)}, median ${money(currency, band.median)}.`, fit ? `Your resume supports ${money(currency, fit.low)} to ${money(currency, fit.high)}.` : '', current !== null ? `You now: ${money(currency, current)}.` : '', expected !== null ? `You want: ${money(currency, expected)}.` : ''].filter(Boolean).join(' ')
 
   // Two dots on (nearly) the same spot are nudged apart so both can be seen, always toward the inside of the chart so neither is cut off at an edge.
   const nudge = (own: number | null, other: number | null, which: 'cur' | 'exp') => {
@@ -83,11 +84,13 @@ export function PayChart({ band, fit, currency, current, expected }: Props) {
         <span style={{ left: `${at(band.max)}%` }} className="end">{money(currency, band.max)}<small>high</small></span>
       </div>
 
-      <div className="sd-pay-fit">
-        <i style={{ left: `${at(fit.low)}%`, width: `${Math.max(2, at(fit.high) - at(fit.low))}%` }} />
-        {/* Centred under the band, unless the band is near an edge: then the label starts or ends with it so it is never cut off. */}
-        <span className={alignAt((at(fit.low) + at(fit.high)) / 2)} style={{ left: `${alignAt((at(fit.low) + at(fit.high)) / 2) === 'end' ? at(fit.high) : alignAt((at(fit.low) + at(fit.high)) / 2) === 'start' ? at(fit.low) : (at(fit.low) + at(fit.high)) / 2}%` }}>Fits your resume <b>{money(currency, fit.low)} to {money(currency, fit.high)}</b></span>
-      </div>
+      {fit && (
+        <div className="sd-pay-fit">
+          <i style={{ left: `${at(fit.low)}%`, width: `${Math.max(2, at(fit.high) - at(fit.low))}%` }} />
+          {/* Centred under the band, unless the band is near an edge: then the label starts or ends with it so it is never cut off. */}
+          <span className={alignAt((at(fit.low) + at(fit.high)) / 2)} style={{ left: `${alignAt((at(fit.low) + at(fit.high)) / 2) === 'end' ? at(fit.high) : alignAt((at(fit.low) + at(fit.high)) / 2) === 'start' ? at(fit.low) : (at(fit.low) + at(fit.high)) / 2}%` }}>Fits your resume <b>{money(currency, fit.low)} to {money(currency, fit.high)}</b></span>
+        </div>
+      )}
     </div>
   )
 }
