@@ -11,3 +11,5 @@
 .scan-overlay .scan-modal { max-height: 94vh; overflow-y: auto; }
 .scan-overlay .scan-modal .scan-step { padding: 6px 10px; }
 @media (max-height: 720px) { .scan-overlay .scan-modal .g-scan-doc { display: none; } .ai-log { height: 104px; } }
+.consent-note { margin: 10px 2px 0; font-size: 11.5px; line-height: 1.5; opacity: 0.72; text-align: left; }
+.consent-note a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }

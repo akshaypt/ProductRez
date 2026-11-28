@@ -5,6 +5,7 @@ import { GAuth, GScan, GToast } from './shared'
 import { COMPANIES, CURR, CURRENCIES, currencyLabel, LEVELS, SAMPLE_JOBS, TRACKS } from '../../lib/g/data'
 import { useLanding, type Theme } from '../../lib/g/useLanding'
 import { analysisStore } from '../../lib/g/store'
+import { ConsentNote } from '../ConsentNote'
 import { saveHandoffFromAnalysis } from '../../lib/g/handoff'
 import { ReportView } from './ReportView'
 
@@ -87,6 +88,7 @@ export function LandingMobile({ theme, toggleTheme, view }: { theme: Theme; togg
                 <button type="button" className="btn-main" onClick={L.review}>Review My Resume <Ico n="arrow" sm /></button>
                 <button type="button" className="btn-jd" onClick={() => L.setJdOpen(!L.jdOpen)}><Ico n={L.jdOpen ? 'minus' : 'plus'} sm /> JD</button>
               </div>
+              <ConsentNote />
             </div>
           </section>
 

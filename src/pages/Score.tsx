@@ -8,7 +8,9 @@ import { Insights } from '../components/Insights'
 import { store } from '../lib/util'
 import { toLegacy } from '../lib/v2'
 import { COMPANIES, CURRENCIES, LEVELS, TRACKS } from '../lib/g/data'
+import { collectSubmission } from '../lib/g/collect'
 import { SCAN_MS, scanPlan, useScanTimeline, type ScanStage } from '../lib/g/scan'
+import { ConsentNote } from '../components/ConsentNote'
 import { AiLog } from '../components/g/AiLog'
 import '../styles/scan.css'
 import { readResume, ResumeReadError, runAnalysis, suggest, type LoadedResume, type Picks } from '../lib/g/analyze'
@@ -59,6 +61,7 @@ export default function Score() {
     try {
       // The score is ready at once; the review plays for a full read so each stage can show what it found.
       const a = await runAnalysis(loaded, picks, jd)
+      collectSubmission(api, a, 'app')
       setPlan(scanPlan(a.report))
       await new Promise((res) => setTimeout(res, SCAN_MS + 400))
       const scan = { fileName: loaded.name, picks, report: a.report }
@@ -192,6 +195,7 @@ export default function Score() {
           <button className="btn lg" onClick={run} disabled={!loaded || phase !== 'idle'}>
             <Icon name="zap" size={20} /> Review my resume
           </button>
+          <ConsentNote />
           <p className="faint" style={{ fontSize: '0.85rem' }}>
             Scores measure PM-resume quality and parse-ability. No real ATS publishes a 0–100 number, so treat this as a diagnostic, not a guarantee. We save the parsed resume and score to your account, never the file itself.
           </p>

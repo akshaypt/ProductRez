@@ -50,22 +50,28 @@ export function Privacy() {
       <p className="faint">Plain-language summary · Last updated {LEGAL_UPDATED}</p>
       <h2>What happens to your resume</h2>
       <ul>
-        <li>When you upload a PDF, the text is extracted <b>in your browser</b>. The file itself is never uploaded.</li>
-        <li>To compute your score, the extracted text is sent to our scoring service. We keep your <b>latest score report</b>, which includes the parsed resume (name, contact details, experience), so you can revisit it. It’s visible only to your account.</li>
-        <li>If you check your resume on our home page <i>before</i> signing in, that check runs in your browser and nothing is sent to us. If you then sign in, we save that one check (the parsed resume, its score, and the level, focus and company type you picked) to your account, replacing any earlier one. We never keep the file itself, and deleting your account deletes the saved check.</li>
+        <li>When you upload a PDF or DOCX, the text is read <b>in your browser</b> and scored there. The file itself is never uploaded.</li>
+        <li><b>When you start a check, we save a copy of what we read from your resume as data</b>, whether or not you have signed in. That includes your name, email address, phone number, location and links as they appear on the resume, your work history, education and skills, the score we gave it, and the level, focus and company type you picked. We do not keep the file.</li>
+        <li>If you sign in afterwards, your earlier checks from the same browser are attached to your account. We keep your <b>latest check</b> visible to you in the app, replacing the previous one. Only you can see it there.</li>
         <li>Resumes you build in the Writer are saved to your account so you can access them across devices (paid plans).</li>
         <li>If AI rewrites are enabled, the single bullet you ask about plus your role and level are sent to our AI provider to generate suggestions.</li>
+      </ul>
+      <h2>Why we keep it</h2>
+      <ul>
+        <li><b>To improve ProductRez:</b> understanding what product managers write, what works and what doesn’t, so our scoring, benchmarks and job matching get more accurate. When we study resumes in bulk, we work with the data in aggregate.</li>
+        <li><b>To contact you:</b> we may email the address on your resume or your account about your resume, new features, relevant roles and your plan. Every marketing email has an unsubscribe link, and you can also write to us to stop emails at any time.</li>
+        <li>We keep it until you ask us to delete it. We may keep anonymised, aggregated statistics after that.</li>
       </ul>
       <h2>Other data</h2>
       <ul>
         <li><b>Account:</b> your email address, used for passwordless sign-in.</li>
         <li><b>Payments:</b> handled by Razorpay. We never see or store card or UPI details; we store the order, plan and payment id.</li>
-        <li><b>Preferences</b> (market, level, theme) and learning progress are stored to personalise your experience.</li>
+        <li><b>Preferences</b> (currency, level, theme) and learning progress are stored to personalise your experience.</li>
       </ul>
       <h2>What we don’t do</h2>
-      <ul><li>We don’t sell your data or show you ads.</li><li>We don’t share your resume with employers or recruiters.</li></ul>
+      <ul><li>We don’t sell your data or show you ads.</li><li>We don’t share your resume or contact details with employers or recruiters.</li><li>We don’t use the file you upload for anything, because we never receive it.</li></ul>
       <h2>Your choices</h2>
-      <p>Email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> to export or delete your account and stored resumes.</p>
+      <p>Email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> from the address on your resume or account to see, export or delete everything we hold about you, or to stop emails. This works even if you never created an account. Deleting your account also deletes the resume data saved against it.</p>
     </LegalPage>
   )
 }
@@ -80,14 +86,15 @@ export function Terms() {
       <p>ProductRez provides a resume scorer, a resume writer, a feed of public job listings and a curated learning library for product managers. It’s guidance, not a guarantee of interviews or offers.</p>
       <h2>Plans</h2>
       <ul>
-        <li>Every account includes <b>one free resume score</b>.</li>
+        <li>Checking your resume and seeing your score is <b>free</b>. Paid plans unlock the full report, the Writer and the job feed.</li>
         <li>Paid plans are <b>one-time payments</b> in INR with no automatic renewal: 1 month (30 days) for ₹299, 6 months (182 days) for ₹599, and Lifetime for ₹999. Buying again while a plan is active adds time.</li>
         <li>“Lifetime” means for as long as ProductRez operates the service.</li>
       </ul>
       <h2>Job listings</h2>
       <p>Listings come from public postings and link to the original source. We don’t verify employers and aren’t affiliated with the platforms they appear on. Apply at your own discretion.</p>
-      <h2>Your content</h2>
+      <h2>Your content and your resume data</h2>
       <p>You own your resume. You’re responsible for the accuracy of what you submit to employers, including any numbers you add.</p>
+      <p>When you start a resume check, you agree that we may save the parsed contents of your resume, including the contact details on it, and the results of the check, and use them to improve ProductRez and to contact you about your resume and our service, as described in our <Link to="/privacy">Privacy Policy</Link>. Only upload your own resume, or one you have permission to share. You can ask us to delete it, or stop emailing you, at any time.</p>
       <h2>Contact</h2>
       <p><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
     </LegalPage>

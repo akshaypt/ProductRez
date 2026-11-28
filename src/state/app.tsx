@@ -3,6 +3,7 @@ import { getApi } from '../lib/api'
 import type { Api, AppUser, Entitlement } from '../lib/types'
 import { currencyForMarket, store, type Currency } from '../lib/util'
 import { stageFor, takeHandoff } from '../lib/g/handoff'
+import { anonId } from '../lib/g/collect'
 
 export interface Prefs {
   /** Chosen by the person, or read from their resume. Null until one of those happens; never guessed. */
@@ -63,6 +64,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // and we have their resume. Keep that check against the account (one per account, a new upload replaces it) and, for a
   // first-time user, complete setup and seed the Writer instead of asking again. Returning users keep their settings.
   const applyHandoff = useCallback((a: Api) => {
+    // Attach this browser's earlier resume checks to the account that just signed in.
+    setTimeout(() => { if (store.get<string | null>('pr.anon', null)) a.collectResume({ anonId: anonId(), link: true }).catch(() => {}) }, 0)
     const h = takeHandoff()
     if (!h) return
     // Deferred: supabase-js can deadlock if you call it from inside its own auth-change callback.

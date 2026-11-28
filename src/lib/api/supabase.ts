@@ -128,6 +128,9 @@ export function createSupabaseApi(): Api {
       const { error } = await sb.from('latest_scan').upsert({ user_id, file_name: s.fileName, picks: s.picks, report: s.report, profile: profileFromReport(s.report), updated_at: new Date().toISOString() })
       if (error) throw new ApiError('unknown')
     },
+    async collectResume(payload) {
+      await invoke('collect-resume', payload)
+    },
     async deleteLatestScan() {
       const { error } = await sb.from('latest_scan').delete().eq('user_id', await uid())
       if (error) throw new ApiError('unknown')

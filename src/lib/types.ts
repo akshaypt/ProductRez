@@ -107,6 +107,8 @@ export interface Api {
   getLatestScan(): Promise<LatestScan | null>
   saveLatestScan(s: Omit<LatestScan, 'updatedAt'>): Promise<void>
   deleteLatestScan(): Promise<void>
+  /** Saves a resume check as data (see the Terms and Privacy pages). Never throws into the caller's flow: callers ignore failures. */
+  collectResume(payload: Record<string, unknown>): Promise<void>
   scoreResume(input: ScoreInput): Promise<ScoreReport>
   jobCounts(): Promise<{ US: number; IN: number; total: number }>
   listJobs(): Promise<Job[]>

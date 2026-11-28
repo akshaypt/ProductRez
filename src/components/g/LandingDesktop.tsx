@@ -5,6 +5,7 @@ import { GAuth, GScan, GToast } from './shared'
 import { COMPANIES, CURR, CURRENCIES, currencyLabel, LEVELS, REWRITE_STEPS, SAMPLE_JOBS, TRACKS } from '../../lib/g/data'
 import { useLanding, type Theme } from '../../lib/g/useLanding'
 import { analysisStore } from '../../lib/g/store'
+import { ConsentNote } from '../ConsentNote'
 import { saveHandoffFromAnalysis } from '../../lib/g/handoff'
 import { ReportView } from './ReportView'
 
@@ -129,6 +130,7 @@ export function LandingDesktop({ theme, toggleTheme, view }: { theme: Theme; tog
               <button type="button" className="g-btn btn-primary" onClick={L.review}>Review My Resume <Ico n="arrow" /></button>
               <button type="button" className="jd-pill" onClick={() => L.setJdOpen(!L.jdOpen)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Ico n={L.jdOpen ? 'minus' : 'plus'} sm /> {L.jdOpen ? 'Hide JD' : 'Target JD'}</button>
             </div>
+            <ConsentNote />
           </div>
         </div>
       </section>

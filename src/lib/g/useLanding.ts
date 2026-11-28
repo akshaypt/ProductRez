@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../../state/app'
 import { analysisStore } from './store'
+import { collectSubmission } from './collect'
 import { SCAN_MS, scanPlan, type ScanStage } from './scan'
 import { readResume, ResumeReadError, runAnalysis, suggest, type LoadedResume, type Picks } from './analyze'
 
@@ -38,7 +39,7 @@ export function useMedia(q: string): boolean {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 export function useLanding() {
-  const { user, openAuth, prefs, setPrefs } = useApp()
+  const { user, openAuth, prefs, setPrefs, api } = useApp()
   const go = useNavigate()
   const [loaded, setLoaded] = useState<LoadedResume | null>(null)
   const [reading, setReading] = useState(false)
@@ -84,6 +85,7 @@ export function useLanding() {
     try {
       // The score is computed at once. The review then plays for a full read so each stage can show what it found.
       const a = await runAnalysis(loaded, picks, jd)
+      collectSubmission(api, a, 'landing')
       setScan({ open: true, plan: scanPlan(a.report) })
       await sleep(SCAN_MS + 400)
       analysisStore.set(a)
@@ -93,7 +95,7 @@ export function useLanding() {
       setScan({ open: false, plan: null })
       say('Something went wrong reading that resume. Please try another file.')
     }
-  }, [loaded, picks, jd, fileError, say, go])
+  }, [loaded, picks, jd, fileError, say, go, api])
 
   return { user, openAuth, go, loaded, reading, fileError, picks, setPicks, setCurrency, autofilled, jd, setJd, jdOpen, setJdOpen, toast, nudge, nudgeOnly, onFile, review, scan, say }
 }

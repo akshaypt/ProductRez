@@ -98,6 +98,9 @@ export function createLocalApi(): Api {
       if (!read<AppUser | null>(K.user, null)) throw new ApiError('unauthenticated')
       write('pr.demo.latestScan', { ...s, updatedAt: new Date().toISOString() })
     },
+    async collectResume() {
+      /* demo mode keeps nothing on a server */
+    },
     async deleteLatestScan() {
       write('pr.demo.latestScan', null)
     },
