@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../../state/app'
 import { analysisStore } from './store'
+import { SCAN_MS, scanPlan, type ScanStage } from './scan'
 import { readResume, ResumeReadError, runAnalysis, suggest, type LoadedResume, type Picks } from './analyze'
 
 const THEME_KEY = 'productrez_theme'
@@ -50,7 +51,7 @@ export function useLanding() {
   const [jdOpen, setJdOpen] = useState(false)
   const [toast, setToast] = useState('')
   const [nudge, setNudge] = useState(0)
-  const [scan, setScan] = useState({ open: false, step: -1 })
+  const [scan, setScan] = useState<{ open: boolean; plan: ScanStage[] | null }>({ open: false, plan: null })
   const tt = useRef<number | undefined>(undefined)
 
   const say = useCallback((msg: string) => {
@@ -80,16 +81,16 @@ export function useLanding() {
   const review = useCallback(async () => {
     if (!loaded) { say(fileError ? 'Fix the file above, then try again.' : 'Please upload your resume first.'); return }
     if (!picks.currency) { say('Pick the currency for pay first: tap the last chip.'); return }
-    setScan({ open: true, step: 0 })
-    const t = [750, 1500, 2200].map((ms, i) => window.setTimeout(() => setScan({ open: true, step: i + 1 }), ms))
     try {
-      const [a] = await Promise.all([runAnalysis(loaded, picks, jd), sleep(2550)])
+      // The score is computed at once. The review then plays for a full read so each stage can show what it found.
+      const a = await runAnalysis(loaded, picks, jd)
+      setScan({ open: true, plan: scanPlan(a.report) })
+      await sleep(SCAN_MS + 400)
       analysisStore.set(a)
-      setScan({ open: false, step: -1 })
+      setScan({ open: false, plan: null })
       go('/report')
     } catch {
-      t.forEach(window.clearTimeout)
-      setScan({ open: false, step: -1 })
+      setScan({ open: false, plan: null })
       say('Something went wrong reading that resume. Please try another file.')
     }
   }, [loaded, picks, jd, fileError, say, go])

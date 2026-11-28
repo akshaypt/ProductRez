@@ -1,0 +1,13 @@
+/* Live work log shown while a resume is reviewed. Colours come from the surrounding page so it fits every theme. */
+.ai-log { margin-top: 14px; text-align: left; font: 12.5px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: inherit; border: 1px solid color-mix(in srgb, currentColor 14%, transparent); border-radius: 12px; background: color-mix(in srgb, currentColor 5%, transparent); padding: 10px 12px; height: 132px; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 38%); mask-image: linear-gradient(to bottom, transparent 0, #000 38%); display: flex; flex-direction: column; justify-content: flex-end; gap: 3px; }
+.ai-log .ai-line { display: flex; gap: 8px; opacity: 0.55; animation: ai-in 0.35s ease both; }
+.ai-log .ai-line.ai-last { opacity: 1; }
+.ai-log .ai-line::before { content: '›'; color: #fc8019; font-weight: 700; flex: none; }
+.ai-log .ai-line.ai-last::after { content: ''; width: 7px; height: 1.05em; margin-left: 2px; align-self: center; background: #fc8019; animation: ai-blink 0.9s steps(1) infinite; flex: none; }
+.ai-meta { display: flex; justify-content: space-between; font-size: 12px; opacity: 0.7; margin: 0 0 6px; }
+@keyframes ai-in { from { opacity: 0; transform: translateY(4px); } }
+@keyframes ai-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .ai-log .ai-line, .ai-log .ai-line.ai-last::after { animation: none; } }
+.scan-overlay .scan-modal { max-height: 94vh; overflow-y: auto; }
+.scan-overlay .scan-modal .scan-step { padding: 6px 10px; }
+@media (max-height: 720px) { .scan-overlay .scan-modal .g-scan-doc { display: none; } .ai-log { height: 104px; } }

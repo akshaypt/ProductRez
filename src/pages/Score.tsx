@@ -8,9 +8,11 @@ import { Insights } from '../components/Insights'
 import { store } from '../lib/util'
 import { toLegacy } from '../lib/v2'
 import { COMPANIES, CURRENCIES, LEVELS, TRACKS } from '../lib/g/data'
+import { SCAN_MS, scanPlan, useScanTimeline, type ScanStage } from '../lib/g/scan'
+import { AiLog } from '../components/g/AiLog'
+import '../styles/scan.css'
 import { readResume, ResumeReadError, runAnalysis, suggest, type LoadedResume, type Picks } from '../lib/g/analyze'
 
-const STEPS = ['Reading your file', 'Splitting roles and bullets', 'Rating every bullet for impact', 'Checking 8 PM competencies', 'Testing how an ATS would parse it', 'Building your fix backlog']
 
 export default function Score() {
   const { user, ent, api, prefs, setPrefs, toast, ready } = useApp()
@@ -22,7 +24,8 @@ export default function Score() {
   const [jd, setJd] = useState('')
   const [showJd, setShowJd] = useState(false)
   const [phase, setPhase] = useState<'idle' | 'reading' | 'running'>('idle')
-  const [step, setStep] = useState(0)
+  const [plan, setPlan] = useState<ScanStage[] | null>(null)
+  const view = useScanTimeline(phase === 'running', plan)
   const [over, setOver] = useState(false)
   const [err, setErr] = useState('')
   const input = useRef<HTMLInputElement>(null)
@@ -52,11 +55,12 @@ export default function Score() {
   const run = useCallback(async () => {
     if (!loaded || !api) return
     if (!picks.currency) { setErr('Choose the currency for pay, then run the check again.'); return }
-    setErr(''); setPhase('running'); setStep(0)
-    const t = setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), 460)
+    setErr(''); setPhase('running'); setPlan(null)
     try {
-      const [a] = await Promise.all([runAnalysis(loaded, picks, jd), new Promise((res) => setTimeout(res, 2800))])
-      setStep(STEPS.length)
+      // The score is ready at once; the review plays for a full read so each stage can show what it found.
+      const a = await runAnalysis(loaded, picks, jd)
+      setPlan(scanPlan(a.report))
+      await new Promise((res) => setTimeout(res, SCAN_MS + 400))
       const scan = { fileName: loaded.name, picks, report: a.report }
       try { await api.saveLatestScan(scan) } catch { toast('Scored, but we could not save it to your account. Try again later.', 'err') }
       setSaved({ ...scan, updatedAt: new Date().toISOString() })
@@ -65,7 +69,6 @@ export default function Score() {
     } catch {
       setErr('Something went wrong while scoring. Please try another file.')
     } finally {
-      clearInterval(t)
       setPhase('idle')
     }
   }, [loaded, api, picks, jd, toast])
@@ -113,21 +116,25 @@ export default function Score() {
 
       {phase === 'running' ? (
         <div className="card" aria-live="polite" style={{ padding: 'clamp(1.25rem, 4vw, 2.5rem)' }}>
-          <h2 style={{ textAlign: 'center', fontSize: '1.7rem' }}>Reviewing like a hiring manager…</h2>
+          <h2 style={{ textAlign: 'center', fontSize: '1.7rem' }}>{plan && view.stage >= 0 ? plan[view.stage].title + '…' : 'Reviewing like a hiring manager…'}</h2>
           <div className="scan">
             <div className="scan-doc" aria-hidden="true">
               {Array.from({ length: 19 }, (_, i) => (
-                <i key={i} className={`${i === 0 ? 'h' : i === 3 || i === 10 ? 's' : ''} ${i / 19 <= (step + 0.6) / STEPS.length ? 'on' : ''}`} style={{ width: i === 0 || i === 3 || i === 10 ? undefined : `${70 + ((i * 37) % 30)}%` }} />
+                <i key={i} className={`${i === 0 ? 'h' : i === 3 || i === 10 ? 's' : ''} ${i / 19 <= view.pct / 100 ? 'on' : ''}`} style={{ width: i === 0 || i === 3 || i === 10 ? undefined : `${70 + ((i * 37) % 30)}%` }} />
               ))}
               <span className="scan-beam" />
             </div>
-            <div className="pipeline">
-              {STEPS.map((s, i) => (
-                <div key={s} className={`pipe-step ${i < step ? 'done' : i === step ? 'run' : ''}`}>
-                  <span className="dot">{i < step && <Icon name="check" size={13} strokeWidth={3} />}</span>
-                  {s}
-                </div>
-              ))}
+            <div>
+              <div className="ai-meta"><span>Step {Math.max(1, view.stage + 1)} of {plan?.length ?? 6}</span><span>{view.pct}%</span></div>
+              <div className="pipeline" style={{ margin: '0.4rem auto 0' }}>
+                {(plan ?? []).map((st, i) => (
+                  <div key={st.title} className={`pipe-step ${i < view.stage ? 'done' : i === view.stage ? 'run' : ''}`}>
+                    <span className="dot">{i < view.stage && <Icon name="check" size={13} strokeWidth={3} />}</span>
+                    {st.title}
+                  </div>
+                ))}
+              </div>
+              <AiLog view={view} />
             </div>
           </div>
         </div>

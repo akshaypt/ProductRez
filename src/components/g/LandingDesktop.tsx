@@ -290,7 +290,7 @@ export function LandingDesktop({ theme, toggleTheme, view }: { theme: Theme; tog
       )}
 
       <GToast msg={L.toast} />
-      <GScan open={L.scan.open} step={L.scan.step} sub={`Calibrating to ${L.picks.level ?? 'your'} ${L.picks.track ?? 'PM'} roles...`} />
+      <GScan open={L.scan.open} plan={L.scan.plan} sub={`Calibrating to ${L.picks.level ?? 'your'} ${L.picks.track ?? 'PM'} roles...`} />
       <GAuth open={authOpen} title={view === 'report' ? 'Sign in to unlock your full report' : 'Sign in to ProductRez'} onClose={() => setAuthOpen(false)} onDone={() => { setAuthOpen(false); if (view !== 'report') L.go('/score') }} />
     </>
   )

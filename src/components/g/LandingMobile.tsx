@@ -209,7 +209,7 @@ export function LandingMobile({ theme, toggleTheme, view }: { theme: Theme; togg
       )}
 
       <GToast msg={L.toast} />
-      <GScan open={L.scan.open} step={L.scan.step} sub={`Calibrating to ${L.picks.level ?? 'your'} ${L.picks.track ?? 'PM'} roles...`} />
+      <GScan open={L.scan.open} plan={L.scan.plan} sub={`Calibrating to ${L.picks.level ?? 'your'} ${L.picks.track ?? 'PM'} roles...`} />
       <div className={'sheet-backdrop' + (sheet ? ' g-open' : '')} onClick={() => setSheet(null)} role="presentation">
         {sheet && (
           <div className="sheet" role="dialog" aria-modal="true" aria-label={TITLE[sheet]} onClick={(e) => e.stopPropagation()}>

@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../../state/app'
 import { GoogleG, Ico } from './icons'
 import { analysisStore } from '../../lib/g/store'
+import { useScanTimeline, type ScanStage } from '../../lib/g/scan'
+import { AiLog } from './AiLog'
 
 export function GToast({ msg }: { msg: string }) {
   return (
@@ -16,10 +18,9 @@ export function GToast({ msg }: { msg: string }) {
 const GOOGLE_ON = import.meta.env.VITE_GOOGLE_AUTH === 'true'
 const friendly = (m: string | undefined, fallback: string) => (/provider is not enabled|unsupported provider/i.test(m ?? '') ? 'Google sign-in is not available yet. Use your email instead.' : !m || /fetch|network|load failed|timeout/i.test(m) ? 'We could not reach the sign-in service. Please try again in a moment.' : m || fallback)
 
-const STEPS = ['Reading resume structure & role timeline', 'Auditing bullet impact & PM craft', 'Benchmarking market standing & salary fit']
-
-export function GScan({ open, step, sub }: { open: boolean; step: number; sub: string }) {
-  const pct = [10, 48, 82, 100][Math.max(0, Math.min(3, step))]
+export function GScan({ open, plan, sub }: { open: boolean; plan: ScanStage[] | null; sub: string }) {
+  const v = useScanTimeline(open, plan)
+  const titles = plan?.map((p) => p.title) ?? []
   return (
     <div className={'scan-overlay' + (open ? ' g-open' : '')} role="dialog" aria-modal="true" aria-label="Analyzing your resume" aria-hidden={!open}>
       <div className="scan-modal">
@@ -27,17 +28,19 @@ export function GScan({ open, step, sub }: { open: boolean; step: number; sub: s
           <div className="scan-laser" />
           <div className="sd-h" /><div className="sd-l" /><div className="sd-l g-s" /><div className="sd-l" /><div className="sd-l g-s" /><div className="sd-l" />
         </div>
-        <h3>Analyzing your PM resume</h3>
+        <h3>{v.stage >= 0 && titles[v.stage] ? titles[v.stage] + '…' : 'Analyzing your PM resume'}</h3>
         <p className="scan-sub">{sub}</p>
-        <div className="scan-progress"><div className="scan-bar" style={{ width: `${pct}%` }} /></div>
+        <div className="scan-progress"><div className="scan-bar" style={{ width: `${v.pct}%`, transition: 'width 0.3s linear' }} /></div>
+        <div className="ai-meta"><span>Step {Math.max(1, v.stage + 1)} of {titles.length || 6}</span><span>{v.pct}%</span></div>
         <div className="scan-steps">
-          {STEPS.map((s, i) => (
-            <div key={s} className={'scan-step' + (step === i ? ' g-active' : step > i ? ' g-done' : '')}>
-              <span className="step-dot">{step > i && <svg style={{ width: 10, height: 10, stroke: '#fff', fill: 'none', strokeWidth: 3, strokeLinecap: 'round', strokeLinejoin: 'round' }} viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>}</span>
+          {titles.map((s, i) => (
+            <div key={s} className={'scan-step' + (v.stage === i ? ' g-active' : v.stage > i ? ' g-done' : '')}>
+              <span className="step-dot">{v.stage > i && <svg style={{ width: 10, height: 10, stroke: '#fff', fill: 'none', strokeWidth: 3, strokeLinecap: 'round', strokeLinejoin: 'round' }} viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>}</span>
               <span>{s}</span>
             </div>
           ))}
         </div>
+        <AiLog view={v} />
       </div>
     </div>
   )
