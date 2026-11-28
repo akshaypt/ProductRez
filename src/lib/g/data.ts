@@ -14,6 +14,11 @@ export const TRACKS: { label: string; v: PmTrack }[] = [
   { label: 'Fintech', v: 'fintech' },
   { label: 'Platform & API', v: 'platform_api' },
 ]
+export const CURRENCIES: { label: string; v: 'INR' | 'USD' }[] = [
+  { label: '₹ INR · lakhs', v: 'INR' },
+  { label: '$ USD · thousands', v: 'USD' },
+]
+export const currencyLabel = (v: 'INR' | 'USD') => CURRENCIES.find((c) => c.v === v)!.label
 export const COMPANIES: { label: string; v: CompanyArchetype }[] = [
   { label: 'Early Startups', v: 'early_startup' },
   { label: 'Scale-ups', v: 'scaleup' },

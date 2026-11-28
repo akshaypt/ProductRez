@@ -1,10 +1,10 @@
 import type { ScoreReport } from '@ats'
 import { extractPdfText } from '../pdf'
-import { guessRegion } from '../util'
+import { marketForCurrency, type Currency } from '../util'
 import { COMPANIES, LEVELS, TRACKS } from './data'
 
 export interface LoadedResume { name: string; text: string; pageCount: number | null; size: number; source: 'pdf' | 'docx' | 'paste' }
-export interface Picks { level: string | null; track: string | null; company: string | null }
+export interface Picks { level: string | null; track: string | null; company: string | null; currency: Currency }
 export interface Analysis { resume: LoadedResume; picks: Picks; jd: string; report: ScoreReport }
 
 export const MAX_BYTES = 5 * 1024 * 1024
@@ -73,23 +73,21 @@ export async function readResume(file: File): Promise<LoadedResume> {
 
 const lbl = <T extends { label: string; v: string }>(list: T[], v: string | undefined) => list.find((x) => x.v === v)?.label ?? null
 
-export function marketOf(): 'india' | 'us' { return guessRegion() === 'IN' ? 'india' : 'us' }
-
 /** A first pass with everything on auto, used only to pre-fill the three pills from what the resume says. */
-export async function suggest(r: LoadedResume): Promise<{ picks: Picks; message?: string }> {
+export async function suggest(r: LoadedResume, currency: Currency): Promise<{ picks: Picks; message?: string }> {
   const eng = await import('@ats')
   const chk = eng.checkResume(r.text)
   if (!chk.ok) {
     return {
-      picks: { level: null, track: null, company: null },
+      picks: { level: null, track: null, company: null, currency },
       message: chk.reason === 'too_short'
         ? 'We could only read a few words from that file. It may be a scanned image. Export a text-based PDF or DOCX and try again.'
         : 'That does not look like a resume. We found no experience, education or skills sections.',
     }
   }
-  const rep = eng.scoreResume({ text: r.text, source: r.source, pageCount: r.pageCount ?? undefined, fileSizeBytes: r.size, market: marketOf() })
+  const rep = eng.scoreResume({ text: r.text, source: r.source, pageCount: r.pageCount ?? undefined, fileSizeBytes: r.size, market: marketForCurrency(currency) })
   const top = [...rep.marketStanding.trackReadiness].sort((a, b) => b.readinessScore - a.readinessScore)[0]
-  return { picks: { level: lbl(LEVELS, rep.contextUsed.detectedLevel), track: lbl(TRACKS, top?.track), company: null } }
+  return { picks: { level: lbl(LEVELS, rep.contextUsed.detectedLevel), track: lbl(TRACKS, top?.track), company: null, currency } }
 }
 
 export async function runAnalysis(r: LoadedResume, picks: Picks, jd: string): Promise<Analysis> {
@@ -102,7 +100,7 @@ export async function runAnalysis(r: LoadedResume, picks: Picks, jd: string): Pr
     targetLevel: LEVELS.find((x) => x.label === picks.level)?.v ?? 'auto',
     track: TRACKS.find((x) => x.label === picks.track)?.v ?? 'generalist',
     companyArchetype: COMPANIES.find((x) => x.label === picks.company)?.v ?? 'scaleup',
-    market: marketOf(),
+    market: marketForCurrency(picks.currency),
     jobDescription: jd.trim() ? jd : undefined,
   })
   return { resume: r, picks, jd, report }

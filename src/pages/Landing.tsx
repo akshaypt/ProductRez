@@ -1,4 +1,5 @@
 import { useEffect, useSyncExternalStore } from 'react'
+import { currencyForMarket } from '../lib/util'
 import { useNavigate } from 'react-router-dom'
 import '@fontsource-variable/inter'
 import '../styles/gd.css'
@@ -23,7 +24,7 @@ function Page({ view }: { view: 'landing' | 'report' }) {
     if (!user || !api) return void go('/', { replace: true })
     api.getLatestScan().then((s) => {
       if (!s) return go('/', { replace: true })
-      const a: Analysis = { resume: { name: s.fileName, text: '', pageCount: null, size: 0, source: 'pdf' }, picks: s.picks, jd: '', report: s.report }
+      const a: Analysis = { resume: { name: s.fileName, text: '', pageCount: null, size: 0, source: 'pdf' }, picks: { ...s.picks, currency: s.picks.currency ?? currencyForMarket(s.report.contextUsed.market) }, jd: '', report: s.report }
       analysisStore.set(a)
     }).catch(() => go('/', { replace: true }))
   }, [view, analysis, ready, user, api, go])

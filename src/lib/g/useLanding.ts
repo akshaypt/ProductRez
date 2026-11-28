@@ -37,13 +37,15 @@ export function useMedia(q: string): boolean {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 export function useLanding() {
-  const { user, openAuth } = useApp()
+  const { user, openAuth, prefs, setPrefs } = useApp()
   const go = useNavigate()
   const [loaded, setLoaded] = useState<LoadedResume | null>(null)
   const [reading, setReading] = useState(false)
   const [fileError, setFileError] = useState('')
-  const [picks, setPicks] = useState<Picks>({ level: null, track: null, company: null })
+  const [picks, setPicks] = useState<Picks>({ level: null, track: null, company: null, currency: prefs.currency })
   const [autofilled, setAutofilled] = useState(false)
+  // A currency chosen on the landing page is remembered for onboarding and the account.
+  useEffect(() => { if (picks.currency !== prefs.currency) setPrefs({ currency: picks.currency }) }, [picks.currency, prefs.currency, setPrefs])
   const [jd, setJd] = useState('')
   const [jdOpen, setJdOpen] = useState(false)
   const [toast, setToast] = useState('')
@@ -63,17 +65,17 @@ export function useLanding() {
     setFileError(''); setReading(true); setLoaded(null); setAutofilled(false)
     try {
       const r = await readResume(file)
-      const s = await suggest(r)
+      const s = await suggest(r, picks.currency)
       if (s.message) { setFileError(s.message); return }
       setLoaded(r)
-      setPicks((p) => ({ level: p.level ?? s.picks.level, track: p.track ?? s.picks.track, company: p.company ?? 'Scale-ups' }))
+      setPicks((p) => ({ ...p, level: p.level ?? s.picks.level, track: p.track ?? s.picks.track, company: p.company ?? 'Scale-ups' }))
       setAutofilled(true)
     } catch (e) {
       setFileError(e instanceof ResumeReadError ? e.message : 'We could not read that file. Try a text-based PDF or DOCX.')
     } finally {
       setReading(false)
     }
-  }, [])
+  }, [picks.currency])
 
   const review = useCallback(async () => {
     if (!loaded) { say(fileError ? 'Fix the file above, then try again.' : 'Please upload your resume first.'); return }

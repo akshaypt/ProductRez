@@ -47,13 +47,21 @@ export function guessPaper(): 'a4' | 'letter' {
   }
 }
 
-export function guessRegion(): 'US' | 'IN' {
+export type Currency = 'INR' | 'USD'
+
+/** Best guess of the currency someone thinks in, from their time zone and browser language. Always changeable by the person. */
+export function guessCurrency(): Currency {
   try {
-    return /Asia\/(Kolkata|Calcutta)/.test(Intl.DateTimeFormat().resolvedOptions().timeZone) ? 'IN' : 'US'
-  } catch {
-    return 'US'
-  }
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone ?? ''
+    if (/^Asia\/(Kolkata|Calcutta)$/.test(tz)) return 'INR'
+    if (/(^|[-_])IN$/i.test(navigator.language ?? '')) return 'INR'
+  } catch { /* fall through */ }
+  return 'USD'
 }
+
+/** The salary data and formatting norms in the engine are keyed by market; the currency decides which one applies. */
+export const marketForCurrency = (c: Currency): 'india' | 'us' => (c === 'INR' ? 'india' : 'us')
+export const currencyForMarket = (m: string | undefined | null): Currency => (m === 'india' ? 'INR' : 'USD')
 
 export function safeStorage() {
   return {

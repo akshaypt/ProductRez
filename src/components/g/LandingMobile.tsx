@@ -2,16 +2,16 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { Link } from 'react-router-dom'
 import { Ico } from './icons'
 import { GAuth, GScan, GToast } from './shared'
-import { COMPANIES, CURR, LEVELS, SAMPLE_JOBS, TRACKS } from '../../lib/g/data'
+import { COMPANIES, CURR, CURRENCIES, currencyLabel, LEVELS, SAMPLE_JOBS, TRACKS } from '../../lib/g/data'
 import { useLanding, type Theme } from '../../lib/g/useLanding'
 import { analysisStore } from '../../lib/g/store'
 import { saveHandoffFromAnalysis } from '../../lib/g/handoff'
 import { ReportView } from './ReportView'
 
 const ARC = 220
-type Sheet = 'level' | 'track' | 'company' | null
-const OPTS = { level: LEVELS, track: TRACKS, company: COMPANIES }
-const TITLE = { level: 'Target level', track: 'PM focus', company: 'Company type' }
+type Sheet = 'level' | 'track' | 'company' | 'currency' | null
+const OPTS = { level: LEVELS, track: TRACKS, company: COMPANIES, currency: CURRENCIES }
+const TITLE = { level: 'Target level', track: 'PM focus', company: 'Company type', currency: 'Currency for pay' }
 
 export function LandingMobile({ theme, toggleTheme, view }: { theme: Theme; toggleTheme: () => void; view: 'landing' | 'report' }) {
   const L = useLanding()
@@ -34,9 +34,10 @@ export function LandingMobile({ theme, toggleTheme, view }: { theme: Theme; togg
   const openAuthFromNav = () => { if (L.user) return L.go('/score'); saveHandoffFromAnalysis(); setAuthOpen(true) }
   const toTop = (e: React.MouseEvent) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(L.nudgeOnly, 300) }
 
-  const pill = (id: 'level' | 'track' | 'company', placeholder: string) => (
-    <button type="button" className={'pick-btn' + (L.picks[id] ? '' : ' empty')} onClick={() => setSheet(id)} aria-haspopup="dialog"><span>{L.picks[id] ?? placeholder}</span><Ico n="down" sm /></button>
-  )
+  const pill = (id: 'level' | 'track' | 'company' | 'currency', placeholder: string) => {
+    const val = id === 'currency' ? currencyLabel(L.picks.currency) : L.picks[id]
+    return <button type="button" className={'pick-btn' + (val ? '' : ' empty')} onClick={() => setSheet(id)} aria-haspopup="dialog"><span>{val ?? placeholder}</span><Ico n="down" sm /></button>
+  }
 
   const title = L.reading ? 'Reading your resume…' : L.loaded ? `${L.loaded.name} loaded` : 'Tap to upload your resume'
   const sub = L.reading ? 'This stays on your phone.' : L.loaded ? `${L.loaded.pageCount ? L.loaded.pageCount + ' page' + (L.loaded.pageCount > 1 ? 's' : '') + ' detected. ' : ''}Tap Review My Resume.` : 'PDF or DOCX · Teardown in 30s'
@@ -75,7 +76,7 @@ export function LandingMobile({ theme, toggleTheme, view }: { theme: Theme; togg
 
               <div className="madlibs">
                 <div style={{ fontSize: 11, color: L.autofilled ? 'var(--emerald)' : 'var(--muted)', lineHeight: 1.3, marginBottom: 4 }}>{L.autofilled ? 'Pre-filled from your resume. Tap to adjust:' : 'Auto-fills after upload, or tap to pick:'}</div>
-                I'm targeting {pill('level', 'Select level')} roles in {pill('track', 'PM focus')} at {pill('company', 'company type')}.
+                I'm targeting {pill('level', 'Select level')} roles in {pill('track', 'PM focus')} at {pill('company', 'company type')}, paid in {pill('currency', 'currency')}.
               </div>
 
               <div className={'jd-box' + (L.jdOpen ? ' g-open' : '')}>
@@ -215,7 +216,7 @@ export function LandingMobile({ theme, toggleTheme, view }: { theme: Theme; togg
             <div className="sheet-handle" />
             <div className="sheet-title">{TITLE[sheet]}</div>
             <div style={{ display: 'grid', gap: 6 }}>
-              {OPTS[sheet].map((o) => <button type="button" className="sheet-opt" key={o.label} onClick={() => { L.setPicks({ ...L.picks, [sheet]: o.label }); setSheet(null) }}>{o.label}</button>)}
+              {OPTS[sheet].map((o) => <button type="button" className="sheet-opt" key={o.label} onClick={() => { L.setPicks(sheet === 'currency' ? { ...L.picks, currency: CURRENCIES.find((c) => c.label === o.label)!.v } : { ...L.picks, [sheet]: o.label }); setSheet(null) }}>{o.label}</button>)}
             </div>
           </div>
         )}

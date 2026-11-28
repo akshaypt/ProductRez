@@ -1,11 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { getApi } from '../lib/api'
 import type { Api, AppUser, Entitlement } from '../lib/types'
-import { guessRegion, store } from '../lib/util'
-import { regionFor, stageFor, takeHandoff } from '../lib/g/handoff'
+import { currencyForMarket, guessCurrency, store, type Currency } from '../lib/util'
+import { stageFor, takeHandoff } from '../lib/g/handoff'
 
 export interface Prefs {
-  region: 'US' | 'IN'
+  currency: Currency
   stage: 'aspiring' | 'pm' | 'senior'
   onboarded: boolean
   theme: 'system' | 'light' | 'dark'
@@ -39,7 +39,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [authOpen, setAuthOpen] = useState(false)
   const [authReason, setAuthReason] = useState('')
   const [toasts, setToasts] = useState<Ctx['toasts']>([])
-  const [prefs, setPrefsState] = useState<Prefs>(() => store.get<Prefs>('pr.prefs', { region: guessRegion(), stage: 'pm', onboarded: false, theme: 'dark' }))
+  const [prefs, setPrefsState] = useState<Prefs>(() => {
+    const base: Prefs = { currency: guessCurrency(), stage: 'pm', onboarded: false, theme: 'dark' }
+    const saved = store.get<Partial<Prefs> & { region?: string }>('pr.prefs', {})
+    // Older saved preferences stored a job market instead of a currency.
+    const currency = saved.currency ?? (saved.region ? (saved.region === 'IN' ? 'INR' : 'USD') : base.currency)
+    const { region: _old, ...rest } = saved
+    return { ...base, ...rest, currency }
+  })
 
   const setPrefs = useCallback((p: Partial<Prefs>) => {
     setPrefsState((cur) => {
@@ -65,7 +72,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTimeout(() => a.saveLatestScan({ fileName: h.fileName, picks: { level: h.level, track: h.track, company: h.company }, report: h.report }).catch(() => {}), 0)
     const saved = store.get<Prefs | null>('pr.prefs', null)
     if (saved?.onboarded) return
-    setPrefs({ stage: stageFor(h.level), region: regionFor(h.market), onboarded: true })
+    setPrefs({ stage: stageFor(h.level), currency: currencyForMarket(h.market), onboarded: true })
     store.set('pr.target', { level: h.level, track: h.track, company: h.company })
     import('@scoring').then(({ parseResume }) => store.set('pr.writer.import', parseResume(h.text).data)).catch(() => {})
   }, [setPrefs])

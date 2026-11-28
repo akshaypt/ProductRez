@@ -88,7 +88,7 @@ export class ApiError extends Error {
 /** The latest resume check kept against an account (one per account; a new upload replaces it). */
 export interface LatestScan {
   fileName: string
-  picks: { level: string | null; track: string | null; company: string | null }
+  picks: { level: string | null; track: string | null; company: string | null; currency?: 'INR' | 'USD' }
   report: ScoreReportV2
   updatedAt: string
 }

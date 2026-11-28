@@ -11,7 +11,7 @@ const STAGES: { id: Prefs['stage']; t: string; d: string }[] = [
 export function Onboarding() {
   const { user, prefs, setPrefs } = useApp()
   const [stage, setStage] = useState<Prefs['stage']>(prefs.stage)
-  const [region, setRegion] = useState<Prefs['region']>(prefs.region)
+  const [currency, setCurrency] = useState<Prefs['currency']>(prefs.currency)
   const trap = useFocusTrap<HTMLDivElement>(!!user && !prefs.onboarded)
   if (!user || prefs.onboarded) return null
   return (
@@ -21,7 +21,7 @@ export function Onboarding() {
           <div>
             <span className="chip accent">30 seconds</span>
             <h2 style={{ marginTop: 10 }}>Let’s tune ProductRez to you</h2>
-            <p className="muted" style={{ marginTop: 6 }}>We’ll score your resume against the right bar, pick the right template and show jobs from your market.</p>
+            <p className="muted" style={{ marginTop: 6 }}>We’ll score your resume against the right bar, pick the right template and show pay in the currency you think in.</p>
           </div>
           <div className="stack" style={{ gap: 8 }}>
             <span className="label">Where are you in your PM journey?</span>
@@ -33,16 +33,17 @@ export function Onboarding() {
             ))}
           </div>
           <div className="stack" style={{ gap: 8 }}>
-            <span className="label">Which job market?</span>
-            <div className="seg" role="group" aria-label="Market">
-              {(['IN', 'US'] as const).map((r) => (
-                <button key={r} aria-pressed={region === r} onClick={() => setRegion(r)}>
-                  {r === 'IN' ? 'India' : 'United States'}
+            <span className="label">Which currency should we show pay in?</span>
+            <div className="seg" role="group" aria-label="Currency">
+              {(['INR', 'USD'] as const).map((c) => (
+                <button key={c} aria-pressed={currency === c} onClick={() => setCurrency(c)}>
+                  {c === 'INR' ? '₹ INR (lakhs)' : '$ USD (thousands)'}
                 </button>
               ))}
             </div>
+            <span className="faint" style={{ fontSize: '0.85rem' }}>We guessed this from your device. Change it any time in Account.</span>
           </div>
-          <button className="btn lg block" onClick={() => setPrefs({ stage, region, onboarded: true })}>
+          <button className="btn lg block" onClick={() => setPrefs({ stage, currency, onboarded: true })}>
             Start
           </button>
         </div>

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { Link } from 'react-router-dom'
 import { Ico } from './icons'
 import { GAuth, GScan, GToast } from './shared'
-import { COMPANIES, CURR, LEVELS, REWRITE_STEPS, SAMPLE_JOBS, TRACKS } from '../../lib/g/data'
+import { COMPANIES, CURR, CURRENCIES, currencyLabel, LEVELS, REWRITE_STEPS, SAMPLE_JOBS, TRACKS } from '../../lib/g/data'
 import { useLanding, type Theme } from '../../lib/g/useLanding'
 import { analysisStore } from '../../lib/g/store'
 import { saveHandoffFromAnalysis } from '../../lib/g/handoff'
@@ -33,8 +33,8 @@ export function LandingDesktop({ theme, toggleTheme, view }: { theme: Theme; tog
   const toDrop = (e: React.MouseEvent) => { e.preventDefault(); document.getElementById('drop')?.scrollIntoView({ behavior: 'smooth' }); setTimeout(L.nudgeOnly, 250) }
   const openAuthFromNav = () => { if (L.user) return L.go('/score'); saveHandoffFromAnalysis(); setAuthOpen(true) }
 
-  const pill = (id: 'level' | 'track' | 'company', placeholder: string, opts: { label: string }[]) => {
-    const val = L.picks[id]
+  const pill = (id: 'level' | 'track' | 'company' | 'currency', placeholder: string, opts: { label: string }[]) => {
+    const val = id === 'currency' ? currencyLabel(L.picks.currency) : L.picks[id]
     return (
       <span className="inline-pick">
         <button type="button" className={'pick-btn' + (val ? '' : ' empty')} aria-haspopup="listbox" aria-expanded={menu === id} onClick={(e) => { e.stopPropagation(); setMenu(menu === id ? null : id) }}>
@@ -42,7 +42,7 @@ export function LandingDesktop({ theme, toggleTheme, view }: { theme: Theme; tog
         </button>
         <div className={'pick-menu' + (menu === id ? ' g-open' : '')} role="listbox">
           {opts.map((o) => (
-            <button type="button" role="option" aria-selected={val === o.label} className="pick-opt" key={o.label} onClick={(e) => { e.stopPropagation(); L.setPicks({ ...L.picks, [id]: o.label }); setMenu(null) }}>{o.label}</button>
+            <button type="button" role="option" aria-selected={val === o.label} className="pick-opt" key={o.label} onClick={(e) => { e.stopPropagation(); L.setPicks(id === 'currency' ? { ...L.picks, currency: CURRENCIES.find((c) => c.label === o.label)!.v } : { ...L.picks, [id]: o.label }); setMenu(null) }}>{o.label}</button>
           ))}
         </div>
       </span>
@@ -118,7 +118,7 @@ export function LandingDesktop({ theme, toggleTheme, view }: { theme: Theme; tog
               <div style={{ fontSize: 11.5, color: L.autofilled ? 'var(--emerald)' : 'var(--muted)', marginBottom: 4, lineHeight: 1.4 }}>
                 {L.autofilled ? 'Pre-filled from your resume. Click any pill to adjust:' : 'Auto-fills from your resume after upload, or pick manually:'}
               </div>
-              I'm targeting {pill('level', 'Select level', LEVELS)} roles in {pill('track', 'PM focus', TRACKS)} at {pill('company', 'company type', COMPANIES)}.
+              I'm targeting {pill('level', 'Select level', LEVELS)} roles in {pill('track', 'PM focus', TRACKS)} at {pill('company', 'company type', COMPANIES)}, paid in {pill('currency', 'currency', CURRENCIES)}.
             </div>
 
             <div className={'jd-box' + (L.jdOpen ? ' g-open' : '')}>

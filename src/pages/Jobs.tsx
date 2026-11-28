@@ -73,7 +73,7 @@ export default function Jobs() {
   const [jobs, setJobs] = useState<Job[] | null>(null)
   const [counts, setCounts] = useState<{ US: number; IN: number; total: number } | null>(null)
   const [saved, setSaved] = useState<SavedJob[]>([])
-  const [country, setCountry] = useState<'all' | 'US' | 'IN' | 'REMOTE'>(prefs.region)
+  const [country, setCountry] = useState<'all' | 'US' | 'IN' | 'REMOTE'>('all')
   const [track, setTrack] = useState<string>('all')
   const [sort, setSort] = useState<'match' | 'new'>('match')
   const [peek, setPeek] = useState<Job[]>([])

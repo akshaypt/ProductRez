@@ -1,7 +1,7 @@
 import type { ScoreReport } from '@ats'
 import { analysisStore } from './store'
 import { LEVELS } from './data'
-import { guessRegion, store } from '../util'
+import { store } from '../util'
 
 /**
  * Carries a just-scored resume across sign-in. Sign-in can reload the page (Google, an emailed link), which clears the
@@ -30,8 +30,4 @@ export function takeHandoff(): Handoff | null {
 export function stageFor(levelLabel: string | null): 'pm' | 'senior' {
   const v = LEVELS.find((l) => l.label === levelLabel)?.v
   return v === 'senior' || v === 'lead' ? 'senior' : 'pm'
-}
-
-export function regionFor(market: string): 'IN' | 'US' {
-  return market === 'india' ? 'IN' : market === 'us' ? 'US' : guessRegion()
 }

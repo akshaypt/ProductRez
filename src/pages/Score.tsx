@@ -7,18 +7,18 @@ import { ReportView } from '../components/ReportView'
 import { Insights } from '../components/Insights'
 import { store } from '../lib/util'
 import { toLegacy } from '../lib/v2'
-import { COMPANIES, LEVELS, TRACKS } from '../lib/g/data'
+import { COMPANIES, CURRENCIES, LEVELS, TRACKS } from '../lib/g/data'
 import { readResume, ResumeReadError, runAnalysis, suggest, type LoadedResume, type Picks } from '../lib/g/analyze'
 
 const STEPS = ['Reading your file', 'Splitting roles and bullets', 'Rating every bullet for impact', 'Checking 8 PM competencies', 'Testing how an ATS would parse it', 'Building your fix backlog']
 
 export default function Score() {
-  const { user, ent, api, prefs, toast, ready } = useApp()
+  const { user, ent, api, prefs, setPrefs, toast, ready } = useApp()
   const nav = useNavigate()
   const [saved, setSaved] = useState<LatestScan | null | undefined>(undefined) // undefined while loading
   const [uploading, setUploading] = useState(false)
   const [loaded, setLoaded] = useState<LoadedResume | null>(null)
-  const [picks, setPicks] = useState<Picks>({ level: null, track: null, company: null })
+  const [picks, setPicks] = useState<Picks>({ level: null, track: null, company: null, currency: prefs.currency })
   const [jd, setJd] = useState('')
   const [showJd, setShowJd] = useState(false)
   const [phase, setPhase] = useState<'idle' | 'reading' | 'running'>('idle')
@@ -37,17 +37,17 @@ export default function Score() {
     setErr(''); setLoaded(null); setPhase('reading')
     try {
       const r = await readResume(f)
-      const s = await suggest(r)
+      const s = await suggest(r, picks.currency)
       if (s.message) { setErr(s.message); return }
       const fallback = prefs.stage === 'senior' ? 'Senior PM' : prefs.stage === 'aspiring' ? 'APM (0–2 yrs)' : 'Product Manager'
       setLoaded(r)
-      setPicks((p) => ({ level: p.level ?? s.picks.level ?? fallback, track: p.track ?? s.picks.track, company: p.company ?? 'Scale-ups' }))
+      setPicks((p) => ({ ...p, level: p.level ?? s.picks.level ?? fallback, track: p.track ?? s.picks.track, company: p.company ?? 'Scale-ups' }))
     } catch (e) {
       setErr(e instanceof ResumeReadError ? e.message : 'We could not read that file. Export your resume as a text-based PDF or DOCX and try again.')
     } finally {
       setPhase('idle')
     }
-  }, [prefs.stage])
+  }, [prefs.stage, picks.currency])
 
   const run = useCallback(async () => {
     if (!loaded || !api) return
@@ -159,6 +159,12 @@ export default function Score() {
               {select('level', 'Target level', LEVELS)}
               {select('track', 'PM focus', TRACKS)}
               {select('company', 'Company type', COMPANIES)}
+              <label className="field">
+                <span className="label">Currency for pay</span>
+                <select className="select" value={picks.currency} onChange={(e) => { const currency = e.target.value as 'INR' | 'USD'; setPicks({ ...picks, currency }); setPrefs({ currency }) }}>
+                  {CURRENCIES.map((c) => <option key={c.v} value={c.v}>{c.label}</option>)}
+                </select>
+              </label>
             </div>
           )}
           {loaded && (
