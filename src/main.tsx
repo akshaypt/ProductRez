@@ -1,11 +1,11 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { registerSW } from 'virtual:pwa-register'
+import { startPwa } from './lib/pwa'
 import App from './App'
 import './styles/app.css'
 import './styles/mk.css'
 
-registerSW({ immediate: true })
+startPwa()
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

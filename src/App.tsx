@@ -5,6 +5,7 @@ import { Shell } from './components/Shell'
 import Landing, { Report } from './pages/Landing'
 import { installPointerFx } from './lib/motion'
 import { Methodology, Privacy, Terms } from './pages/Legal'
+import { UpdateBanner } from './components/UpdateBanner'
 
 const Score = lazy(() => import('./pages/Score'))
 const Writer = lazy(() => import('./pages/Writer'))
@@ -39,6 +40,7 @@ export default function App() {
           </Routes>
         </Suspense>
       </BrowserRouter>
+      <UpdateBanner />
     </AppProvider>
   )
 }
