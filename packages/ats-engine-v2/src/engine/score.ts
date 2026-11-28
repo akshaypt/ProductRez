@@ -95,8 +95,10 @@ function estimatePmYears(data: ResumeData, totalYears: number): number {
     .filter((x) => PM_TITLE_PATTERN.test(x.title) || /\bfounder\b/i.test(x.title))
     .reduce((sum, x) => sum + (x.months ?? 0), 0)
   if (pmMonths > 0) return Math.round((pmMonths / 12) * 10) / 10
-  // If no explicit PM titles found in experience, candidate may be transitioning
-  const anyPmTitle = data.experience.some((x) => /\bproduct\b/i.test(x.title))
+  // A PM-style title that the pattern above does not list (for example "Product Strategist"). Titles that only mention a product, such as
+  // Product Designer, Product Analyst or Product Marketing, are other functions and are not PM experience.
+  const NOT_PM = /\b(design(er)?|analyst|analytics|marketing|support|operations|ops|security|specialist|engineer|developer|tester|qa|sales|success|writer)\b/i
+  const anyPmTitle = data.experience.some((x) => /\bproduct\b/i.test(x.title) && !NOT_PM.test(x.title))
   return anyPmTitle ? totalYears : 0
 }
 
@@ -127,7 +129,8 @@ function yearsToBand(y: number): Exclude<PmExperienceBand, 'auto'> {
 
 function detectLevel(pmYears: number, text: string): Level {
   const titles = text.toLowerCase()
-  if (/\b(director|vp of product|vice president|head of product|chief product|cpo|group product manager|gpm)\b/.test(titles)) {
+  // "Director of Engineering" or "Head of Operations" says nothing about product leadership, so the title has to be about product.
+  if (/\b(director|vp|vice president|head|chief)\b[^|]{0,30}\bproduct\b|\bproduct\b[^|]{0,30}\b(director|vp|head)\b|\b(cpo|group product manager|gpm)\b/.test(titles)) {
     return 'lead'
   }
   if (/\b(senior product manager|sr\.? product manager|principal product manager|staff product manager|lead product manager)\b/.test(titles)) {
@@ -139,8 +142,8 @@ function detectLevel(pmYears: number, text: string): Level {
   return 'lead'
 }
 
-function inferBackground(data: ResumeData, pmYears: number): Exclude<CandidateBackground, 'auto'> {
-  if (pmYears >= 1) return 'practicing_pm'
+function inferBackground(data: ResumeData, pmYears: number, isPm: boolean): Exclude<CandidateBackground, 'auto'> {
+  if (pmYears >= 1 || isPm) return 'practicing_pm'
   const titles = `${data.basics.headline} ${data.experience.map((e) => e.title).join(' ')}`.toLowerCase()
   if (/\b(founder|co-?founder|ceo)\b/.test(titles)) return 'founder'
   if (/\b(engineer|developer|software|sde|swe|architect|devops|qa)\b/.test(titles)) return 'engineering'
@@ -148,7 +151,7 @@ function inferBackground(data: ResumeData, pmYears: number): Exclude<CandidateBa
   if (/\b(data analyst|business analyst|scientist|analytics|bi\b)\b/.test(titles)) return 'analytics'
   if (/\b(consultant|strategy|operations|ops|program manager|project manager|marketing|sales)\b/.test(titles)) return 'business_ops'
   if (data.experience.length === 0 || /\b(intern|mba|student|fellow)\b/.test(titles)) return 'mba_grad'
-  return 'practicing_pm'
+  return 'other'
 }
 
 interface Ctx {
@@ -178,8 +181,13 @@ export function scoreResume(input: ScoreInput, now = new Date()): ScoreReport {
       ? input.pmExperience
       : yearsToBand(inferredPmYears)
   const pmYears = pmBandToYears(pmBand, inferredPmYears)
+  // Someone with no product management experience is an entry-level PM candidate however many years they have worked in another
+  // function. Total years of QA, engineering or operations work must never turn into PM seniority, and with it a senior pay band.
+  const isPmResume = inferredPmYears > 0 || pmBand !== 'transitioning'
 
-  const detectedLevel = detectLevel(pmYears > 0 ? pmYears : totalYears, `${data.experience.map((e) => e.title).join(' | ')} ${data.basics.headline}`)
+  const detectedLevel: Level = isPmResume
+    ? detectLevel(pmYears > 0 ? pmYears : totalYears, `${data.experience.map((e) => e.title).join(' | ')} ${data.basics.headline}`)
+    : 'apm'
   const targetLevel: Level =
     input.targetLevel && input.targetLevel !== 'auto'
       ? input.targetLevel
@@ -191,7 +199,7 @@ export function scoreResume(input: ScoreInput, now = new Date()): ScoreReport {
   const background: Exclude<CandidateBackground, 'auto'> =
     input.background && input.background !== 'auto'
       ? input.background
-      : inferBackground(data, pmYears)
+      : inferBackground(data, pmYears, isPmResume)
 
   // ---- Bullets Analysis ----------------------------------------------------
   const bullets: BulletReview[] = []
@@ -1048,23 +1056,38 @@ export function scoreResume(input: ScoreInput, now = new Date()): ScoreReport {
   }
 
   const overall = round(dimensions.reduce((s, d) => s + d.score * d.weight, 0))
-  const grade = overall >= 85 ? 'ship' : overall >= 68 ? 'beta' : overall >= 48 ? 'alpha' : 'prototype'
-  const gradeLabel = {
-    ship: 'Ready to ship',
-    beta: 'Beta · nearly there',
-    alpha: 'Alpha · needs iteration',
-    prototype: 'Prototype · rebuild the core',
-  }[grade]
+  const rawGrade = overall >= 85 ? 'ship' : overall >= 68 ? 'beta' : overall >= 48 ? 'alpha' : 'prototype'
+  // A resume with no product experience cannot be "ready to ship" or "nearly there" for a PM interview, however well it is written.
+  const grade = !isPmResume && (rawGrade === 'ship' || rawGrade === 'beta') ? 'alpha' : rawGrade
+  const gradeLabel = !isPmResume
+    ? 'Not a PM resume yet'
+    : {
+        ship: 'Ready to ship',
+        beta: 'Beta · nearly there',
+        alpha: 'Alpha · needs iteration',
+        prototype: 'Prototype · rebuild the core',
+      }[grade]
 
   const p0 = findings.filter((f) => f.priority === 'P0').length
+  const BACKGROUND_PHRASE: Record<string, string> = {
+    engineering: 'an engineering or QA resume',
+    design: 'a design resume',
+    analytics: 'an analytics resume',
+    business_ops: 'a business or operations resume',
+    mba_grad: 'an early-career resume',
+    founder: 'a founder resume',
+    other: 'a resume from outside product',
+  }
   const headline =
     nb === 0
       ? 'We could not find experience bullets to score. Ensure the resume is a text-based single-column PDF.'
-      : p0 > 0
-        ? `${p0} critical blocker${p0 > 1 ? 's' : ''} stand between this resume and a ${archKb.label} interview.`
-        : grade === 'ship'
-          ? `Strong ${trackKb.label} resume calibrated for ${archKb.label}. Polish and apply.`
-          : `${findings.filter((f) => f.priority !== 'P2').length} prioritized fixes can raise this score meaningfully.`
+      : !isPmResume
+        ? `This reads as ${BACKGROUND_PHRASE[background] ?? 'a resume from outside product'}, not yet as a product management resume. It is scored as an entry-level (APM) candidate.`
+        : p0 > 0
+          ? `${p0} critical blocker${p0 > 1 ? 's' : ''} ${p0 > 1 ? 'stand' : 'stands'} between this resume and a ${archKb.label} interview.`
+          : grade === 'ship'
+            ? `Strong ${trackKb.label} resume calibrated for ${archKb.label}. Polish and apply.`
+            : `${findings.filter((f) => f.priority !== 'P2').length} prioritized fixes can raise this score meaningfully.`
 
   const order = { P0: 0, P1: 1, P2: 2 }
   findings.sort((a, b) => order[a.priority] - order[b.priority] || b.gain - a.gain)
@@ -1119,6 +1142,7 @@ export function scoreResume(input: ScoreInput, now = new Date()): ScoreReport {
       companyArchetype: archetype,
       market,
       background,
+      isPmResume,
     },
     dimensions,
     findings,

@@ -32,6 +32,7 @@ export type CandidateBackground =
   | 'analytics'
   | 'founder'
   | 'mba_grad'
+  | 'other'
 
 export type PmExperienceBand =
   | 'auto'
@@ -400,6 +401,12 @@ export interface ScoreReport {
     companyArchetype: CompanyArchetype
     market: MarketRegion
     background: CandidateBackground
+    /**
+     * True when the resume shows product management experience (a PM title or a founder role). False for QA, engineering, design,
+     * analytics and other resumes: those are scored as an entry-level PM candidate, and pay is the entry-level PM band, not a
+     * benchmark for the person's current job.
+     */
+    isPmResume: boolean
   }
   dimensions: Dimension[]
   findings: Finding[]

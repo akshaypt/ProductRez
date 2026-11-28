@@ -56,13 +56,13 @@
 .sd-pay-med { text-align: right; } .sd-pay-med b { font-size: 1.25rem; font-weight: 650; }
 
 .sd-pay { position: relative; margin: 2px 10px 0; user-select: none; }
-.sd-pay-flags { position: relative; height: 116px; } .sd-pay-flags.empty { height: 50px; }
-.sd-flag { position: absolute; bottom: 0; width: 0; height: 0; --stem: 12px; z-index: 2; } .sd-flag.l1 { --stem: 64px; z-index: 1; }
+.sd-pay-flags { position: relative; height: 44px; } .sd-pay-flags.two { height: 82px; } .sd-pay-flags.empty { height: 50px; }
+.sd-flag { position: absolute; bottom: 0; width: 0; height: 0; --stem: 9px; z-index: 2; } .sd-flag.l1 { --stem: 47px; z-index: 1; }
 .sd-flag.cur { color: var(--amber); } .sd-flag.exp { color: var(--info); }
-.sd-flag-chip { position: absolute; bottom: var(--stem); left: 0; transform: translateX(-50%); white-space: nowrap; display: grid; gap: 1px; padding: 5px 11px 6px; border-radius: 12px; background: var(--surface); border: 1.5px solid currentColor; text-align: left; animation: sd-pop .45s cubic-bezier(.2, .9, .3, 1.2) both; }
-.sd-flag.start .sd-flag-chip { transform: translateX(-14px); } .sd-flag.end .sd-flag-chip { transform: translateX(calc(-100% + 14px)); }
-.sd-flag-chip small { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); font-weight: 600; }
-.sd-flag-chip b { font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1.2; } 
+.sd-flag-chip { position: absolute; bottom: var(--stem); left: 0; transform: translateX(-50%); white-space: nowrap; display: inline-flex; align-items: baseline; gap: 6px; padding: 4px 11px 5px; border-radius: 999px; background: var(--surface); border: 1.5px solid currentColor; animation: sd-pop .45s cubic-bezier(.2, .9, .3, 1.2) both; }
+.sd-flag.start .sd-flag-chip { transform: translateX(-12px); } .sd-flag.end .sd-flag-chip { transform: translateX(calc(-100% + 12px)); }
+.sd-flag-chip small { font-size: 0.7rem; color: var(--text-3); font-weight: 600; } .sd-flag-chip b { font-size: 0.98rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+.sd-arrow { font-style: normal; font-size: 0.7rem; color: currentColor; }
 .sd-flag-stem { position: absolute; left: -0.5px; bottom: 0; width: 1px; height: var(--stem); background: currentColor; opacity: 0.7; }
 .sd-pay-hint { position: absolute; bottom: 12px; transform: translateX(-50%); font-size: 0.78rem; color: var(--text-3); border: 1px dashed var(--border-strong); border-radius: 999px; padding: 5px 12px; white-space: nowrap; }
 .sd-pay-track { position: relative; height: 18px; }
@@ -130,6 +130,8 @@
 
 /* ---------- bullets ---------- */
 .sd-bullets { display: grid; gap: 14px; }
+.sd-lvl { justify-self: start; margin-top: -2px; } .sd-lvl button { padding: 6px 13px; font-size: 0.8rem; }
+.sd-notice { display: flex; gap: 9px; align-items: flex-start; padding: 10px 13px; border-radius: 14px; background: var(--info-soft); font-size: 0.84rem; line-height: 1.5; color: var(--text-2); } .sd-notice svg { flex: none; margin-top: 3px; color: var(--info); } .sd-notice b { color: var(--text); }
 .sd-seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); justify-self: start; }
 .sd-seg button { border: 0; background: none; padding: 7px 14px; border-radius: 9px; font: inherit; font-size: 0.84rem; font-weight: 600; color: var(--text-3); cursor: pointer; }
 .sd-seg button[aria-pressed='true'] { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12); }

@@ -129,6 +129,7 @@ function Unlocked({ v, a, go }: { v: V; a: Analysis; go: (p: string) => void }) 
       <Card v={v} title="Salary & Expectation Check" badge={<span className="g-tag t-acc">{C.currency === 'INR' ? '₹ LPA' : '$k'}</span>}>
         <p style={{ fontSize: 13, color: 'var(--ink-2)' }}>Market band for {C.cohortLabel}: <b>{fmt(C.currency, C.marketBand.min)}–{fmt(C.currency, C.marketBand.max)}</b> (median {fmt(C.currency, C.marketBand.median)}). Your resume-calibrated range: <b>{fmt(C.currency, C.resumeCalibratedBand.low)}–{fmt(C.currency, C.resumeCalibratedBand.high)}</b>.</p>
         <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>{C.resumeCalibratedBand.quartileNote}</p>
+        {r.contextUsed.isPmResume === false && <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}><b>Entry-level PM pay.</b> Your resume does not show product experience yet, so this is not a benchmark for your current job.</p>}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
           {([['Current', cur, setCur], ['Expected', exp, setExp]] as const).map(([l, val, set]) => (
             <label key={l} style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)' }}>{l.toUpperCase()} ({unit === 'L' ? '₹ LPA' : '$k'})

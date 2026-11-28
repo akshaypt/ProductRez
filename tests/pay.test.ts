@@ -9,6 +9,17 @@ describe('pay chart geometry', () => {
     expect(s.lo).toBe(22)
     expect(s.hi).toBe(78)
   })
+  it('stretches to keep a nearby pin on the chart, but not so far that the band is squeezed flat', () => {
+    const near = scaleFor(band, [90])
+    expect(near.hi).toBeGreaterThan(90)
+    expect(edgeOf(90, near)).toBeNull()
+    const far = scaleFor(band, [500])
+    expect(far.hi).toBe(band.max + (band.max - band.min) * 1.5)
+    expect(edgeOf(500, far)).toBe('above')
+    const low = scaleFor(band, [1])
+    expect(low.lo).toBe(0)
+    expect(scaleFor(band, [45, 50])).toEqual(scaleFor(band))
+  })
   it('places the median between the quartiles and keeps values inside 0 to 100', () => {
     expect(posOf(band.median, s)).toBeGreaterThan(posOf(band.p25, s))
     expect(posOf(band.median, s)).toBeLessThan(posOf(band.p75, s))

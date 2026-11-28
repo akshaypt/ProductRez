@@ -54,7 +54,9 @@ export function ScoreDashboard({ report, scan, api, signedIn, onFix, fixLabel, o
     }
   }
   const n = useCount(report.overall)
-  const g = GRADE[report.grade]
+  // Reports saved before the PM-fit flag existed: a background other than a practising PM means a resume from outside product.
+  const isPm = report.contextUsed.isPmResume ?? report.contextUsed.background === 'practicing_pm'
+  const g = isPm ? GRADE[report.grade] : { l: 'Not a PM resume yet', c: 'warn' }
   const potential = Math.min(100 - report.overall, report.findings.reduce((s, f) => s + f.gain, 0))
   const lift = potential >= 1 ? Math.min(100, Math.round(report.overall + potential)) : null
   const st = report.stats
@@ -112,7 +114,7 @@ export function ScoreDashboard({ report, scan, api, signedIn, onFix, fixLabel, o
       <div className="sd-stats">
         <Tile value={st.bullets ? (st.bulletsWithMetrics / st.bullets) * 100 : 0} display={`${st.bulletsWithMetrics}/${st.bullets}`} label="Bullets with a number" hint="Aim for about half"><Icon name="target" size={16} /></Tile>
         <Tile value={(proven / Math.max(1, report.competencies.length)) * 100} display={`${proven}/${report.competencies.length}`} label="PM skills proven" hint="Shown by results"><Icon name="score" size={16} /></Tile>
-        <Tile value={report.marketStanding.percentile} display={ordinal(report.marketStanding.percentile)} label="Percentile" hint={splitLabel(report.marketStanding.tierLabel)[0]}><Icon name="up" size={16} strokeWidth={3} /></Tile>
+        <Tile value={report.marketStanding.percentile} display={ordinal(report.marketStanding.percentile)} label="Percentile" hint={isPm ? splitLabel(report.marketStanding.tierLabel)[0] : 'Against PM applicants'}><Icon name="up" size={16} strokeWidth={3} /></Tile>
         <Tile value={ats} display={ats >= 85 ? 'Clean' : ats >= 65 ? 'Mostly clean' : 'Check layout'} label="ATS read" hint={`${ats} of 100`}><Icon name="scan" size={16} /></Tile>
       </div>
 

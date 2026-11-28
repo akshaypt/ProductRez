@@ -10,10 +10,21 @@ export const num = (n: number): string => String(Math.round(n * 10) / 10)
 export const money = (c: Cur, n: number): string => (c === 'INR' ? `₹${num(n)}L` : `$${num(n)}k`)
 export const unitName = (c: Cur): string => (c === 'INR' ? 'LPA' : 'k / year')
 
-/** The visible range of the chart: the market band with a little room either side, so a pin just outside it is still seen. */
-export const scaleFor = (b: Band): { lo: number; hi: number } => {
-  const pad = (b.max - b.min) * 0.2
-  return { lo: Math.max(0, b.min - pad), hi: b.max + pad }
+/**
+ * The visible range of the chart: the market band with a little room either side. A value outside it stretches the chart so the pin stays
+ * visible, but never by more than one and a half band-widths: past that, the median and the quartiles would be squeezed into a sliver, so
+ * the value is pinned to the edge instead.
+ */
+export const scaleFor = (b: Band, values: number[] = []): { lo: number; hi: number } => {
+  const span = Math.max(1, b.max - b.min)
+  let lo = Math.max(0, b.min - span * 0.2)
+  let hi = b.max + span * 0.2
+  const room = span * 1.5
+  for (const v of values) {
+    if (v < lo) lo = Math.max(0, b.min - room, v - span * 0.08)
+    if (v > hi) hi = Math.min(b.max + room, v + span * 0.08)
+  }
+  return { lo, hi }
 }
 
 /** Position along the chart as a percentage from the left, kept inside 0 to 100. */
