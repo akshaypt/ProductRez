@@ -50,7 +50,9 @@ export default function Score() {
       if (s.message) { setErr(s.message); return }
       const fallback = prefs.stage === 'senior' ? 'Senior PM' : prefs.stage === 'aspiring' ? 'APM (0–2 yrs)' : 'Product Manager'
       setLoaded(r)
-      setPicks((p) => { const m = mergePicks(p, autoRef.current, s.picks); return { ...m, level: m.level ?? fallback } })
+      // Take the previous auto-picks now: the updater below runs later, after the ref has been moved on to the new suggestion.
+      const prevAuto = autoRef.current
+      setPicks((p) => { const m = mergePicks(p, prevAuto, s.picks); return { ...m, level: m.level ?? fallback } })
       autoRef.current = s.picks; setAuto(s.picks); setWhy(s.why ?? null)
     } catch (e) {
       setErr(e instanceof ResumeReadError ? e.message : 'We could not read that file. Export your resume as a text-based PDF or DOCX and try again.')

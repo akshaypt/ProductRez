@@ -74,7 +74,9 @@ export function useLanding() {
       const s = await suggest(r)
       if (s.message) { setFileError(s.message); return }
       setLoaded(r)
-      setPicks((p) => mergePicks(p, autoRef.current, s.picks))
+      // Take the previous auto-picks now: the updater below runs later, after the ref has been moved on to the new suggestion.
+      const prevAuto = autoRef.current
+      setPicks((p) => mergePicks(p, prevAuto, s.picks))
       autoRef.current = s.picks; setAuto(s.picks); setWhy(s.why ?? null)
       setAutofilled(true)
     } catch (e) {
