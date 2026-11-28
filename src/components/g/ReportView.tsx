@@ -1,4 +1,6 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useApp } from '../../state/app'
+import { parseAmount } from '../../lib/pay'
 import type { ScoreReport } from '@ats'
 import { analysisStore } from '../../lib/g/store'
 import type { Analysis } from '../../lib/g/analyze'
@@ -44,11 +46,32 @@ function Unlocked({ v, a, go }: { v: V; a: Analysis; go: (p: string) => void }) 
   const [cur, setCur] = useState('')
   const [exp, setExp] = useState('')
   const [cmp, setCmp] = useState<ScoreReport['compensation'] | null>(null)
+  const { api, user } = useApp()
+  const saveTimer = useRef<number | undefined>(undefined)
   const run = async (c: string, e: string) => {
-    const n = (s: string) => (Number(s) > 0 ? Number(s) : undefined)
+    const n = (s: string) => parseAmount(s) ?? undefined
     if (!n(c) && !n(e)) return setCmp(null)
     const eng = await import('@ats')
     setCmp(eng.compareSalaryExpectations(r, { currentSalary: n(c), expectedSalary: n(e) }))
+  }
+  // The same pay record the score page uses: shown again here, and saved to the account after a pause in typing.
+  useEffect(() => {
+    if (!api || !user) return
+    api.getPay().then((p) => {
+      if (!p || p.currency !== r.compensation.currency) return
+      const c = p.current === null ? '' : String(p.current)
+      const e = p.expected === null ? '' : String(p.expected)
+      setCur(c); setExp(e); void run(c, e)
+    }).catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [api, user])
+  const persist = (c: string, e: string) => {
+    if (!api || !user) return
+    window.clearTimeout(saveTimer.current)
+    saveTimer.current = window.setTimeout(() => {
+      if ((c.trim() && parseAmount(c) === null) || (e.trim() && parseAmount(e) === null)) return
+      api.savePay({ currency: r.compensation.currency, current: parseAmount(c), expected: parseAmount(e) }).catch(() => {})
+    }, 700)
   }
   const C = cmp ?? r.compensation
   const weakAll = r.bullets.filter(isWeakBullet).sort((x, y) => x.impact - y.impact)
@@ -109,13 +132,13 @@ function Unlocked({ v, a, go }: { v: V; a: Analysis; go: (p: string) => void }) 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
           {([['Current', cur, setCur], ['Expected', exp, setExp]] as const).map(([l, val, set]) => (
             <label key={l} style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)' }}>{l.toUpperCase()} ({unit === 'L' ? '₹ LPA' : '$k'})
-              <input type="number" inputMode="decimal" min={0} className="auth-input" style={{ marginTop: 4, marginBottom: 0 }} value={val} onChange={(e) => { set(e.target.value); void run(l === 'Current' ? e.target.value : cur, l === 'Expected' ? e.target.value : exp) }} />
+              <input type="number" inputMode="decimal" min={0} className="auth-input" style={{ marginTop: 4, marginBottom: 0 }} value={val} onChange={(e) => { const nc = l === 'Current' ? e.target.value : cur; const ne = l === 'Expected' ? e.target.value : exp; set(e.target.value); void run(nc, ne); persist(nc, ne) }} />
             </label>
           ))}
         </div>
         {cmp?.comparison?.currentSalary && <p style={{ fontSize: 12.5, marginTop: 10 }}><span className="g-tag t-warn">{cmp.comparison.currentSalary.verdictLabel}</span> {cmp.comparison.currentSalary.summary}</p>}
         {cmp?.comparison?.expectedSalary && <p style={{ fontSize: 12.5, marginTop: 8 }}><span className="g-tag t-ok">{cmp.comparison.expectedSalary.verdictLabel}</span> {cmp.comparison.expectedSalary.summary} {cmp.comparison.expectedSalary.actionNote}</p>}
-        <p style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 8 }}>Salary never changes your 0–100 resume score. Nothing you type here is saved.</p>
+        <p style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 8 }}>Salary never changes your 0–100 resume score. What you enter is saved to your account, and only you can see it.</p>
       </Card>
 
       <Card v={v} title="Early Access PM Jobs (≤72h)" badge={<span className="g-tag t-ok">Signed in</span>}>

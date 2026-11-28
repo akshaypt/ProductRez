@@ -54,7 +54,8 @@ export function FixList({ findings }: { findings: Finding[] }) {
   )
 }
 
-const NUMBER = /(\$?₹?\d[\d,.]*\s?(?:%|x|×|k|m|mn|bn|cr|crore|lakhs?|million|billion|\+)?)/gi
+// A figure, with its unit when it has one. A unit counts only when no letter follows, so "3 months" is the figure 3 and not "3 m", and "D2C" is not a figure.
+const NUMBER = /([$₹]\s?\d[\d,.]*\s?(?:k|m|mn|bn|cr|crore|lpa|lakhs?|l|million|billion)?(?![A-Za-z])|\b\d[\d,.]*\s?(?:%|x|×|k|m|mn|bn|cr|crore|lpa|lakhs?|l|million|billion)?\+?(?![A-Za-z]))/gi
 /** Wraps the figures in a bullet so the eye finds the evidence first. */
 function Figures({ text }: { text: string }) {
   const parts = text.split(NUMBER)

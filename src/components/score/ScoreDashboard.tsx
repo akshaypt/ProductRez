@@ -7,6 +7,9 @@ import { PayCard } from './PayCard'
 import { BulletsPanel, FixList, SkillsPanel, StandingPanel } from './Panels'
 import { ordinal, splitLabel } from '../../lib/pay'
 import { isWeakBullet } from '../../lib/bullets'
+import { renderScoreCard } from '../../lib/shareCard'
+import { toLegacy } from '../../lib/v2'
+import { useApp } from '../../state/app'
 
 type Tab = 'fix' | 'bullets' | 'skills' | 'standing' | 'match'
 
@@ -29,6 +32,27 @@ function Tile({ value, display, label, hint, children }: { value: number; displa
 /** The signed-in score page: the score, what the market pays, the numbers behind them, then the detail in tabs. */
 export function ScoreDashboard({ report, scan, api, signedIn, onFix, fixLabel, onUpload }: { report: ScoreReport; scan: LatestScan; api: Api | null; signedIn: boolean; onFix: () => void; fixLabel: string; onUpload: () => void }) {
   const [tab, setTab] = useState<Tab>('fix')
+  const { toast } = useApp()
+  // A picture of the scores only: no name, no resume text.
+  const share = async () => {
+    try {
+      const blob = await renderScoreCard(toLegacy(report))
+      const file = new File([blob], 'productrez-score.png', { type: 'image/png' })
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: `My PM resume score: ${report.overall}/100` })
+      } else {
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'productrez-score.png'
+        a.click()
+        setTimeout(() => URL.revokeObjectURL(url), 2000)
+        toast('Score card saved. It shows scores only: no name, no resume text.')
+      }
+    } catch (e) {
+      if ((e as Error).name !== 'AbortError') toast('Could not create the card', 'err')
+    }
+  }
   const n = useCount(report.overall)
   const g = GRADE[report.grade]
   const potential = Math.min(100 - report.overall, report.findings.reduce((s, f) => s + f.gain, 0))
@@ -61,6 +85,7 @@ export function ScoreDashboard({ report, scan, api, signedIn, onFix, fixLabel, o
           </div>
         </div>
         <div className="sd-actions">
+          <button type="button" className="btn ghost" onClick={share} aria-label="Share your score card" title="Share a card with your scores only"><Icon name="share" size={17} /> Share</button>
           <button type="button" className="btn ghost" onClick={onUpload}><Icon name="upload" size={17} /> New resume</button>
           <button type="button" className="btn" onClick={onFix}><Icon name="pen" size={17} /> {fixLabel}</button>
         </div>
@@ -75,7 +100,7 @@ export function ScoreDashboard({ report, scan, api, signedIn, onFix, fixLabel, o
             <div className="sd-score-txt">
               <span className={`sd-pill ${g.c} big`}>{g.l}</span>
               <p>{report.headline}</p>
-              {lift ? <span className="sd-lift"><Icon name="up" size={14} strokeWidth={3} /> The fixes below could take this to about <b>{lift}</b></span> : <span className="sd-lift ok"><Icon name="check" size={14} strokeWidth={3} /> Nothing big left to fix</span>}
+              {lift ? <span className="sd-lift"><Icon name="up" size={14} strokeWidth={3} style={{ marginTop: 2, flex: 'none' }} /> <span>The fixes below could take this to about <b>{lift}</b></span></span> : <span className="sd-lift ok"><Icon name="check" size={14} strokeWidth={3} /> Nothing big left to fix</span>}
             </div>
           </div>
           <Radar dims={report.dimensions} />
