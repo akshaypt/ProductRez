@@ -92,6 +92,9 @@ export function PayCard({ report, api, signedIn }: { report: ScoreReport; api: A
   const unit = unitName(cur$)
   const lvlName = LEVELS.find((l) => l[0] === lvl)?.[2] ?? ''
   const entry = c && !isPm ? entryVerdict(c.percentileInBand) : null
+  // Past either end of the band the ring can only say 1 or 99, so say how far outside it the amount is.
+  const outside = (amount: number) =>
+    amount > band.max ? `${money(cur$, amount - band.max)} over the top of the band` : amount < band.min ? `${money(cur$, band.min - amount)} under the bottom of the band` : ''
 
   const field = (id: 'cur' | 'exp', title: string, value: string, bad: boolean) => (
     <label className={'sd-field' + (bad ? ' bad' : '')}>
@@ -165,26 +168,28 @@ export function PayCard({ report, api, signedIn }: { report: ScoreReport; api: A
             const tone = entry ? entry.tone : CUR_TONE[c.verdict]
             return (
               <div className={`sd-verdict ${tone}`}>
-                <Ring value={c.percentileInBand} size={64} stroke={7} color={TONE_VAR[tone]} label={`${ordinal(c.percentileInBand)} percentile of the band`}>
-                  <b>{c.percentileInBand}</b>
+                <Ring value={c.percentileInBand} size={68} stroke={7} color={TONE_VAR[tone]} label={`Position in the pay band: ${ordinal(c.percentileInBand)} percentile`}>
+                  <span className="sd-rn"><b>{c.percentileInBand}</b><i>percentile</i></span>
                 </Ring>
                 <div>
                   <small>{isPm ? 'Where you are now' : 'Your current pay'}</small>
                   <strong>{entry ? entry.label : splitLabel(c.verdictLabel)[0]}</strong>
-                  <span>{entry?.hint ?? (c.gapVsMedian === 0 ? 'At the median' : `${money(cur$, Math.abs(c.gapVsMedian))} ${c.gapVsMedian > 0 ? 'above' : 'below'} the median`)}</span>
+                  <span>{outside(c.amount) || (c.gapVsMedian === 0 ? 'At the median' : `${money(cur$, Math.abs(c.gapVsMedian))} ${c.gapVsMedian > 0 ? 'above' : 'below'} the median`)}</span>
+                  {entry?.hint && <span className="sd-v-sub">{entry.hint}</span>}
                 </div>
               </div>
             )
           })()}
           {e && (
             <div className={`sd-verdict ${EXP_TONE[e.verdict]}`}>
-              <Ring value={e.percentileInBand} size={64} stroke={7} color={TONE_VAR[EXP_TONE[e.verdict]]} label={`${ordinal(e.percentileInBand)} percentile of the band`}>
-                <b>{e.percentileInBand}</b>
+              <Ring value={e.percentileInBand} size={68} stroke={7} color={TONE_VAR[EXP_TONE[e.verdict]]} label={`Position in the pay band: ${ordinal(e.percentileInBand)} percentile`}>
+                <span className="sd-rn"><b>{e.percentileInBand}</b><i>percentile</i></span>
               </Ring>
               <div>
                 <small>{isPm ? 'What you are asking' : lvl === 'apm' ? 'Your ask vs entry-level PM' : `Your ask vs ${lvlName}`}</small>
                 <strong>{!isPm && lvl === 'apm' ? ENTRY_ASK[e.verdict] : splitLabel(e.verdictLabel)[0]}</strong>
-                <span>{e.deltaVsCurrentPercent !== null ? `${e.deltaVsCurrentPercent >= 0 ? '+' : ''}${e.deltaVsCurrentPercent}% vs now` : splitLabel(e.verdictLabel)[1] || 'Calibrated to your resume'}</span>
+                <span>{outside(e.amount) || (e.deltaVsCurrentPercent !== null ? `${e.deltaVsCurrentPercent >= 0 ? '+' : ''}${e.deltaVsCurrentPercent}% vs now` : splitLabel(e.verdictLabel)[1] || 'Calibrated to your resume')}</span>
+                {outside(e.amount) && e.deltaVsCurrentPercent !== null && <span className="sd-v-sub">{e.deltaVsCurrentPercent >= 0 ? '+' : ''}{e.deltaVsCurrentPercent}% vs now</span>}
               </div>
             </div>
           )}
@@ -198,6 +203,7 @@ export function PayCard({ report, api, signedIn }: { report: ScoreReport; api: A
       )}
       {why && (c || e) && (
         <div className="sd-why">
+          <p><b>The number in the ring</b> is where an amount falls inside the market band, from 1 (the bottom) to 99 (the top). 50 is the median, and above the top of the band it stays at 99. It is an estimate from our pay bands, not a survey of real salaries, and it is not a score of you.</p>
           {c && <p>{entry ? `${entry.label}. Your ${money(cur$, c.amount)} sits at the ${ordinal(c.percentileInBand)} percentile of the ${lvlName} band for this kind of company.` : c.summary}</p>}
           {e && <p>{e.summary} <b>{e.actionNote}</b></p>}
         </div>

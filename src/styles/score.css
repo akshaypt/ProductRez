@@ -92,7 +92,9 @@
 .sd-verdict { display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 18px; border: 1px solid var(--border); background: var(--surface-2); }
 .sd-verdict.good { background: var(--green-soft); border-color: transparent; } .sd-verdict.warn { background: var(--amber-soft); border-color: transparent; }
 .sd-verdict.bad { background: var(--red-soft); border-color: transparent; } .sd-verdict.info { background: var(--info-soft); border-color: transparent; }
-.sd-verdict b { font-size: 1.1rem; font-weight: 700; } .sd-verdict small { display: block; font-size: 0.7rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+.sd-verdict b { font-size: 1.1rem; font-weight: 700; }
+.sd-rn { display: grid; justify-items: center; line-height: 1; } .sd-rn b { font-size: 1.15rem; } .sd-rn i { font-style: normal; font-size: 0.5rem; color: var(--text-3); margin-top: 2px; letter-spacing: 0.02em; }
+.sd-v-sub { display: block; margin-top: 3px; font-size: 0.78rem !important; color: var(--text-3) !important; } .sd-verdict small { display: block; font-size: 0.7rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
 .sd-verdict strong { display: block; font-size: 1.05rem; font-weight: 650; margin: 2px 0; } .sd-verdict span { font-size: 0.82rem; color: var(--text-2); }
 .sd-why { display: grid; gap: 8px; font-size: 0.88rem; color: var(--text-2); line-height: 1.55; padding: 12px 14px; border-radius: 14px; background: var(--surface-2); }
 .sd-how { font-size: 0.82rem; color: var(--text-3); } .sd-how summary { cursor: pointer; font-weight: 600; color: var(--text-2); } .sd-how p { margin-top: 8px !important; line-height: 1.5; }
