@@ -1,6 +1,6 @@
 import { scoreResume, checkResume, type ScoreInput, type ScoreReport } from '@scoring'
 import { buildLatex } from '@latex'
-import { ApiError, type Api, type AppUser, type Entitlement, type Job, type JobStatus, type LatestScan, type PlanId, type Progress, type SavedJob, type StoredResume } from '../types'
+import { ApiError, type Api, type AppUser, type Entitlement, type Job, type JobStatus, type LatestScan, type PlanId, type Progress, type SavedJob, type StoredResume, type UserPay } from '../types'
 import { demoJobs } from './demoJobs'
 import { profileFromReport, scoreMatch, type ResumeProfile } from '@ats'
 import { localRewrite } from '../rewrite'
@@ -97,6 +97,13 @@ export function createLocalApi(): Api {
     async saveLatestScan(s) {
       if (!read<AppUser | null>(K.user, null)) throw new ApiError('unauthenticated')
       write('pr.demo.latestScan', { ...s, updatedAt: new Date().toISOString() })
+    },
+    async getPay() {
+      return read<UserPay | null>('pr.demo.pay', null)
+    },
+    async savePay(p) {
+      if (!read<AppUser | null>(K.user, null)) throw new ApiError('unauthenticated')
+      write('pr.demo.pay', p)
     },
     async collectResume() {
       /* demo mode keeps nothing on a server */

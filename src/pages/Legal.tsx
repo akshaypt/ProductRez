@@ -65,6 +65,7 @@ export function Privacy() {
       <h2>Other data</h2>
       <ul>
         <li><b>Account:</b> your email address, used for passwordless sign-in.</li>
+        <li><b>Pay you tell us:</b> if you enter your current and expected pay on your score page, we save it to your account so it is there next time. Only you can see it. It never changes your resume score, we don’t share it with employers or recruiters, and deleting your account deletes it.</li>
         <li><b>Payments:</b> handled by Razorpay. We never see or store card or UPI details; we store the order, plan and payment id.</li>
         <li><b>Preferences</b> (currency, level, theme) and learning progress are stored to personalise your experience.</li>
       </ul>

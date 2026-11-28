@@ -93,6 +93,13 @@ export interface LatestScan {
   updatedAt: string
 }
 
+/** Pay the person has told us about. INR is in lakhs per year (CTC), USD in thousands per year. Only the owner can read it. */
+export interface UserPay {
+  currency: 'INR' | 'USD'
+  current: number | null
+  expected: number | null
+}
+
 export interface Api {
   mode: 'supabase' | 'demo'
   getUser(): Promise<AppUser | null>
@@ -107,6 +114,8 @@ export interface Api {
   getLatestScan(): Promise<LatestScan | null>
   saveLatestScan(s: Omit<LatestScan, 'updatedAt'>): Promise<void>
   deleteLatestScan(): Promise<void>
+  getPay(): Promise<UserPay | null>
+  savePay(p: UserPay): Promise<void>
   /** Saves a resume check as data (see the Terms and Privacy pages). Never throws into the caller's flow: callers ignore failures. */
   collectResume(payload: Record<string, unknown>): Promise<void>
   scoreResume(input: ScoreInput): Promise<ScoreReport>

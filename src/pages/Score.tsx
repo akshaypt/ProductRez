@@ -3,10 +3,9 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { useApp } from '../state/app'
 import type { LatestScan } from '../lib/types'
 import { Icon } from '../components/Icon'
-import { ReportView } from '../components/ReportView'
-import { Insights } from '../components/Insights'
+import { ScoreDashboard } from '../components/score/ScoreDashboard'
+import '../styles/score.css'
 import { store } from '../lib/util'
-import { toLegacy } from '../lib/v2'
 import { COMPANIES, CURRENCIES, LEVELS, TRACKS } from '../lib/g/data'
 import { collectSubmission } from '../lib/g/collect'
 import { SCAN_MS, scanPlan, useScanTimeline, type ScanStage } from '../lib/g/scan'
@@ -100,6 +99,7 @@ export default function Score() {
 
   return (
     <div className="page">
+      {!(saved && !showUpload) && (
       <div className="page-head">
         <div>
           <span className="chip good">{ent.active ? 'Pro' : 'Free · scoring is always free'}</span>
@@ -116,6 +116,7 @@ export default function Score() {
           </button>
         )}
       </div>
+      )}
 
       {phase === 'running' ? (
         <div className="card" aria-live="polite" style={{ padding: 'clamp(1.25rem, 4vw, 2.5rem)' }}>
@@ -201,10 +202,7 @@ export default function Score() {
           </p>
         </div>
       ) : saved ? (
-        <>
-          <ReportView report={toLegacy(saved.report)} onFix={goWriter} fixLabel={ent.active ? 'Fix this in the Writer' : 'Unlock the Writer to fix this'} />
-          <Insights report={saved.report} />
-        </>
+        <ScoreDashboard report={saved.report} scan={saved} api={api} signedIn={!!user} onFix={goWriter} fixLabel={ent.active ? 'Fix in the Writer' : 'Unlock the Writer'} onUpload={() => { setUploading(true); setErr('') }} />
       ) : null}
     </div>
   )

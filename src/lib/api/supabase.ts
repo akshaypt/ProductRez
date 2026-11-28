@@ -128,6 +128,16 @@ export function createSupabaseApi(): Api {
       const { error } = await sb.from('latest_scan').upsert({ user_id, file_name: s.fileName, picks: s.picks, report: s.report, profile: profileFromReport(s.report), updated_at: new Date().toISOString() })
       if (error) throw new ApiError('unknown')
     },
+    async getPay() {
+      const { data } = await sb.from('user_pay').select('currency,current_amount,expected_amount').maybeSingle()
+      return data ? { currency: data.currency as 'INR' | 'USD', current: data.current_amount === null ? null : Number(data.current_amount), expected: data.expected_amount === null ? null : Number(data.expected_amount) } : null
+    },
+    async savePay(p) {
+      const ok = (n: number | null) => n === null || (Number.isFinite(n) && n > 0 && n <= 10000)
+      if (!ok(p.current) || !ok(p.expected)) throw new ApiError('unknown', 'Enter an amount between 0 and 10,000.')
+      const { error } = await sb.from('user_pay').upsert({ user_id: await uid(), currency: p.currency, current_amount: p.current, expected_amount: p.expected, updated_at: new Date().toISOString() })
+      if (error) throw new ApiError('unknown')
+    },
     async collectResume(payload) {
       await invoke('collect-resume', payload)
     },
