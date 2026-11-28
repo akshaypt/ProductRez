@@ -63,7 +63,8 @@ export function PayChart({ band, fit, currency, current, expected }: Props) {
 
       <div className="sd-pay-fit">
         <i style={{ left: `${at(fit.low)}%`, width: `${Math.max(2, at(fit.high) - at(fit.low))}%` }} />
-        <span style={{ left: `${(at(fit.low) + at(fit.high)) / 2}%` }}>Fits your resume <b>{money(currency, fit.low)} to {money(currency, fit.high)}</b></span>
+        {/* Centred under the band, unless the band is near an edge: then the label starts or ends with it so it is never cut off. */}
+        <span className={alignAt((at(fit.low) + at(fit.high)) / 2)} style={{ left: `${alignAt((at(fit.low) + at(fit.high)) / 2) === 'end' ? at(fit.high) : alignAt((at(fit.low) + at(fit.high)) / 2) === 'start' ? at(fit.low) : (at(fit.low) + at(fit.high)) / 2}%` }}>Fits your resume <b>{money(currency, fit.low)} to {money(currency, fit.high)}</b></span>
       </div>
     </div>
   )

@@ -12,6 +12,8 @@ type Lvl = 'apm' | 'pm' | 'senior' | 'lead'
 const LEVELS: [Lvl, string, string][] = [['apm', 'APM', 'Entry level'], ['pm', 'PM', 'Product Manager'], ['senior', 'Senior', 'Senior PM'], ['lead', 'Lead', 'Lead / Group PM']]
 const CUR_TONE: Record<string, string> = { significantly_underpaid: 'bad', underpaid: 'warn', decent: 'info', good: 'good', top_of_band: 'good' }
 const EXP_TONE: Record<string, string> = { easy: 'info', achievable: 'good', stretch: 'warn', inflated: 'bad' }
+/** The engine's labels ("Inflated for Selected Cohort") are for people already in PM. Someone asking about a move into product gets plainer words. */
+const ENTRY_ASK: Record<string, string> = { easy: 'Room to ask for more', achievable: 'Realistic for entry-level PM', stretch: 'Top of the entry-level range', inflated: 'Above entry-level PM pay' }
 const TONE_VAR: Record<string, string> = { good: 'var(--green)', info: 'var(--info)', warn: 'var(--amber)', bad: 'var(--red)' }
 
 /**
@@ -180,8 +182,8 @@ export function PayCard({ report, api, signedIn }: { report: ScoreReport; api: A
                 <b>{e.percentileInBand}</b>
               </Ring>
               <div>
-                <small>{isPm ? 'What you are asking' : `Your ask for ${lvlName}`}</small>
-                <strong>{splitLabel(e.verdictLabel)[0]}</strong>
+                <small>{isPm ? 'What you are asking' : lvl === 'apm' ? 'Your ask vs entry-level PM' : `Your ask vs ${lvlName}`}</small>
+                <strong>{!isPm && lvl === 'apm' ? ENTRY_ASK[e.verdict] : splitLabel(e.verdictLabel)[0]}</strong>
                 <span>{e.deltaVsCurrentPercent !== null ? `${e.deltaVsCurrentPercent >= 0 ? '+' : ''}${e.deltaVsCurrentPercent}% vs now` : splitLabel(e.verdictLabel)[1] || 'Calibrated to your resume'}</span>
               </div>
             </div>
