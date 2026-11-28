@@ -56,8 +56,28 @@ export function createSupabaseApi(): Api {
     workMode: (r.work_mode as Job['workMode']) ?? null,
     level: (r.level as Job['level']) ?? null,
     url: String(r.url),
-    postedOn: String(r.posted_on),
+    postedOn: String(r.posted_on ?? String(r.posted_at ?? '').slice(0, 10)),
+    postedAt: r.posted_at ? String(r.posted_at) : undefined,
+    track: (r.track as string) ?? null,
+    market: (r.market as Job['market']) ?? null,
+    skills: (r.skills as string[]) ?? [],
+    salary: r.salary_min != null && r.salary_max != null && r.salary_currency ? { min: Number(r.salary_min), max: Number(r.salary_max), currency: r.salary_currency as 'INR' | 'USD' } : null,
+    match: r.score != null ? { score: Number(r.score), matched: (r.matched as string[]) ?? [], missing: (r.missing as string[]) ?? [] } : null,
+    locked: r.locked === true,
   })
+
+  /** Scans saved before matching existed have no profile. Build it from the stored report the first time it is needed. */
+  async function ensureProfile() {
+    const { data } = await sb.from('latest_scan').select('profile, report').maybeSingle()
+    if (!data || data.profile || !data.report) return
+    const { profileFromReport } = await import('@ats')
+    await sb.from('latest_scan').update({ profile: profileFromReport(data.report as LatestScan['report']) }).eq('user_id', await uid())
+  }
+  async function matched(limit: number): Promise<Job[] | null> {
+    await ensureProfile().catch(() => {})
+    const { data, error } = await sb.rpc('get_matched_jobs', { p_limit: limit })
+    return error ? null : (data ?? []).map(rowToJob)
+  }
 
   return {
     mode: 'supabase',
@@ -104,7 +124,8 @@ export function createSupabaseApi(): Api {
     },
     async saveLatestScan(s) {
       const user_id = await uid()
-      const { error } = await sb.from('latest_scan').upsert({ user_id, file_name: s.fileName, picks: s.picks, report: s.report, updated_at: new Date().toISOString() })
+      const { profileFromReport } = await import('@ats')
+      const { error } = await sb.from('latest_scan').upsert({ user_id, file_name: s.fileName, picks: s.picks, report: s.report, profile: profileFromReport(s.report), updated_at: new Date().toISOString() })
       if (error) throw new ApiError('unknown')
     },
     async deleteLatestScan() {
@@ -127,9 +148,14 @@ export function createSupabaseApi(): Api {
       return out
     },
     async listJobs() {
-      const { data, error } = await sb.from('jobs').select('*').order('posted_on', { ascending: false }).limit(600)
+      const ranked = await matched(300)
+      if (ranked) return ranked.filter((j) => !j.locked)
+      const { data, error } = await sb.from('jobs').select('*').order('posted_at', { ascending: false, nullsFirst: false }).limit(600)
       if (error) throw new ApiError('paywall')
       return (data ?? []).map(rowToJob)
+    },
+    async peekMatches() {
+      return ((await matched(3)) ?? []).filter((j) => j.locked && j.match)
     },
     async listSavedJobs(): Promise<SavedJob[]> {
       const { data } = await sb.from('saved_jobs').select('job,status,updated_at').order('updated_at', { ascending: false })

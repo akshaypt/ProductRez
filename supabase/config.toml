@@ -2,3 +2,6 @@ project_id = "productrez"
 
 [functions.razorpay-webhook]
 verify_jwt = false   # authenticated by Razorpay's HMAC signature instead
+
+[functions.scrape-jobs]
+verify_jwt = false   # started by pg_cron, authenticated by the CRON_SECRET header instead

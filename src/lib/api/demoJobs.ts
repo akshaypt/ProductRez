@@ -1,3 +1,4 @@
+import { classifyJob } from '@ats'
 import type { Job } from '../types'
 
 const iso = (daysAgo: number) => new Date(Date.now() - daysAgo * 86400000).toISOString().slice(0, 10)
@@ -29,13 +30,23 @@ const ROWS: Omit<Job, 'id' | 'postedOn' | 'url' | 'sample'>[] = [
   { title: 'Product Manager, Gen AI', company: 'Meridian Data', location: 'Noida, Uttar Pradesh, India', country: 'IN', workMode: 'hybrid', level: 'pm' },
 ]
 
-/** Demo-only sample listings, dated relative to today so the 2-day window behaves like production. */
+/** Demo-only sample listings. Categories come from the same classifier the real collector uses, so matching behaves like production. */
 export function demoJobs(): Job[] {
-  return ROWS.map((r, i) => ({
-    ...r,
-    id: `sample-${i + 1}`,
-    postedOn: iso(i % 3 === 0 ? 1 : 0),
-    url: 'https://www.linkedin.com/jobs/',
-    sample: true,
-  }))
+  return ROWS.map((r, i) => {
+    const days = [0, 1, 3, 6, 10][i % 5]
+    const desc = `${r.title}. Own the roadmap and prioritization with stakeholders, use analytics and SQL, run experimentation and customer discovery.`
+    const c = classifyJob({ title: r.title, location: r.location, description: desc })
+    return {
+      ...r,
+      id: `sample-${i + 1}`,
+      postedOn: iso(days),
+      postedAt: new Date(Date.now() - (days * 24 + 5) * 3600000).toISOString(),
+      url: 'https://example.com/sample-job',
+      sample: true,
+      track: c.track,
+      market: c.market === 'other' ? null : c.market,
+      skills: c.skills,
+      salary: i % 3 === 1 ? (r.country === 'IN' ? { min: 40, max: 55, currency: 'INR' as const } : { min: 180, max: 230, currency: 'USD' as const }) : null,
+    }
+  })
 }

@@ -38,16 +38,20 @@ supabase/
   functions/create-order | verify-payment | razorpay-webhook   Razorpay → grant_plan()
   functions/rewrite-bullet   optional AI rewrites (paid; never invents numbers)
   seed.sql                   generated from src/data/resources.json
-scripts/scrape-jobs.ts       daily ingestion (GitHub Action, 01:30 UTC)
+functions/scrape-jobs      job collector: reads company job boards, categorises postings with the ATS engine (pg_cron, twice a day)
+supabase/cron/             the schedule (run once per project)
+packages/ats-engine-v2     the scoring and matching engine shared by the app, the collector and the tests
 ```
 
 **What is enforced where**
 
 | Rule | Enforcement |
 |---|---|
-| 1 free score per account | Postgres `consume_score()` under an advisory lock, called from the `score-resume` edge function |
+| Resume scoring is free | It runs in the browser with the v2 engine (`packages/ats-engine-v2`). `score-resume` and `consume_score()` are the older server-side path and are no longer used by the app |
+| One saved resume per account | `latest_scan` has `user_id` as its primary key; row-level security limits it to the owner |
 | Jobs / resources / saved resumes are paid | RLS policies using `has_access(auth.uid())`; the client cannot read them without a valid plan |
-| Jobs older than 2 days are hidden | RLS: `posted_on >= current_date - 1` **and** the scraper purges stale rows |
+| Jobs older than 14 days are hidden | RLS (`is_active` and posted within 14 days) **and** `finish_scrape()` removes stale rows after every run |
+| Free accounts only preview matches | `get_matched_jobs()` returns three rows without links unless `has_access()` is true |
 | LaTeX export is paid | `export-resume` edge function checks the entitlement |
 | Payments can't be forged | HMAC signature verification + amount check in the webhook; `grant_plan()` is idempotent per payment id and not callable by clients |
 
@@ -57,12 +61,12 @@ scripts/scrape-jobs.ts       daily ingestion (GitHub Action, 01:30 UTC)
 2. **Edge functions**: `supabase functions deploy score-resume export-resume create-order verify-payment razorpay-webhook rewrite-bullet`, then `supabase secrets set RAZORPAY_KEY_ID=… RAZORPAY_KEY_SECRET=… RAZORPAY_WEBHOOK_SECRET=…` (+ `ANTHROPIC_API_KEY` for AI rewrites).
 3. **Razorpay**: add a webhook to `…/functions/v1/razorpay-webhook` for `payment.captured`. For US customers, enable **international payments** on the Razorpay account (prices are INR).
 4. **Hosting**: deploy `dist/` to any static host with SPA fallback (Vercel/Netlify/Cloudflare Pages) with the two `VITE_` env vars set.
-5. **Jobs**: add `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` as GitHub Actions secrets; the `Daily PM jobs drop` workflow runs at 01:30 UTC.
+5. **Jobs**: deploy `scrape-jobs`, set the `CRON_SECRET` function secret, store the same value in the vault as `cron_secret`, then run `supabase/cron/scrape-jobs.sql` with your project ref. The collector runs at 01:30 and 13:30 UTC. Check `public.scrape_runs` after a run, and edit `public.tracked_companies` to add or pause companies.
 6. Update `ALLOWED_ORIGINS` for the edge functions to your domain.
 
 ## Things you should know
 
-- **LinkedIn scraping violates LinkedIn's User Agreement** and GitHub runners are frequently rate-limited. The scraper is deliberately low-volume and never wipes existing jobs when blocked, but for a durable product, swap `fetchPage` for a licensed jobs data provider (the rest of the pipeline is source-agnostic). Review the legal risk before charging for it.
+- **Where jobs come from:** the public job-board APIs that Greenhouse, Lever and Ashby offer for each company's own openings. There is no scraping of any site that forbids it. Boards post few product-manager roles a day (about 6 in 72 hours across 128 boards, about 47 in two weeks), so the feed keeps two weeks and flags the last three days as new. Coverage of Indian companies is modest because many use their own career sites; more supply needs more boards in `tracked_companies` or a licensed jobs API.
 - **"ATS score" honesty**: no real ATS publishes a 0–100 score. The UI says so. We measure parse-ability, structure, PM-specific content quality and keyword overlap.
 - **PDF output**: the best export is the `.tex` (compile with pdfLaTeX / Overleaf). The in-browser "Print / Save as PDF" is a quick path that mirrors the template but is not byte-identical. A server-side LaTeX compile service is the natural next step.
 - The Writer's live preview is an HTML approximation of the LaTeX output.

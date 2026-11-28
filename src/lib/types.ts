@@ -23,6 +23,16 @@ export interface Job {
   url: string
   postedOn: string // YYYY-MM-DD
   sample?: boolean
+  /** Categories assigned by the ATS engine when the posting was collected. */
+  track?: string | null
+  market?: 'india' | 'us' | 'remote_global' | null
+  postedAt?: string
+  salary?: { min: number; max: number; currency: 'INR' | 'USD' } | null
+  skills?: string[]
+  /** How well this posting fits the signed-in person's latest resume. Absent until they have scored one. */
+  match?: { score: number; matched: string[]; missing: string[] } | null
+  /** True when a free account is previewing a match: no apply link. */
+  locked?: boolean
 }
 export interface SavedJob {
   job: Job
@@ -100,6 +110,8 @@ export interface Api {
   scoreResume(input: ScoreInput): Promise<ScoreReport>
   jobCounts(): Promise<{ US: number; IN: number; total: number }>
   listJobs(): Promise<Job[]>
+  /** The top matches a free account may preview (no links). Empty when there is nothing to match yet. */
+  peekMatches(): Promise<Job[]>
   listSavedJobs(): Promise<SavedJob[]>
   saveJob(job: Job, status: JobStatus): Promise<void>
   removeSavedJob(jobId: string): Promise<void>

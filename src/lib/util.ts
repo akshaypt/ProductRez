@@ -15,9 +15,10 @@ export function formatDate(iso: string | null): string {
 }
 
 /** Hours + minutes until the next 01:30 UTC (07:00 AM IST) job drop. */
+/** The job collector runs at 01:30 UTC (7:00 AM IST) and 13:30 UTC. */
 export function nextDrop(now = new Date()): { h: number; m: number } {
-  const t = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 1, 30))
-  if (t <= now) t.setUTCDate(t.getUTCDate() + 1)
+  const day = (h: number) => new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), h, 30))
+  const t = [day(1), day(13), new Date(day(1).getTime() + 86400000)].find((x) => x > now)!
   const mins = Math.round((t.getTime() - now.getTime()) / 60000)
   return { h: Math.floor(mins / 60), m: mins % 60 }
 }

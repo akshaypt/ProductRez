@@ -19,7 +19,7 @@ export const PLANS: Plan[] = [
 export const PAID_FEATURES = [
   'PM Resume Writer with 6 ATS-safe LaTeX templates',
   'Fix what the score finds: bullet-by-bullet rewrites in the Writer',
-  'Fresh PM jobs from the last 2 days, US + India',
+  'Fresh PM jobs from company job boards, ranked by how well they match your resume',
   'Curated videos, articles, books & learning paths',
   'Bullet coach with AI rewrites that never invent metrics',
   'Job pipeline tracker: saved → applied → offer',

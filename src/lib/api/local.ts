@@ -2,6 +2,7 @@ import { scoreResume, checkResume, type ScoreInput, type ScoreReport } from '@sc
 import { buildLatex } from '@latex'
 import { ApiError, type Api, type AppUser, type Entitlement, type Job, type JobStatus, type LatestScan, type PlanId, type Progress, type SavedJob, type StoredResume } from '../types'
 import { demoJobs } from './demoJobs'
+import { profileFromReport, scoreMatch, type ResumeProfile } from '@ats'
 import { localRewrite } from '../rewrite'
 import resources from '../../data/resources.json'
 
@@ -12,6 +13,18 @@ const K = {
   resumes: 'pr.demo.resumes',
   saved: 'pr.demo.saved',
   progress: 'pr.demo.progress',
+}
+/** Scores jobs against the saved resume with the same function the database uses, best match first. */
+function rank(jobs: Job[]): Job[] {
+  const scan = read<LatestScan | null>('pr.demo.latestScan', null)
+  if (!scan) return jobs
+  const profile: ResumeProfile = profileFromReport(scan.report)
+  return jobs
+    .map((j) => {
+      const m = scoreMatch(profile, { skills: j.skills ?? [], track: (j.track ?? 'generalist') as never, level: j.level, archetype: null, salary: j.salary ?? null, ageHours: (Date.now() - new Date(j.postedAt ?? j.postedOn).getTime()) / 3600000 })
+      return { ...j, match: { score: m.score, matched: m.matched, missing: m.missing } }
+    })
+    .sort((a, b) => (b.match?.score ?? 0) - (a.match?.score ?? 0))
 }
 const read = <T,>(k: string, fallback: T): T => {
   try {
@@ -105,7 +118,11 @@ export function createLocalApi(): Api {
     },
     async listJobs() {
       requirePaid()
-      return demoJobs()
+      return rank(demoJobs())
+    },
+    async peekMatches() {
+      const ranked = rank(demoJobs()).filter((j) => j.match).slice(0, 3)
+      return ranked.map((j) => ({ ...j, url: '', locked: true }))
     },
     async listSavedJobs() {
       requirePaid()
