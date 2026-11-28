@@ -56,13 +56,18 @@
 .sd-pay-med { text-align: right; } .sd-pay-med b { font-size: 1.25rem; font-weight: 650; }
 
 .sd-pay { position: relative; margin: 2px 10px 0; user-select: none; }
-.sd-pay-flags { position: relative; height: 44px; } .sd-pay-flags.two { height: 82px; } .sd-pay-flags.empty { height: 50px; }
+.sd-pay-flags { position: relative; height: 46px; } .sd-pay-flags.empty { height: 50px; }
 .sd-flag { position: absolute; bottom: 0; width: 0; height: 0; --stem: 9px; z-index: 2; } .sd-flag.l1 { --stem: 47px; z-index: 1; }
 .sd-flag.cur { color: var(--amber); } .sd-flag.exp { color: var(--info); }
 .sd-flag-chip { position: absolute; bottom: var(--stem); left: 0; transform: translateX(-50%); white-space: nowrap; display: inline-flex; align-items: baseline; gap: 6px; padding: 4px 11px 5px; border-radius: 999px; background: var(--surface); border: 1.5px solid currentColor; animation: sd-pop .45s cubic-bezier(.2, .9, .3, 1.2) both; }
 .sd-flag.start .sd-flag-chip { transform: translateX(-12px); } .sd-flag.end .sd-flag-chip { transform: translateX(calc(-100% + 12px)); }
 .sd-flag-chip small { font-size: 0.7rem; color: var(--text-3); font-weight: 600; } .sd-flag-chip b { font-size: 0.98rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
-.sd-arrow { font-style: normal; font-size: 0.7rem; color: currentColor; }
+.sd-arrow { font-style: normal; font-size: 0.7rem; color: currentColor; align-self: center; }
+.sd-dotm { width: 9px; height: 9px; border-radius: 50%; align-self: center; flex: none; } .sd-dotm.cur { background: var(--amber); } .sd-dotm.exp { background: var(--info); }
+.sd-to { font-style: normal; color: var(--text-3); align-self: center; font-size: 0.85rem; }
+.sd-flag.both { color: var(--text-3); } .sd-flag.both .sd-flag-chip { border-color: var(--border-strong); gap: 7px; } .sd-flag.both .sd-flag-chip b { font-size: 0.95rem; }
+.sd-pay-inputs .sd-field:nth-child(-n+2) > span::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 7px; }
+.sd-pay-inputs .sd-field:nth-child(1) > span::before { background: var(--amber); } .sd-pay-inputs .sd-field:nth-child(2) > span::before { background: var(--info); }
 .sd-flag-stem { position: absolute; left: -0.5px; bottom: 0; width: 1px; height: var(--stem); background: currentColor; opacity: 0.7; }
 .sd-pay-hint { position: absolute; bottom: 12px; transform: translateX(-50%); font-size: 0.78rem; color: var(--text-3); border: 1px dashed var(--border-strong); border-radius: 999px; padding: 5px 12px; white-space: nowrap; }
 .sd-pay-track { position: relative; height: 18px; }

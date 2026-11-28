@@ -1,4 +1,4 @@
-import { alignAt, edgeOf, levels, money, posOf, scaleFor, type Band, type Cur } from '../../lib/pay'
+import { alignAt, clusters, edgeOf, money, posOf, scaleFor, type Band, type Cur } from '../../lib/pay'
 
 interface Props {
   band: Band
@@ -10,37 +10,58 @@ interface Props {
 
 /**
  * The market pay range for the person's level, focus and company type as a horizontal ruler.
- * Above it, small flags show where the person is today and where they want to be; below it, the median and the range their resume
- * supports. The range stretches (within limits) so a flag stays on the chart; only a value far outside it is pinned to the edge with an arrow.
- * Everything is positioned by percentage, so it scales from a phone to a wide screen.
+ * Above it, one small pill per value shows where the person is today and where they want to be. When the two would collide they
+ * share a single pill ("₹35L → ₹40L"), so the chart never has two labels and two stems stacked on one spot. Below it are the median
+ * and the range their resume supports. The range stretches (within limits) so a value stays on the chart; only a value far outside it is
+ * pinned to the edge with an arrow. Everything is positioned by percentage, so it scales from a phone to a wide screen.
  */
 export function PayChart({ band, fit, currency, current, expected }: Props) {
   const s = scaleFor(band, [current, expected].filter((v): v is number => v !== null))
   const at = (v: number) => posOf(v, s)
-  const [lc, le] = levels(current === null ? null : at(current), expected === null ? null : at(expected))
-  const pins = [
-    current !== null && { key: 'cur', label: 'You now', v: current, level: lc, cls: 'cur' },
-    expected !== null && { key: 'exp', label: 'You want', v: expected, level: le, cls: 'exp' },
-  ].filter(Boolean) as { key: string; label: string; v: number; level: 0 | 1; cls: string }[]
+  const pc = current === null ? null : at(current)
+  const pe = expected === null ? null : at(expected)
+  const together = clusters(pc, pe)
+  const ec = current === null ? null : edgeOf(current, s)
+  const ee = expected === null ? null : edgeOf(expected, s)
   const aria = [`Market range ${money(currency, band.min)} to ${money(currency, band.max)}, median ${money(currency, band.median)}.`, `Your resume supports ${money(currency, fit.low)} to ${money(currency, fit.high)}.`, current !== null ? `You now: ${money(currency, current)}.` : '', expected !== null ? `You want: ${money(currency, expected)}.` : ''].filter(Boolean).join(' ')
+
+  // Two dots on (nearly) the same spot are nudged apart so both can be seen, always toward the inside of the chart so neither is cut off at an edge.
+  const nudge = (own: number | null, other: number | null, which: 'cur' | 'exp') => {
+    if (own === null || other === null || Math.abs(own - other) >= 4) return 0
+    const mid = (own + other) / 2
+    if (mid > 85) return which === 'cur' ? -15 : 0
+    if (mid < 15) return which === 'exp' ? 15 : 0
+    return which === 'cur' ? -8 : 8
+  }
+
+  const pill = (key: string, pct: number, className: string, children: React.ReactNode, title?: string) => (
+    <div key={key} className={`sd-flag ${className} ${alignAt(pct)}`} style={{ left: `${pct}%` }}>
+      <div className="sd-flag-chip" title={title}>{children}</div>
+      <span className="sd-flag-stem" />
+    </div>
+  )
+  const arrow = (edge: 'below' | 'above' | null, where: 'before' | 'after') => (edge === 'below' && where === 'before' ? <i className="sd-arrow" aria-hidden="true">◂</i> : edge === 'above' && where === 'after' ? <i className="sd-arrow" aria-hidden="true">▸</i> : null)
+
   return (
     <div className="sd-pay" role="img" aria-label={aria}>
-      <div className={'sd-pay-flags' + (pins.length === 0 ? ' empty' : lc === 1 || le === 1 ? ' two' : '')}>
-        {pins.length === 0 && <div className="sd-pay-hint" style={{ left: `${at(band.median)}%` }}>Add your pay to see where you land</div>}
-        {pins.map((p) => {
-          const pct = at(p.v)
-          const edge = edgeOf(p.v, s)
-          return (
-            <div key={p.key} className={`sd-flag ${p.cls} ${alignAt(pct)} l${p.level}`} style={{ left: `${pct}%` }}>
-              <div className="sd-flag-chip" title={edge ? `${money(currency, p.v)} is outside the range shown` : undefined}>
-                {edge === 'below' && <i className="sd-arrow" aria-hidden="true">◂</i>}
-                <small>{p.label}</small><b>{money(currency, p.v)}</b>
-                {edge === 'above' && <i className="sd-arrow" aria-hidden="true">▸</i>}
-              </div>
-              <span className="sd-flag-stem" />
-            </div>
-          )
-        })}
+      <div className={'sd-pay-flags' + (current === null && expected === null ? ' empty' : '')}>
+        {current === null && expected === null && <div className="sd-pay-hint" style={{ left: `${at(band.median)}%` }}>Add your pay to see where you land</div>}
+
+        {together && pc !== null && pe !== null && current !== null && expected !== null &&
+          pill('both', (pc + pe) / 2, 'both', (
+            <>
+              {arrow(ec === 'below' && ee === 'below' ? 'below' : null, 'before')}
+              <i className="sd-dotm cur" /><b>{money(currency, current)}</b>
+              <i className="sd-to" aria-hidden="true">→</i>
+              <i className="sd-dotm exp" /><b>{money(currency, expected)}</b>
+              {arrow(ec === 'above' && ee === 'above' ? 'above' : null, 'after')}
+            </>
+          ), `You now ${money(currency, current)}, you want ${money(currency, expected)}`)}
+
+        {!together && current !== null && pc !== null &&
+          pill('cur', pc, 'cur', <>{arrow(ec, 'before')}<small>You now</small><b>{money(currency, current)}</b>{arrow(ec, 'after')}</>, ec ? `${money(currency, current)} is outside the range shown` : undefined)}
+        {!together && expected !== null && pe !== null &&
+          pill('exp', pe, 'exp', <>{arrow(ee, 'before')}<small>You want</small><b>{money(currency, expected)}</b>{arrow(ee, 'after')}</>, ee ? `${money(currency, expected)} is outside the range shown` : undefined)}
       </div>
 
       <div className="sd-pay-track">
@@ -52,7 +73,8 @@ export function PayChart({ band, fit, currency, current, expected }: Props) {
           <i className="seg off" style={{ left: `${at(band.max)}%`, width: `${100 - at(band.max)}%` }} />
         </div>
         <i className="sd-median" style={{ left: `${at(band.median)}%` }} />
-        {pins.map((p) => <i key={p.key} className={`sd-dot ${p.cls}`} style={{ left: `${at(p.v)}%` }} />)}
+        {pc !== null && <i className="sd-dot cur" style={{ left: `calc(${pc}% + ${nudge(pc, pe, 'cur')}px)` }} />}
+        {pe !== null && <i className="sd-dot exp" style={{ left: `calc(${pe}% + ${nudge(pe, pc, 'exp')}px)` }} />}
       </div>
 
       <div className="sd-pay-axis">

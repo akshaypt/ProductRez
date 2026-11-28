@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { alignAt, edgeOf, levels, money, ordinal, parseAmount, posOf, scaleFor, splitLabel } from '../src/lib/pay'
+import { alignAt, clusters, edgeOf, money, ordinal, parseAmount, posOf, scaleFor, splitLabel } from '../src/lib/pay'
 
 const band = { min: 30, p25: 38, median: 45, p75: 55, max: 70 }
 
@@ -36,10 +36,12 @@ describe('pay chart geometry', () => {
     expect(alignAt(50)).toBe('mid')
     expect(alignAt(95)).toBe('end')
   })
-  it('raises the second label when two pins would overlap', () => {
-    expect(levels(40, 48)).toEqual([0, 1])
-    expect(levels(10, 80)).toEqual([0, 0])
-    expect(levels(40, null)).toEqual([0, 0])
+  it('gives two pins that would collide one shared label, and far-apart pins their own', () => {
+    expect(clusters(40, 48)).toBe(true)
+    expect(clusters(100, 100)).toBe(true)
+    expect(clusters(10, 80)).toBe(false)
+    expect(clusters(40, null)).toBe(false)
+    expect(clusters(null, null)).toBe(false)
   })
 })
 

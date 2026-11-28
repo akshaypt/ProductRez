@@ -37,10 +37,10 @@ export const edgeOf = (v: number, s: { lo: number; hi: number }): 'below' | 'abo
 export const alignAt = (pct: number): 'start' | 'mid' | 'end' => (pct < 18 ? 'start' : pct > 82 ? 'end' : 'mid')
 
 /**
- * Two pins closer than `gap` percent would overlap their labels. Returns the level (0 or 1) each should sit on, so the second is raised.
- * The first value keeps level 0.
+ * Two pins closer than `gap` percent of the chart would collide if each had its own label, so they share one label ("₹35L → ₹40L").
+ * Stacking two labels with two stems on top of each other is what made this part of the chart look cluttered.
  */
-export const levels = (a: number | null, b: number | null, gap = 22): [0 | 1, 0 | 1] => (a !== null && b !== null && Math.abs(a - b) < gap ? [0, 1] : [0, 0])
+export const clusters = (a: number | null, b: number | null, gap = 26): boolean => a !== null && b !== null && Math.abs(a - b) < gap
 
 /** Reads a typed amount. Null for empty, not a number, zero, negative or an unreasonable size. */
 export const parseAmount = (s: string): number | null => {
