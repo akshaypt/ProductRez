@@ -101,7 +101,7 @@ describe('a resume that does show product experience', () => {
 
 describe('headline wording', () => {
   it('uses the right verb for one blocker', () => {
-    for (const text of Object.values(FX).filter((v): v is string => typeof v === 'string')) {
+    for (const text of Object.values(FX).filter((v) => typeof v === 'string') as string[]) {
       const r = scoreResume({ text, source: 'paste' }, NOW)
       expect(r.headline).not.toMatch(/\b1 critical blockers\b|\b1 critical blocker stand\b/)
     }

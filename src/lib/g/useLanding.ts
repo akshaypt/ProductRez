@@ -4,7 +4,8 @@ import { useApp } from '../../state/app'
 import { analysisStore } from './store'
 import { collectSubmission } from './collect'
 import { SCAN_MS, scanPlan, type ScanStage } from './scan'
-import { readResume, ResumeReadError, runAnalysis, suggest, type LoadedResume, type Picks } from './analyze'
+import { mergePicks } from './autofill'
+import { readResume, ResumeReadError, runAnalysis, suggest, type LoadedResume, type Picks, type Why } from './analyze'
 
 const THEME_KEY = 'productrez_theme'
 const read = () => { try { return localStorage.getItem(THEME_KEY) } catch { return null } }
@@ -46,6 +47,9 @@ export function useLanding() {
   const [fileError, setFileError] = useState('')
   const [picks, setPicks] = useState<Picks>({ level: null, track: null, company: null, currency: prefs.currency })
   const [autofilled, setAutofilled] = useState(false)
+  const autoRef = useRef<Picks | null>(null)
+  const [auto, setAuto] = useState<Picks | null>(null)
+  const [why, setWhy] = useState<Why | null>(null)
   // A currency the person chooses by hand is remembered for onboarding and the account. A detected one is not.
   const setCurrency = useCallback((currency: Picks['currency']) => { setPicks((p) => ({ ...p, currency })); if (currency) setPrefs({ currency }) }, [setPrefs])
   const [jd, setJd] = useState('')
@@ -70,7 +74,8 @@ export function useLanding() {
       const s = await suggest(r)
       if (s.message) { setFileError(s.message); return }
       setLoaded(r)
-      setPicks((p) => ({ level: p.level ?? s.picks.level, track: p.track ?? s.picks.track, company: p.company ?? 'Scale-ups', currency: s.picks.currency ?? p.currency }))
+      setPicks((p) => mergePicks(p, autoRef.current, s.picks))
+      autoRef.current = s.picks; setAuto(s.picks); setWhy(s.why ?? null)
       setAutofilled(true)
     } catch (e) {
       setFileError(e instanceof ResumeReadError ? e.message : 'We could not read that file. Try a text-based PDF or DOCX.')
@@ -97,5 +102,5 @@ export function useLanding() {
     }
   }, [loaded, picks, jd, fileError, say, go, api])
 
-  return { user, openAuth, go, loaded, reading, fileError, picks, setPicks, setCurrency, autofilled, jd, setJd, jdOpen, setJdOpen, toast, nudge, nudgeOnly, onFile, review, scan, say }
+  return { user, openAuth, go, loaded, reading, fileError, picks, setPicks, setCurrency, autofilled, auto, why, jd, setJd, jdOpen, setJdOpen, toast, nudge, nudgeOnly, onFile, review, scan, say }
 }

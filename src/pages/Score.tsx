@@ -10,9 +10,11 @@ import { COMPANIES, CURRENCIES, LEVELS, TRACKS } from '../lib/g/data'
 import { collectSubmission } from '../lib/g/collect'
 import { SCAN_MS, scanPlan, useScanTimeline, type ScanStage } from '../lib/g/scan'
 import { ConsentNote } from '../components/ConsentNote'
+import { WhyPicks } from '../components/WhyPicks'
 import { AiLog } from '../components/g/AiLog'
 import '../styles/scan.css'
-import { readResume, ResumeReadError, runAnalysis, suggest, type LoadedResume, type Picks } from '../lib/g/analyze'
+import { mergePicks } from '../lib/g/autofill'
+import { readResume, ResumeReadError, runAnalysis, suggest, type LoadedResume, type Picks, type Why } from '../lib/g/analyze'
 
 
 export default function Score() {
@@ -21,6 +23,9 @@ export default function Score() {
   const [saved, setSaved] = useState<LatestScan | null | undefined>(undefined) // undefined while loading
   const [uploading, setUploading] = useState(false)
   const [loaded, setLoaded] = useState<LoadedResume | null>(null)
+  const autoRef = useRef<Picks | null>(null)
+  const [auto, setAuto] = useState<Picks | null>(null)
+  const [why, setWhy] = useState<Why | null>(null)
   const [picks, setPicks] = useState<Picks>({ level: null, track: null, company: null, currency: prefs.currency })
   const [jd, setJd] = useState('')
   const [showJd, setShowJd] = useState(false)
@@ -45,7 +50,8 @@ export default function Score() {
       if (s.message) { setErr(s.message); return }
       const fallback = prefs.stage === 'senior' ? 'Senior PM' : prefs.stage === 'aspiring' ? 'APM (0–2 yrs)' : 'Product Manager'
       setLoaded(r)
-      setPicks((p) => ({ currency: s.picks.currency ?? p.currency, level: p.level ?? s.picks.level ?? fallback, track: p.track ?? s.picks.track, company: p.company ?? 'Scale-ups' }))
+      setPicks((p) => { const m = mergePicks(p, autoRef.current, s.picks); return { ...m, level: m.level ?? fallback } })
+      autoRef.current = s.picks; setAuto(s.picks); setWhy(s.why ?? null)
     } catch (e) {
       setErr(e instanceof ResumeReadError ? e.message : 'We could not read that file. Export your resume as a text-based PDF or DOCX and try again.')
     } finally {
@@ -180,6 +186,7 @@ export default function Score() {
               </label>
             </div>
           )}
+          {loaded && <WhyPicks why={why} auto={auto} picks={picks} />}
           {loaded && (
             <div className="field">
               <button className="btn ghost" style={{ alignSelf: 'flex-start' }} onClick={() => setShowJd((s) => !s)} aria-expanded={showJd}>

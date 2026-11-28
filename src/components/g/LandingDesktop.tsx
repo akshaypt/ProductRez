@@ -6,6 +6,7 @@ import { COMPANIES, CURR, CURRENCIES, currencyLabel, LEVELS, REWRITE_STEPS, SAMP
 import { useLanding, type Theme } from '../../lib/g/useLanding'
 import { analysisStore } from '../../lib/g/store'
 import { ConsentNote } from '../ConsentNote'
+import { WhyPicks } from '../WhyPicks'
 import { saveHandoffFromAnalysis } from '../../lib/g/handoff'
 import { ReportView } from './ReportView'
 
@@ -120,6 +121,7 @@ export function LandingDesktop({ theme, toggleTheme, view }: { theme: Theme; tog
                 {L.autofilled ? 'Pre-filled from your resume. Click any pill to adjust:' : 'Auto-fills from your resume after upload, or pick manually:'}
               </div>
               I'm targeting {pill('level', 'Select level', LEVELS)} roles in {pill('track', 'PM focus', TRACKS)} at {pill('company', 'company type', COMPANIES)}, paid in {pill('currency', 'pick currency', CURRENCIES)}.
+              <WhyPicks why={L.why} auto={L.auto} picks={L.picks} />
             </div>
 
             <div className={'jd-box' + (L.jdOpen ? ' g-open' : '')}>

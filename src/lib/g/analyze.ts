@@ -5,6 +5,8 @@ import { COMPANIES, LEVELS, TRACKS } from './data'
 
 export interface LoadedResume { name: string; text: string; pageCount: number | null; size: number; source: 'pdf' | 'docx' | 'paste' }
 export interface Picks { level: string | null; track: string | null; company: string | null; currency: Currency | null }
+/** One plain sentence per pre-filled pick, saying what in the resume it was read from. */
+export interface Why { level: string; track: string; company: string }
 export interface Analysis { resume: LoadedResume; picks: Picks; jd: string; report: ScoreReport }
 
 export const MAX_BYTES = 5 * 1024 * 1024
@@ -74,7 +76,7 @@ export async function readResume(file: File): Promise<LoadedResume> {
 const lbl = <T extends { label: string; v: string }>(list: T[], v: string | undefined) => list.find((x) => x.v === v)?.label ?? null
 
 /** A first pass with everything on auto, used only to pre-fill the three pills from what the resume says. */
-export async function suggest(r: LoadedResume): Promise<{ picks: Picks; message?: string }> {
+export async function suggest(r: LoadedResume): Promise<{ picks: Picks; why?: Why; message?: string }> {
   const eng = await import('@ats')
   const chk = eng.checkResume(r.text)
   if (!chk.ok) {
@@ -86,8 +88,9 @@ export async function suggest(r: LoadedResume): Promise<{ picks: Picks; message?
     }
   }
   const rep = eng.scoreResume({ text: r.text, source: r.source, pageCount: r.pageCount ?? undefined, fileSizeBytes: r.size, market: marketForCurrency(detectCurrency(r.text) ?? 'USD') })
-  const top = [...rep.marketStanding.trackReadiness].sort((a, b) => b.readinessScore - a.readinessScore)[0]
-  return { picks: { level: lbl(LEVELS, rep.contextUsed.detectedLevel), track: lbl(TRACKS, top?.track), company: null, currency: detectCurrency(r.text) } }
+  // Level from PM years and titles, focus from the domain the person works in, company type from their employers: see inferContext.
+  const ctx = eng.inferContext(rep)
+  return { picks: { level: lbl(LEVELS, ctx.level), track: lbl(TRACKS, ctx.track), company: lbl(COMPANIES, ctx.archetype), currency: detectCurrency(r.text) }, why: ctx.reasons }
 }
 
 export async function runAnalysis(r: LoadedResume, picks: Picks, jd: string): Promise<Analysis> {

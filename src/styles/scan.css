@@ -13,3 +13,11 @@
 @media (max-height: 720px) { .scan-overlay .scan-modal .g-scan-doc { display: none; } .ai-log { height: 104px; } }
 .consent-note { margin: 10px 2px 0; font-size: 11.5px; line-height: 1.5; opacity: 0.72; text-align: left; }
 .consent-note a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+/* "Why these picks?" under the pre-filled upload form. Colours follow the page, so it fits the landing page and the app. */
+.why-picks { margin: 8px 2px 0; font-size: 12px; line-height: 1.5; text-align: left; }
+.why-picks summary { cursor: pointer; font-weight: 600; opacity: 0.8; width: fit-content; text-decoration: underline; text-underline-offset: 3px; }
+.why-picks dl { margin: 8px 0 0; display: grid; gap: 6px; }
+.why-picks dl > div { display: grid; grid-template-columns: 92px 1fr; gap: 8px; }
+.why-picks dt { font-weight: 700; opacity: 0.7; } .why-picks dd { margin: 0; opacity: 0.85; }
+@media (max-width: 520px) { .why-picks dl > div { grid-template-columns: 1fr; gap: 0; } }

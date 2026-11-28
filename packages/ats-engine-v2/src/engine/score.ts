@@ -8,6 +8,7 @@ import {
   LEVEL_SIGNALS,
   MARKET_KB,
   PM_TITLE_PATTERN,
+  isPmTitle,
   REMOTE_SIGNALS,
   TRACK_KB,
   TRENDING_SKILLS_2026,
@@ -92,7 +93,7 @@ export function estimateYears(data: ResumeData, now = new Date()): number {
 
 function estimatePmYears(data: ResumeData, totalYears: number): number {
   const pmMonths = data.experience
-    .filter((x) => PM_TITLE_PATTERN.test(x.title) || /\bfounder\b/i.test(x.title))
+    .filter((x) => isPmTitle(x.title) || /\bfounder\b/i.test(x.title))
     .reduce((sum, x) => sum + (x.months ?? 0), 0)
   if (pmMonths > 0) return Math.round((pmMonths / 12) * 10) / 10
   // A PM-style title that the pattern above does not list (for example "Product Strategist"). Titles that only mention a product, such as
@@ -136,9 +137,12 @@ function detectLevel(pmYears: number, text: string): Level {
   if (/\b(senior product manager|sr\.? product manager|principal product manager|staff product manager|lead product manager)\b/.test(titles)) {
     return pmYears >= 8.5 ? 'lead' : 'senior'
   }
+  // Years alone must not make someone a Lead / Group PM: nine years with the title "Product Manager" is a PM who has not been promoted yet, and
+  // the realistic next level for them is Senior. Reaching Lead by years needs a senior or leadership title somewhere in the career.
+  const heldSenior = /\b(senior|sr\.?|principal|staff|lead|group|director|head|vp)\b/.test(titles)
   if (pmYears < 2) return 'apm'
   if (pmYears < 5) return 'pm'
-  if (pmYears < 8.5) return 'senior'
+  if (pmYears < 8.5 || !heldSenior) return 'senior'
   return 'lead'
 }
 

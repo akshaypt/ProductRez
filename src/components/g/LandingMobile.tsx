@@ -6,6 +6,7 @@ import { COMPANIES, CURR, CURRENCIES, currencyLabel, LEVELS, SAMPLE_JOBS, TRACKS
 import { useLanding, type Theme } from '../../lib/g/useLanding'
 import { analysisStore } from '../../lib/g/store'
 import { ConsentNote } from '../ConsentNote'
+import { WhyPicks } from '../WhyPicks'
 import { saveHandoffFromAnalysis } from '../../lib/g/handoff'
 import { ReportView } from './ReportView'
 
@@ -78,6 +79,7 @@ export function LandingMobile({ theme, toggleTheme, view }: { theme: Theme; togg
               <div className="madlibs">
                 <div style={{ fontSize: 11, color: L.autofilled ? 'var(--emerald)' : 'var(--muted)', lineHeight: 1.3, marginBottom: 4 }}>{L.autofilled ? 'Pre-filled from your resume. Tap to adjust:' : 'Auto-fills after upload, or tap to pick:'}</div>
                 I'm targeting {pill('level', 'Select level')} roles in {pill('track', 'PM focus')} at {pill('company', 'company type')}, paid in {pill('currency', 'pick currency')}.
+                <WhyPicks why={L.why} auto={L.auto} picks={L.picks} />
               </div>
 
               <div className={'jd-box' + (L.jdOpen ? ' g-open' : '')}>

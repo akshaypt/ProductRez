@@ -206,5 +206,9 @@ export const LEVEL_SIGNALS: Record<'senior' | 'lead', RegExp> = {
 export const TITLE_WORDS =
   /\b(manager|product|owner|lead|director|analyst|engineer|intern|associate|head|vp|vice president|founder|co-?founder|consultant|designer|developer|specialist|strategist|architect|officer|president|principal|apm|pm|scientist|coordinator|executive|fellow)\b/i
 
+/** A product manager title, including the bare abbreviation ("PM", "Sr. PM") unless the title is clearly a project or program manager. */
+export const isPmTitle = (title: string): boolean =>
+  PM_TITLE_PATTERN.test(title) || (/\bpm\b/i.test(title) && !/\b(project|program|programme|portfolio|production|post)\b/i.test(title))
+
 export const PM_TITLE_PATTERN =
   /\b(product manager|associate product manager|senior product manager|group product manager|principal product manager|staff product manager|director of product|head of product|vp of product|chief product officer|product owner|product lead|\bapm\b|\bgpm\b|\bcpo\b)\b/i

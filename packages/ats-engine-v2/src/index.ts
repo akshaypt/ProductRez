@@ -1,6 +1,7 @@
 export * from './types.ts'
 export * from './kb/index.ts'
 export { parseResume, logicalLines, normalizeText, DATE_RANGE } from './parser/parse.ts'
+export { inferContext, trackEvidence, type InferredContext } from './engine/context.ts'
 export { reviewBullet, hasMetric, isWeakOpening, isWeakBullet, firstWord } from './engine/bullets.ts'
 export { matchJobDescription } from './engine/jdMatch.ts'
 export { scoreResume, estimateYears } from './engine/score.ts'
