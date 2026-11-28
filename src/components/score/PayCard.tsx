@@ -160,7 +160,7 @@ export function PayCard({ report, api, signedIn }: { report: ScoreReport; api: A
         <div>
           <small>{fit ? 'Pay range for a resume like yours' : `Typical ${lvlName} pay`}</small>
           <div className="sd-big">{fit ? money(cur$, fit.low) : money(cur$, band.p25)} <span>to</span> {fit ? money(cur$, fit.high) : money(cur$, band.p75)}</div>
-          <p className="sd-sub sd-big-note">{fit ? `This is the ${lvlName} range, placed by how strong your resume is. Stronger bullets move you up it.` : 'The middle half of what people at this level earn.'}</p>
+          <p className="sd-big-note">{fit ? `This is the ${lvlName} range, placed by how strong your resume is. Stronger bullets move you up it.` : 'The middle half of what people at this level earn.'}</p>
         </div>
         <div className="sd-pay-med">
           <small>Market median</small>
