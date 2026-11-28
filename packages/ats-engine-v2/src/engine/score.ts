@@ -28,7 +28,7 @@ import type {
   ScoreReport,
   TrendingSkillResult,
 } from '../types.ts'
-import { firstWord, hasMetric, reviewBullet } from './bullets.ts'
+import { firstWord, hasMetric, isWeakBullet, reviewBullet } from './bullets.ts'
 import { analyzeCareer } from './careerAnalysis.ts'
 import { buildCompensationReport } from './compensation.ts'
 import { matchJobDescription } from './jdMatch.ts'
@@ -38,6 +38,12 @@ const clamp = (n: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, n))
 const round = (n: number) => Math.round(n)
 const pct = (a: number, b: number) => (b === 0 ? 0 : a / b)
 const trim = (s: string, n = 140) => (s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s)
+/** Names a job so a reader can tell two roles with the same title apart: "Product Manager · Acme (Mar 2021 – Present)". */
+const roleLabel = (x: { title: string; company: string; start: string; end: string }) => {
+  const name = [x.title, x.company].filter(Boolean).join(' · ') || 'Role'
+  const dates = [x.start, x.end].filter(Boolean).join(' – ')
+  return dates ? `${name} (${dates})` : name
+}
 
 const LEVEL_ORDER: Level[] = ['apm', 'pm', 'senior', 'lead']
 const LEVEL_LABEL: Record<Level, string> = {
@@ -361,10 +367,20 @@ export function scoreResume(input: ScoreInput, now = new Date()): ScoreReport {
     ctx.push({
       priority: 'P1',
       dimension: 'ownership',
-      title: `"Feature factory" risk: ${featureFactoryRoles.length} role(s) exceed ${archKb.idealBulletsPerRole.max + 1} bullets`,
+      title:
+        featureFactoryRoles.length === 1
+          ? `"Feature factory" risk: ${roleLabel(featureFactoryRoles[0])} has ${featureFactoryRoles[0].bullets.length} bullets`
+          : `"Feature factory" risk: ${featureFactoryRoles.length} roles have more than ${archKb.idealBulletsPerRole.max} bullets (${featureFactoryRoles.slice(0, 3).map(roleLabel).join('; ')})`,
       why: `For ${archKb.label}, listing 6+ bullets per job reads like an output log rather than selective strategic ownership.`,
       fix: `Trim each role to your top ${archKb.idealBulletsPerRole.min}–${archKb.idealBulletsPerRole.max} highest-impact outcome bullets.`,
-      evidence: featureFactoryRoles.slice(0, 2).map((x) => `${x.title || x.company} (${x.bullets.length} bullets)`),
+      evidence: featureFactoryRoles.slice(0, 2).map((x) => `${roleLabel(x)}: ${x.bullets.length} bullets`),
+      // Name bullets in the first such role only when they really are weak or low-impact. If every bullet is good there is nothing
+      // specific to point at, and the role label alone is the honest answer.
+      evidenceBullets: bullets
+        .filter((b) => b.section === 'experience' && b.roleIndex === data.experience.indexOf(featureFactoryRoles[0]) && (isWeakBullet(b) || b.impact <= 1))
+        .sort((a, b) => Number(isWeakBullet(b)) - Number(isWeakBullet(a)) || a.impact - b.impact || b.index - a.index)
+        .slice(0, Math.max(1, featureFactoryRoles[0].bullets.length - archKb.idealBulletsPerRole.max))
+        .map((b) => ({ ref: `Candidate to trim or merge: ${b.ref}`, text: b.text })),
       gain: 5,
       kbRuleId: 'feature_factory',
     })
@@ -535,7 +551,7 @@ export function scoreResume(input: ScoreInput, now = new Date()): ScoreReport {
       title: `${shortStints.length} full-time roles lasted under 10 months`,
       why: 'Multiple short PM stints make recruiters question whether you stayed long enough to ship and measure outcomes.',
       fix: 'Clarify context if roles were contract/acquisition/reorg, and foreground shipped impact inside each short stint.',
-      evidence: shortStints.slice(0, 2).map((x) => `${x.title || x.company} (${x.months} mo)`),
+      evidence: shortStints.slice(0, 2).map((x) => `${roleLabel(x)}: ${x.months} months`),
       gain: 2,
       kbRuleId: 'tenure_stability',
     })
@@ -599,7 +615,8 @@ export function scoreResume(input: ScoreInput, now = new Date()): ScoreReport {
       title: `Fluff / buzzwords detected: "${textBuzz.slice(0, 4).join('", "')}"`,
       why: 'Shreyas Doshi & Big Tech screeners flag adjectives ("visionary", "results-driven") as low-signal fluff.',
       fix: 'Delete adjectives and state facts: years of domain experience, scale, and metrics.',
-      evidence: [],
+      // The bullets that contain these words (a buzzword in the summary has no bullet to point at).
+      evidence: bullets.filter((b) => textBuzz.some((w) => b.text.toLowerCase().includes(w.toLowerCase()))).slice(0, 3).map((b) => trim(b.text, 120)),
       gain: 3,
       kbRuleId: 'buzzwords',
     })
@@ -611,7 +628,7 @@ export function scoreResume(input: ScoreInput, now = new Date()): ScoreReport {
       title: `"${repeated[0][0]}" opens ${repeated[0][1]} different bullets`,
       why: 'Repeating the same opener weakens readability and hides range across discovery, strategy, and shipping.',
       fix: 'Vary openers by PM activity: Discovered, Framed, Prioritized, Prototyped, Shipped, Validated, Monetized.',
-      evidence: [],
+      evidence: bullets.filter((b) => firstWord(b.text) === repeated[0][0]).slice(0, 4).map((b) => trim(b.text, 120)),
       gain: 2,
       kbRuleId: 'verb_variety',
     })
@@ -783,7 +800,7 @@ export function scoreResume(input: ScoreInput, now = new Date()): ScoreReport {
       title: 'Missing parsable date range on one or more roles',
       why: 'ATS systems compute years of experience from explicit start/end dates for recruiter YOE filters.',
       fix: 'Format every role consistently as "Mon YYYY – Mon YYYY" or "Mon YYYY – Present".',
-      evidence: data.experience.filter((x) => !x.start).slice(0, 2).map((x) => x.title || x.company),
+      evidence: data.experience.filter((x) => !x.start).slice(0, 2).map((x) => roleLabel(x)),
       gain: 3,
       kbRuleId: 'date_consistency',
     })

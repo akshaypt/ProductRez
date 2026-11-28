@@ -126,3 +126,82 @@ describe('how many points a fix is claimed to be worth', () => {
     expect(r.findings.reduce((s, f) => s + f.gain, 0)).toBeLessThanOrEqual(35)
   })
 })
+
+describe('naming the role in a finding', () => {
+  const text = `Alex Kim
+alex@example.com | +1 415 555 0100 | San Francisco, CA | linkedin.com/in/alexkim
+
+EXPERIENCE
+Product Manager, Northwind Labs  Mar 2021 - Present
+- Cut loan approval time from 9 days to 3 days by automating document checks.
+- Grew activation from 31% to 47% across 12,000 accounts by redesigning onboarding.
+- Architected the rules engine behind five lending products.
+- Responsible for the roadmap and attending weekly stakeholder meetings.
+- Helped with various analytics tasks for the growth team.
+- Launched a referral program that added 4,000 paying customers in 6 months.
+- Worked on the notification settings page.
+- Improved the help center for new customers.
+Product Manager, Brightly  Jan 2018 - Feb 2021
+- Launched search ranking experiments that reduced time-to-result by 40%.
+- Built the experimentation platform used by six product squads.
+
+EDUCATION
+B.S. Computer Science, State University  2014 - 2018
+
+SKILLS
+SQL, Product analytics, Roadmapping, Experimentation, Figma, Jira`
+  const r = scoreResume({ text, source: 'paste', companyArchetype: 'scaleup' })
+  const f = r.findings.find((x) => x.kbRuleId === 'feature_factory')
+
+  it('says which company and dates a role finding is about, so two roles with one title are distinguishable', () => {
+    expect(f).toBeDefined()
+    expect(f!.evidence[0]).toContain('Northwind Labs')
+    expect(f!.evidence[0]).toMatch(/Mar 2021/)
+    expect(f!.evidence[0]).toMatch(/8 bullets/)
+    expect(f!.evidence[0]).not.toContain('Brightly')
+  })
+
+  it("points at the weak bullets in that role as the ones to trim", () => {
+    expect(f!.evidenceBullets?.length).toBeGreaterThan(0)
+    for (const e of f!.evidenceBullets!) {
+      expect(e.ref).toContain('Northwind Labs')
+      expect(e.ref).toMatch(/bullet \d+/)
+    }
+    const texts = f!.evidenceBullets!.map((e) => e.text).join(' ')
+    expect(texts).toMatch(/Helped with|Worked on|Responsible for|Improved the help center/)
+    expect(texts).not.toMatch(/Cut loan approval time/)
+  })
+})
+
+describe('role findings name the role in the title', () => {
+  it('names the company in the feature-factory title', () => {
+    const r = scoreResume({ text: FX.WEAK_FEATURE_FACTORY_AI_WASHED, source: 'paste' })
+    const f = r.findings.find((x) => x.kbRuleId === 'feature_factory')
+    if (f) expect(f.title).toMatch(/Feature factory.*(·|roles)/)
+  })
+})
+
+describe('findings that talk about bullets point at them', () => {
+  it('names the bullets that repeat an opener', () => {
+    const text = `Alex Kim
+alex@example.com | +1 415 555 0100 | San Francisco, CA
+
+EXPERIENCE
+Product Manager, Northwind Labs  Mar 2021 - Present
+- Designed the onboarding flow and lifted activation from 31% to 47% across 12,000 accounts.
+- Designed the pricing page and raised paid conversion 18% in one quarter.
+- Designed the referral program and added 4,000 paying customers in 6 months.
+- Designed the notification center, cutting churn from 6% to 4.5%.
+
+EDUCATION
+B.S. Computer Science, State University  2014 - 2018
+
+SKILLS
+SQL, Product analytics, Roadmapping, Experimentation, Figma, Jira`
+    const r = scoreResume({ text, source: 'paste' })
+    const f = r.findings.find((x) => x.kbRuleId === 'verb_variety')!
+    expect(f).toBeDefined()
+    expect(f.evidenceBullets?.length).toBe(4)
+    expect(f.evidenceBullets!.map((e) => e.ref)).toEqual(['1', '2', '3', '4'].map((n) => `Product Manager · Northwind Labs · bullet ${n}`))
+  })
+})
