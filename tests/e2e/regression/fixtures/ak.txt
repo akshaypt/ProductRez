@@ -1,0 +1,91 @@
+                                     Akshay Pramod Teli
+      +91 95914 61981 - akshay.teli.001@gmail.com - linkedin.com/in/akshaypramodteli - akshayteli-portfolio.vercel.app
+
+Professional Summary
+Senior Product Manager with 6+ years building fintech, agri-tech and B2B SaaS products, from 0-to-1 platforms to
+payments, lending and D2C growth. Grew subscription conversion 2.7x and doubled day-30 retention across D2C
+apps, scaled lending disbursals from Rs.30 Cr to Rs.100 Cr, and onboarded 70,000+ farmers onto a multi-tenant
+enterprise platform. Own product strategy, roadmap, OKRs and GTM, lead cross-functional teams of up to 27, and
+build AI products hands-on with LLMs and Claude Code.
+
+Experience
+  Senior Product Manager - Silo Fortune                                                                 Aug 2026 - Present
+    - Grew signup-to-subscription conversion 2.7x (2.1% to 5.7%) across D2C apps (100K farmers) by identifying a
+      pre-paywall value gap, restructuring the homepage and onboarding around farm monitoring (20% to 70%
+      first-time adoption), and running paywall A/B tests.
+    - Designed and launched a WhatsApp and push reactivation flow, recovering 13% of dormant users and lifting
+      overall day-30 retention from 2% to 4%.
+    - Led AI product work (disease diagnosis, farm monitoring, crop recommendation), partnering with
+      engineering and agronomists to improve model accuracy and build a knowledge base that powers the farm
+      monitoring hook behind the conversion lift.
+
+  Senior Product Manager - KJBN Labs Pvt Ltd                                                          Nov 2024 - Apr 2026
+    - Defined product vision, strategy, and roadmap for a multi-tenant enterprise SaaS platform, leading 0-to-1
+      development from concept through global rollout across multiple business units; onboarded 70,000+ farmers
+      within the first year.
+    - Designed an accounting and ledger system with audit trails and Enterprise Resource Planning (ERP)
+      integration, cutting the reconciliation cycle from 2-3 days to 2-3 hours.
+    - Shipped Know Your Customer (KYC) and contract eligibility automation, cutting manual verification effort by
+      50% and accelerating compliance turnaround from days to hours.
+    - Architected role-based access control (RBAC) and a configurable workflow engine, enforcing least-privilege
+      access across multiple personas and business units without custom engineering per tenant.
+    - Delivered an offline-first mobile application with intelligent sync, achieving 100% field operations continuity
+      in low-connectivity environments across distributed teams.
+
+  Product Manager - Bijak                                                                             Feb 2022 - Oct 2024
+    - Scaled the lending business from Rs.30 Cr to over Rs.100 Cr in disbursals by introducing a Loan Management
+      System (LMS) with automated credit decisioning and disbursement workflows.
+    - Built a wallet system with virtual account integration, automating payouts and driving a 23% increase in
+      Daily Active Users (DAU) and 40% improvement in user retention on a platform processing 10,000+ monthly
+      trades.
+    - Designed a real-time profitability (XIRR) tracking system, monitoring projected vs. actual returns and
+      improving trade margins by 1.7%.
+    - Reduced cash transactions by 70% by launching digital payment at delivery with a gamified workflow,
+      validated through A/B testing across buyer cohorts.
+    - Improved gross margins by 4% through automated flash sale logic that reduced A-grade to B-grade stock
+      transfers by 17%, directly impacting unit economics.
+    - Led a cross-functional team of 27 (engineering, design, QA, ops) using Agile/Scrum, owning sprint planning,
+      backlog management, and 100+ deployment cycles. Recognized as top performer for 2 consecutive review
+      cycles.
+  Co-Founder - VP Mart Pvt Ltd                                                                   Jun 2020 - Jan 2022
+    - Built a hyperlocal marketplace from scratch with dual apps (Customer and Merchant), covering 7+ categories
+      including groceries, restaurants, and services; launched MVP in 3 months.
+    - Owned the end-to-end product lifecycle from customer discovery and Product Requirements Documents
+      (PRDs) to wireframes, development, and Go-to-Market (GTM) strategy, onboarding 41 merchants in the first
+      4 months.
+
+  Co-Founder - Fangover Food Services Pvt Ltd                                                    Apr 2019 - Jun 2020
+    - Launched and scaled a food chain to profitability within 6 months through a data-driven menu strategy (20+
+      iterations, 60%+ gross margin) and optimizing Customer Acquisition Cost (CAC) to under Rs.100.
+    - Drove 25% improvement in customer retention through personalized customer experience initiatives and
+      targeted acquisition via Instagram campaigns and affiliate partnerships.
+
+Projects
+  Anime Studio - AI Content Creation Platform                                                    May 2026 - Jul 2026
+  Web: animestudio.work | Instagram: @animeishq.official
+    - Built a full-stack AI-powered content creation platform solo using Claude Code, Next.js, Supabase, and
+      OpenAI image generation, shipping end to end without a developer or designer.
+    - Designed an agentic pipeline that converts a story premise into scene narratives, image prompts, and a final
+      assembled output; owned character builder, credit system, and mobile-responsive PWA.
+    - Validated the platform by using it to run Anime Ishq, a content channel that reached 10K followers and 5
+      million views in its first 2 weeks, scaling to 10 million plus views to date; instrumented the creation funnel in
+      PostHog to identify and fix drop-off points.
+
+
+Skills
+Product: Product Management, Product Strategy, Product Roadmap, Growth, Retention, Monetization, Conversion
+Optimization, Funnel Analysis, A/B Testing & Experimentation, Product Discovery, OKRs, KPIs, Go-to-Market
+(GTM), Lifecycle Engagement, PRDs, Competitive Analysis, User Research, Stakeholder Management
+Technical: SQL, REST APIs, System Design, Webhooks, RBAC, Offline-First Architecture, AI Integration, Agentic AI,
+Generative AI, LLMs, Prompt Engineering
+Tools & Analytics: Claude Code, Cursor, Jira, Figma, Amplitude, Metabase, PostHog, Postman, Supabase, GitHub
+Domains: Payments, Lending, B2B SaaS, D2C, Subscriptions, Wallets, KYC, ERP, E-commerce, Agri-Tech
+
+Education
+  PES University, Bangalore                                                                               2015 - 2019
+  B.Tech in Electronics and Communication Engineering
+
+Certifications
+    - Certified Scrum Product Owner (CSPO), Scrum Alliance
+    - Google Data Analytics Professional Certificate, Coursera
+

@@ -1,0 +1,20 @@
+Meera Iyer
+meera.iyer@example.com | +91 98765 43210 | Bengaluru, India | linkedin.com/in/meeraiyer
+
+SUMMARY
+Product manager in payments and lending.
+
+EXPERIENCE
+Senior Product Manager, Razorpay  Jan 2022 - Present
+- Launched UPI autopay and wallet top-ups, cutting payment failures from 4.1% to 1.9% across 2M monthly transactions.
+- Rebuilt KYC onboarding for a lending product, lifting loan disbursals by 31% while holding fraud rates flat.
+- Owned the payouts and ledger roadmap for 3 bank partners and 14 engineers.
+Product Manager, Paytm  Jun 2019 - Dec 2021
+- Grew merchant payment volume 38% by launching QR payments in 12 cities.
+- Reduced chargebacks 22% by adding risk scoring to the checkout flow.
+
+EDUCATION
+B.Tech Computer Science, IIT Delhi  2013 - 2017
+
+SKILLS
+SQL, Product analytics, Roadmapping, Experimentation, Jira

@@ -1,0 +1,20 @@
+Sam Carter
+sam@example.com | +1 (206) 555-0142 | Seattle, WA 98101
+
+EXPERIENCE
+Product Manager, Orbit Pay  2020 - Present
+- Improved the checkout experience for small merchants through a redesigned payment flow.
+- Architected the ledger service and reconciliation engine that powers merchant payouts.
+- Increased merchant activation by onboarding 4,000 accounts onto the new dashboard.
+- Responsible for the roadmap and for attending weekly stakeholder meetings.
+- Reduced chargebacks 22% by adding risk scoring to the checkout flow.
+Associate Product Manager, Brightly  2018 - 2020
+- Helped with the search relocation project and various analytics tasks.
+- Significantly boosted engagement through new notification features.
+- Built the experimentation platform used by six squads.
+
+EDUCATION
+B.S. Computer Science, State University  2014 - 2018
+
+SKILLS
+SQL, Product analytics, Roadmapping, Experimentation, Figma, Jira

@@ -1,0 +1,19 @@
+Neha Gupta
+neha.gupta@example.com | +91 98765 43210 | Pune, India | linkedin.com/in/nehagupta
+
+SUMMARY
+Detail-oriented QA Engineer with experience in manual and automation testing, API testing and regression suites for web and mobile apps.
+
+EXPERIENCE
+QA Engineer, Infosys Ltd  Aug 2015 - Present
+- Executed 400+ manual test cases per release across web and Android apps and logged 250+ defects in JIRA.
+- Built a Selenium and Java automation suite covering 60 regression scenarios, cutting regression time from 3 days to 1 day.
+- Tested REST APIs with Postman and wrote SQL queries to validate data across 3 microservices.
+- Participated in daily stand-ups and sprint planning with 8 developers.
+- Led a team of 4 testers and owned the test strategy for the payments release.
+
+EDUCATION
+B.E. Computer Engineering, Pune University  2014 - 2018
+
+SKILLS
+Manual Testing, Selenium, Java, Postman, SQL, JIRA, TestRail, Agile, API Testing

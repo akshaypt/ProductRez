@@ -8,3 +8,5 @@ coverage
 dev-dist
 tests/out
 .vercel
+tests/e2e/regression/fixtures/*.png
+tests/e2e/regression/out/
