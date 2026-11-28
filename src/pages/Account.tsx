@@ -32,7 +32,7 @@ export default function Account() {
         </div>
         <div className="card stack">
           <h3>Preferences</h3>
-          <div className="field"><span className="label">Currency for pay</span><div className="seg" role="group" aria-label="Currency">{(['INR', 'USD'] as const).map((c) => <button key={c} aria-pressed={prefs.currency === c} onClick={() => setPrefs({ currency: c })}>{c === 'INR' ? '₹ INR' : '$ USD'}</button>)}</div><span className="faint" style={{ fontSize: '0.85rem' }}>Used for pay bands in your next resume check.</span></div>
+          <div className="field"><span className="label">Currency for pay</span><div className="seg" role="group" aria-label="Currency">{(['INR', 'USD'] as const).map((c) => <button key={c} aria-pressed={prefs.currency === c} onClick={() => setPrefs({ currency: c })}>{c === 'INR' ? '₹ INR' : '$ USD'}</button>)}</div><span className="faint" style={{ fontSize: '0.85rem' }}>Used for pay bands in your next resume check. Left unset, we read it from your resume.</span></div>
           <div className="field"><span className="label">Experience</span><div className="seg" role="group" aria-label="Stage">{([['aspiring', 'Aspiring'], ['pm', 'PM / APM'], ['senior', 'Senior+']] as const).map(([v, l]) => <button key={v} aria-pressed={prefs.stage === v} onClick={() => setPrefs({ stage: v })}>{l}</button>)}</div></div>
           <div className="field"><span className="label">Theme</span><div className="seg" role="group" aria-label="Theme">{(['system', 'light', 'dark'] as const).map((t) => <button key={t} aria-pressed={prefs.theme === t} onClick={() => setPrefs({ theme: t })}>{t[0].toUpperCase() + t.slice(1)}</button>)}</div></div>
         </div>

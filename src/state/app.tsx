@@ -1,11 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { getApi } from '../lib/api'
 import type { Api, AppUser, Entitlement } from '../lib/types'
-import { currencyForMarket, guessCurrency, store, type Currency } from '../lib/util'
+import { currencyForMarket, store, type Currency } from '../lib/util'
 import { stageFor, takeHandoff } from '../lib/g/handoff'
 
 export interface Prefs {
-  currency: Currency
+  /** Chosen by the person, or read from their resume. Null until one of those happens; never guessed. */
+  currency: Currency | null
   stage: 'aspiring' | 'pm' | 'senior'
   onboarded: boolean
   theme: 'system' | 'light' | 'dark'
@@ -40,12 +41,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [authReason, setAuthReason] = useState('')
   const [toasts, setToasts] = useState<Ctx['toasts']>([])
   const [prefs, setPrefsState] = useState<Prefs>(() => {
-    const base: Prefs = { currency: guessCurrency(), stage: 'pm', onboarded: false, theme: 'dark' }
-    const saved = store.get<Partial<Prefs> & { region?: string }>('pr.prefs', {})
-    // Older saved preferences stored a job market instead of a currency.
-    const currency = saved.currency ?? (saved.region ? (saved.region === 'IN' ? 'INR' : 'USD') : base.currency)
-    const { region: _old, ...rest } = saved
-    return { ...base, ...rest, currency }
+    const { region: _old, ...saved } = store.get<Partial<Prefs> & { region?: string }>('pr.prefs', {})
+    return { currency: null, stage: 'pm', onboarded: false, theme: 'dark', ...saved }
   })
 
   const setPrefs = useCallback((p: Partial<Prefs>) => {

@@ -21,7 +21,7 @@ export function Onboarding() {
           <div>
             <span className="chip accent">30 seconds</span>
             <h2 style={{ marginTop: 10 }}>Let’s tune ProductRez to you</h2>
-            <p className="muted" style={{ marginTop: 6 }}>We’ll score your resume against the right bar, pick the right template and show pay in the currency you think in.</p>
+            <p className="muted" style={{ marginTop: 6 }}>We’ll score your resume against the right bar, pick the right template and show pay in your currency.</p>
           </div>
           <div className="stack" style={{ gap: 8 }}>
             <span className="label">Where are you in your PM journey?</span>
@@ -33,15 +33,15 @@ export function Onboarding() {
             ))}
           </div>
           <div className="stack" style={{ gap: 8 }}>
-            <span className="label">Which currency should we show pay in?</span>
+            <span className="label">Which currency do you want pay shown in?</span>
             <div className="seg" role="group" aria-label="Currency">
               {(['INR', 'USD'] as const).map((c) => (
                 <button key={c} aria-pressed={currency === c} onClick={() => setCurrency(c)}>
-                  {c === 'INR' ? '₹ INR (lakhs)' : '$ USD (thousands)'}
+                  {c === 'INR' ? '₹ INR' : '$ USD'}
                 </button>
               ))}
             </div>
-            <span className="faint" style={{ fontSize: '0.85rem' }}>We guessed this from your device. Change it any time in Account.</span>
+            <span className="faint" style={{ fontSize: '0.85rem' }}>Optional. If you skip it, we read it from your resume. Change it any time in Account.</span>
           </div>
           <button className="btn lg block" onClick={() => setPrefs({ stage, currency, onboarded: true })}>
             Start

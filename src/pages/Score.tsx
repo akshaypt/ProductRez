@@ -37,20 +37,21 @@ export default function Score() {
     setErr(''); setLoaded(null); setPhase('reading')
     try {
       const r = await readResume(f)
-      const s = await suggest(r, picks.currency)
+      const s = await suggest(r)
       if (s.message) { setErr(s.message); return }
       const fallback = prefs.stage === 'senior' ? 'Senior PM' : prefs.stage === 'aspiring' ? 'APM (0–2 yrs)' : 'Product Manager'
       setLoaded(r)
-      setPicks((p) => ({ ...p, level: p.level ?? s.picks.level ?? fallback, track: p.track ?? s.picks.track, company: p.company ?? 'Scale-ups' }))
+      setPicks((p) => ({ currency: s.picks.currency ?? p.currency, level: p.level ?? s.picks.level ?? fallback, track: p.track ?? s.picks.track, company: p.company ?? 'Scale-ups' }))
     } catch (e) {
       setErr(e instanceof ResumeReadError ? e.message : 'We could not read that file. Export your resume as a text-based PDF or DOCX and try again.')
     } finally {
       setPhase('idle')
     }
-  }, [prefs.stage, picks.currency])
+  }, [prefs.stage])
 
   const run = useCallback(async () => {
     if (!loaded || !api) return
+    if (!picks.currency) { setErr('Choose the currency for pay, then run the check again.'); return }
     setErr(''); setPhase('running'); setStep(0)
     const t = setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), 460)
     try {
@@ -161,7 +162,8 @@ export default function Score() {
               {select('company', 'Company type', COMPANIES)}
               <label className="field">
                 <span className="label">Currency for pay</span>
-                <select className="select" value={picks.currency} onChange={(e) => { const currency = e.target.value as 'INR' | 'USD'; setPicks({ ...picks, currency }); setPrefs({ currency }) }}>
+                <select className="select" value={picks.currency ?? ''} onChange={(e) => { const currency = (e.target.value || null) as 'INR' | 'USD' | null; setPicks({ ...picks, currency }); if (currency) setPrefs({ currency }) }}>
+                  {!picks.currency && <option value="">Choose currency</option>}
                   {CURRENCIES.map((c) => <option key={c.v} value={c.v}>{c.label}</option>)}
                 </select>
               </label>

@@ -15,10 +15,10 @@ export const TRACKS: { label: string; v: PmTrack }[] = [
   { label: 'Platform & API', v: 'platform_api' },
 ]
 export const CURRENCIES: { label: string; v: 'INR' | 'USD' }[] = [
-  { label: '₹ INR · lakhs', v: 'INR' },
-  { label: '$ USD · thousands', v: 'USD' },
+  { label: '₹ INR', v: 'INR' },
+  { label: '$ USD', v: 'USD' },
 ]
-export const currencyLabel = (v: 'INR' | 'USD') => CURRENCIES.find((c) => c.v === v)!.label
+export const currencyLabel = (v: 'INR' | 'USD' | null) => (v ? CURRENCIES.find((c) => c.v === v)!.label : null)
 export const COMPANIES: { label: string; v: CompanyArchetype }[] = [
   { label: 'Early Startups', v: 'early_startup' },
   { label: 'Scale-ups', v: 'scaleup' },

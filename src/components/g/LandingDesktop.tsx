@@ -42,7 +42,7 @@ export function LandingDesktop({ theme, toggleTheme, view }: { theme: Theme; tog
         </button>
         <div className={'pick-menu' + (menu === id ? ' g-open' : '')} role="listbox">
           {opts.map((o) => (
-            <button type="button" role="option" aria-selected={val === o.label} className="pick-opt" key={o.label} onClick={(e) => { e.stopPropagation(); L.setPicks(id === 'currency' ? { ...L.picks, currency: CURRENCIES.find((c) => c.label === o.label)!.v } : { ...L.picks, [id]: o.label }); setMenu(null) }}>{o.label}</button>
+            <button type="button" role="option" aria-selected={val === o.label} className="pick-opt" key={o.label} onClick={(e) => { e.stopPropagation(); id === 'currency' ? L.setCurrency(CURRENCIES.find((c) => c.label === o.label)!.v) : L.setPicks({ ...L.picks, [id]: o.label }); setMenu(null) }}>{o.label}</button>
           ))}
         </div>
       </span>
@@ -118,7 +118,7 @@ export function LandingDesktop({ theme, toggleTheme, view }: { theme: Theme; tog
               <div style={{ fontSize: 11.5, color: L.autofilled ? 'var(--emerald)' : 'var(--muted)', marginBottom: 4, lineHeight: 1.4 }}>
                 {L.autofilled ? 'Pre-filled from your resume. Click any pill to adjust:' : 'Auto-fills from your resume after upload, or pick manually:'}
               </div>
-              I'm targeting {pill('level', 'Select level', LEVELS)} roles in {pill('track', 'PM focus', TRACKS)} at {pill('company', 'company type', COMPANIES)}, paid in {pill('currency', 'currency', CURRENCIES)}.
+              I'm targeting {pill('level', 'Select level', LEVELS)} roles in {pill('track', 'PM focus', TRACKS)} at {pill('company', 'company type', COMPANIES)}, paid in {pill('currency', 'pick currency', CURRENCIES)}.
             </div>
 
             <div className={'jd-box' + (L.jdOpen ? ' g-open' : '')}>

@@ -44,8 +44,8 @@ export function useLanding() {
   const [fileError, setFileError] = useState('')
   const [picks, setPicks] = useState<Picks>({ level: null, track: null, company: null, currency: prefs.currency })
   const [autofilled, setAutofilled] = useState(false)
-  // A currency chosen on the landing page is remembered for onboarding and the account.
-  useEffect(() => { if (picks.currency !== prefs.currency) setPrefs({ currency: picks.currency }) }, [picks.currency, prefs.currency, setPrefs])
+  // A currency the person chooses by hand is remembered for onboarding and the account. A detected one is not.
+  const setCurrency = useCallback((currency: Picks['currency']) => { setPicks((p) => ({ ...p, currency })); if (currency) setPrefs({ currency }) }, [setPrefs])
   const [jd, setJd] = useState('')
   const [jdOpen, setJdOpen] = useState(false)
   const [toast, setToast] = useState('')
@@ -65,20 +65,21 @@ export function useLanding() {
     setFileError(''); setReading(true); setLoaded(null); setAutofilled(false)
     try {
       const r = await readResume(file)
-      const s = await suggest(r, picks.currency)
+      const s = await suggest(r)
       if (s.message) { setFileError(s.message); return }
       setLoaded(r)
-      setPicks((p) => ({ ...p, level: p.level ?? s.picks.level, track: p.track ?? s.picks.track, company: p.company ?? 'Scale-ups' }))
+      setPicks((p) => ({ level: p.level ?? s.picks.level, track: p.track ?? s.picks.track, company: p.company ?? 'Scale-ups', currency: s.picks.currency ?? p.currency }))
       setAutofilled(true)
     } catch (e) {
       setFileError(e instanceof ResumeReadError ? e.message : 'We could not read that file. Try a text-based PDF or DOCX.')
     } finally {
       setReading(false)
     }
-  }, [picks.currency])
+  }, [])
 
   const review = useCallback(async () => {
     if (!loaded) { say(fileError ? 'Fix the file above, then try again.' : 'Please upload your resume first.'); return }
+    if (!picks.currency) { say('Pick the currency for pay first: tap the last chip.'); return }
     setScan({ open: true, step: 0 })
     const t = [750, 1500, 2200].map((ms, i) => window.setTimeout(() => setScan({ open: true, step: i + 1 }), ms))
     try {
@@ -93,5 +94,5 @@ export function useLanding() {
     }
   }, [loaded, picks, jd, fileError, say, go])
 
-  return { user, openAuth, go, loaded, reading, fileError, picks, setPicks, autofilled, jd, setJd, jdOpen, setJdOpen, toast, nudge, nudgeOnly, onFile, review, scan, say }
+  return { user, openAuth, go, loaded, reading, fileError, picks, setPicks, setCurrency, autofilled, jd, setJd, jdOpen, setJdOpen, toast, nudge, nudgeOnly, onFile, review, scan, say }
 }

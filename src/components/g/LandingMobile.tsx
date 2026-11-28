@@ -76,7 +76,7 @@ export function LandingMobile({ theme, toggleTheme, view }: { theme: Theme; togg
 
               <div className="madlibs">
                 <div style={{ fontSize: 11, color: L.autofilled ? 'var(--emerald)' : 'var(--muted)', lineHeight: 1.3, marginBottom: 4 }}>{L.autofilled ? 'Pre-filled from your resume. Tap to adjust:' : 'Auto-fills after upload, or tap to pick:'}</div>
-                I'm targeting {pill('level', 'Select level')} roles in {pill('track', 'PM focus')} at {pill('company', 'company type')}, paid in {pill('currency', 'currency')}.
+                I'm targeting {pill('level', 'Select level')} roles in {pill('track', 'PM focus')} at {pill('company', 'company type')}, paid in {pill('currency', 'pick currency')}.
               </div>
 
               <div className={'jd-box' + (L.jdOpen ? ' g-open' : '')}>
@@ -216,7 +216,7 @@ export function LandingMobile({ theme, toggleTheme, view }: { theme: Theme; togg
             <div className="sheet-handle" />
             <div className="sheet-title">{TITLE[sheet]}</div>
             <div style={{ display: 'grid', gap: 6 }}>
-              {OPTS[sheet].map((o) => <button type="button" className="sheet-opt" key={o.label} onClick={() => { L.setPicks(sheet === 'currency' ? { ...L.picks, currency: CURRENCIES.find((c) => c.label === o.label)!.v } : { ...L.picks, [sheet]: o.label }); setSheet(null) }}>{o.label}</button>)}
+              {OPTS[sheet].map((o) => <button type="button" className="sheet-opt" key={o.label} onClick={() => { sheet === 'currency' ? L.setCurrency(CURRENCIES.find((c) => c.label === o.label)!.v) : L.setPicks({ ...L.picks, [sheet]: o.label }); setSheet(null) }}>{o.label}</button>)}
             </div>
           </div>
         )}
