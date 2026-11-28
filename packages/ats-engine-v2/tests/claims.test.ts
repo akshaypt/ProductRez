@@ -205,3 +205,51 @@ SQL, Product analytics, Roadmapping, Experimentation, Figma, Jira`
     expect(f.evidenceBullets!.map((e) => e.ref)).toEqual(['1', '2', '3', '4'].map((n) => `Product Manager · Northwind Labs · bullet ${n}`))
   })
 })
+
+describe('feature factory only fires when the extra bullets are filler', () => {
+  const wrap = (bullets: string[]) => `Alex Kim
+alex@example.com | +1 415 555 0100 | San Francisco, CA | linkedin.com/in/alexkim
+
+EXPERIENCE
+Product Manager, Northwind Labs  Mar 2021 - Present
+${bullets.map((b) => `- ${b}`).join('\n')}
+
+EDUCATION
+B.S. Computer Science, State University  2014 - 2018
+
+SKILLS
+SQL, Product analytics, Roadmapping, Experimentation, Figma, Jira`
+  const strong = [
+    'Cut loan approval time from 9 days to 3 days by automating document checks.',
+    'Grew activation from 31% to 47% across 12,000 accounts by redesigning onboarding.',
+    'Architected the rules engine and approval workflow behind five lending products.',
+    'Launched a referral program that added 4,000 paying customers in 6 months.',
+    'Reduced chargebacks 22% by adding risk scoring to the checkout flow.',
+    'Led a team of 12 across engineering, design and data to deliver the payments roadmap.',
+    'Raised paid conversion from 3.1% to 4.4% by testing three pricing page variants.',
+    'Defined the platform strategy and data model for the multi-tenant lending stack.',
+  ]
+  const filler = ['Responsible for the roadmap and attending weekly meetings.', 'Helped with various analytics tasks.', 'Worked on the notification settings page.']
+
+  it('does not flag or mark down a long role whose bullets are all strong', () => {
+    const r = scoreResume({ text: wrap(strong), source: 'paste', companyArchetype: 'scaleup' })
+    expect(r.parsed.experience[0].bullets.length).toBe(8)
+    expect(r.findings.some((f) => f.kbRuleId === 'feature_factory')).toBe(false)
+  })
+
+  it('flags a padded role, says how many bullets look like filler, and names them', () => {
+    const r = scoreResume({ text: wrap([...strong.slice(0, 5), ...filler]), source: 'paste', companyArchetype: 'scaleup' })
+    const f = r.findings.find((x) => x.kbRuleId === 'feature_factory')!
+    expect(f).toBeDefined()
+    expect(f.title).toContain('Northwind Labs')
+    expect(f.title).toMatch(/3 of them look like filler/)
+    expect(f.evidenceBullets!.map((e) => e.text)).toEqual(expect.arrayContaining(filler))
+    expect(f.evidenceBullets!.every((e) => e.ref.startsWith('Candidate to trim or merge: Product Manager · Northwind Labs · bullet'))).toBe(true)
+  })
+
+  it('a long all-strong role scores at least as well as the same role padded with filler', () => {
+    const a = scoreResume({ text: wrap(strong), source: 'paste', companyArchetype: 'scaleup' })
+    const b = scoreResume({ text: wrap([...strong.slice(0, 5), ...filler]), source: 'paste', companyArchetype: 'scaleup' })
+    expect(a.overall).toBeGreaterThan(b.overall)
+  })
+})

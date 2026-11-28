@@ -335,7 +335,17 @@ export function scoreResume(input: ScoreInput, now = new Date()): ScoreReport {
   const scopeShare = pct(scopeHits, nb)
 
   const avgBulletsPerRole = data.experience.length ? data.experience.reduce((s, x) => s + x.bullets.length, 0) / data.experience.length : 0
-  const featureFactoryRoles = data.experience.filter((x) => x.bullets.length > archKb.idealBulletsPerRole.max + 1)
+  // A long role is only a "feature factory" when its extra bullets are filler: weak openers, claims with no number, or activity with no
+  // outcome or scope. Bullets that describe a system or team you built or led are not filler. Eight good bullets under one job is a
+  // long role, not a problem, so it is neither flagged nor marked down.
+  const maxBullets = archKb.idealBulletsPerRole.max
+  const fillerIn = (roleIndex: number) =>
+    bullets
+      .filter((b) => b.section === 'experience' && b.roleIndex === roleIndex && (isWeakBullet(b) || b.impact === 0))
+      .sort((a, b) => Number(isWeakBullet(b)) - Number(isWeakBullet(a)) || a.impact - b.impact || b.index - a.index)
+  const featureFactoryRoles = data.experience.filter(
+    (x, i) => x.bullets.length > maxBullets + 1 && fillerIn(i).length >= Math.min(2, x.bullets.length - maxBullets),
+  )
   const archHits = bullets.filter((b) => archKb.signalPattern.test(b.text)).length
 
   let ownership =
@@ -364,24 +374,20 @@ export function scoreResume(input: ScoreInput, now = new Date()): ScoreReport {
   }
 
   if (featureFactoryRoles.length > 0) {
+    const first = featureFactoryRoles[0]
+    const filler = fillerIn(data.experience.indexOf(first))
     ctx.push({
-      priority: 'P1',
+      priority: filler.length >= 3 ? 'P1' : 'P2',
       dimension: 'ownership',
       title:
         featureFactoryRoles.length === 1
-          ? `"Feature factory" risk: ${roleLabel(featureFactoryRoles[0])} has ${featureFactoryRoles[0].bullets.length} bullets`
-          : `"Feature factory" risk: ${featureFactoryRoles.length} roles have more than ${archKb.idealBulletsPerRole.max} bullets (${featureFactoryRoles.slice(0, 3).map(roleLabel).join('; ')})`,
-      why: `For ${archKb.label}, listing 6+ bullets per job reads like an output log rather than selective strategic ownership.`,
-      fix: `Trim each role to your top ${archKb.idealBulletsPerRole.min}–${archKb.idealBulletsPerRole.max} highest-impact outcome bullets.`,
+          ? `"Feature factory" risk: ${roleLabel(first)} has ${first.bullets.length} bullets, ${filler.length} of them look like filler`
+          : `"Feature factory" risk: ${featureFactoryRoles.length} roles are padded with filler bullets (${featureFactoryRoles.slice(0, 3).map(roleLabel).join('; ')})`,
+      why: `For ${archKb.label}, a role with many bullets reads like an output log when the extra ones are weak or have no result: they bury your best work. A long role with strong bullets is fine, and yours is flagged only because some of these are not.`,
+      fix: `Cut or merge the weakest bullets listed below and keep your top ${archKb.idealBulletsPerRole.min}–${archKb.idealBulletsPerRole.max} outcome bullets for this role.`,
       evidence: featureFactoryRoles.slice(0, 2).map((x) => `${roleLabel(x)}: ${x.bullets.length} bullets`),
-      // Name bullets in the first such role only when they really are weak or low-impact. If every bullet is good there is nothing
-      // specific to point at, and the role label alone is the honest answer.
-      evidenceBullets: bullets
-        .filter((b) => b.section === 'experience' && b.roleIndex === data.experience.indexOf(featureFactoryRoles[0]) && (isWeakBullet(b) || b.impact <= 1))
-        .sort((a, b) => Number(isWeakBullet(b)) - Number(isWeakBullet(a)) || a.impact - b.impact || b.index - a.index)
-        .slice(0, Math.max(1, featureFactoryRoles[0].bullets.length - archKb.idealBulletsPerRole.max))
-        .map((b) => ({ ref: `Candidate to trim or merge: ${b.ref}`, text: b.text })),
-      gain: 5,
+      evidenceBullets: filler.slice(0, 4).map((b) => ({ ref: `Candidate to trim or merge: ${b.ref}`, text: b.text })),
+      gain: Math.min(6, 2 + filler.length),
       kbRuleId: 'feature_factory',
     })
   }
